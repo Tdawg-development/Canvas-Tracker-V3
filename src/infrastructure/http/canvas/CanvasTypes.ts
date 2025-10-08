@@ -281,6 +281,11 @@ export interface CanvasApiConfig {
   timeout?: number;
   retryAttempts?: number;
   retryDelay?: number;
+  // Canvas Free specific settings
+  accountType?: 'free' | 'paid' | 'enterprise';
+  maxConcurrentRequests?: number;
+  batchSizeLimit?: number;
+  requiresPolling?: boolean;
 }
 
 // Canvas API Request Options

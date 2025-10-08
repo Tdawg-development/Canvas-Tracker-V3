@@ -19,11 +19,12 @@ export class CanvasClient {
   private readonly requestWindow: number = 60 * 60 * 1000; // 1 hour in milliseconds
 
   constructor(config: CanvasApiConfig) {
+    // Default to Canvas Free for Teachers limits - much more conservative
     this.config = {
-      rateLimitRequestsPerHour: 3000,
-      timeout: 30000,
-      retryAttempts: 3,
-      retryDelay: 1000,
+      rateLimitRequestsPerHour: 100, // Canvas Free has stricter limits
+      timeout: 45000, // Longer timeout for slower responses
+      retryAttempts: 2, // Fewer retries to conserve API calls
+      retryDelay: 2000, // Longer delays between retries
       ...config,
     };
   }

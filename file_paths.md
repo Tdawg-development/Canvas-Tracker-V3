@@ -188,6 +188,7 @@ src/
 │   │   │   ├── CanvasGatewayHttp.ts # Canvas API implementation
 │   │   │   ├── CanvasClient.ts # Raw Canvas API client ✅ CREATED
 │   │   │   ├── CanvasCoursesApi.ts # Modular courses API component ✅ CREATED
+│   │   │   ├── CanvasFreeAdapter.ts # Canvas Free limitations handler ✅ CREATED
 │   │   │   ├── CanvasMappers.ts # Canvas data mapping
 │   │   │   └── CanvasTypes.ts # Canvas API type definitions ✅ CREATED
 │   │   └── common/           # Common HTTP utilities ✅ CREATED
