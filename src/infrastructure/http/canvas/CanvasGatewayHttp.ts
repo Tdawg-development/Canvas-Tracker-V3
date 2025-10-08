@@ -18,7 +18,7 @@ import {
 
 export class CanvasGatewayHttp {
   private readonly client: CanvasClient;
-  private readonly coursesApi: CanvasCoursesApi;
+  public readonly coursesApi: CanvasCoursesApi;
   private readonly scheduler: CanvasAdaptiveScheduler;
 
   constructor(config: CanvasApiConfig) {

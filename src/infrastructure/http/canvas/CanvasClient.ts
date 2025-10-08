@@ -95,7 +95,7 @@ export class CanvasClient {
    */
   public async post<T>(
     endpoint: string,
-    data: any,
+    _data: any,
     options: Omit<CanvasApiRequestOptions, 'method'> = {}
   ): Promise<CanvasApiResponse<T>> {
     return this.request<T>(endpoint, {

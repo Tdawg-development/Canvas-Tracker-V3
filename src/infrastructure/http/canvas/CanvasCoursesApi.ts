@@ -8,7 +8,6 @@ import { CanvasClient } from './CanvasClient';
 import {
   CanvasCourse,
   CanvasApiResponse,
-  CanvasApiRequestOptions,
 } from './CanvasTypes';
 
 export class CanvasCoursesApi {
@@ -64,9 +63,15 @@ export class CanvasCoursesApi {
       }
     }
 
+    if (errors.length > 0) {
+      return {
+        data: results,
+        errors: errors,
+      };
+    }
+    
     return {
       data: results,
-      errors: errors.length > 0 ? errors : undefined,
     };
   }
 
@@ -148,7 +153,7 @@ export class CanvasCoursesApi {
     };
   }>> {
     // This requires multiple API calls to aggregate statistics
-    const [courseResponse, studentsResponse, assignmentsResponse] = await Promise.all([
+    const [courseResponse, _studentsResponse, _assignmentsResponse] = await Promise.all([
       this.getCourseById(courseId, { includeTotalStudents: true }),
       this.client.get<any[]>(`courses/${courseId}/users`, {
         params: { enrollment_type: 'student', per_page: 1 }

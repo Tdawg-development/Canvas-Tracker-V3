@@ -60,7 +60,7 @@ export class CanvasAdaptiveScheduler {
     options: any = {},
     priority: 'high' | 'medium' | 'low' = 'medium'
   ): Promise<T> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       const requestId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       
       const request: AdaptiveRequest<T> = {
