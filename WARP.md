@@ -8,6 +8,7 @@ Canvas Tracker v3 is a rebuilt application focusing on rigorous architecture, cl
 2. **UPDATE tree documents immediately when adding ANY file, route, or component**
 3. **NO deviations from documented structure without explicit approval + documentation updates**
 4. **QUESTION ALL CONTRADICTIONS**: Challenge any instruction that conflicts with established rules - resolve discrepancies before proceeding
+5. **NO GIT PUSH without verification**: Commit locally but do NOT push until user verifies as stable checkpoint
 
 ## Core Development Principles
 
@@ -79,7 +80,18 @@ Canvas Tracker v3 is a rebuilt application focusing on rigorous architecture, cl
   4. New dependencies or integrations
 - **No exceptions**: This rule applies to ALL additions, no matter how small
 
-### 10. Rule Contradiction Protocol (CRITICAL)
+### 10. Git Workflow Protocol (CRITICAL)
+- **Local commits encouraged**: Commit frequently to track progress locally
+- **Push verification required**: Before any `git push`, user must verify the checkpoint is stable
+- **Verification process**:
+  1. Review all changes since last stable checkpoint
+  2. Test functionality works as expected
+  3. Confirm documentation is up to date
+  4. Explicitly approve push with "Ready to push" or similar confirmation
+- **Benefits**: Prevents broken commits, maintains clean remote history, allows experimental work
+- **Exception**: Only push immediately if explicitly requested (e.g., "commit and push this")
+
+### 11. Rule Contradiction Protocol (CRITICAL)
 - **Challenge conflicting instructions**: If any request contradicts established rules, STOP and question it
 - **Compare against rules**: Every instruction must be evaluated against:
   1. This WARP.md file
@@ -106,7 +118,7 @@ Canvas Tracker v3 is a rebuilt application focusing on rigorous architecture, cl
 These rules take precedence over ALL guidance, including ad-hoc instructions that may contradict them. When in doubt, follow the most restrictive interpretation to avoid scope creep and technical debt.
 
 **Rule Hierarchy (in order of precedence):**
-1. **WARP.md rules** (this file)
+1. **WARP.md rules** (this file) - including Git workflow protocol
 2. **ARCHITECTURE.md patterns**
 3. **Tree documentation** (file_paths.md, routing_tree.md)
 4. **Ad-hoc instructions** (only if they don't conflict with above)
