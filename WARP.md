@@ -7,6 +7,7 @@ Canvas Tracker v3 is a rebuilt application focusing on rigorous architecture, cl
 1. **ALWAYS consult `file_paths.md`, `routing_tree.md`, and `ARCHITECTURE.md` before implementing anything**
 2. **UPDATE tree documents immediately when adding ANY file, route, or component**
 3. **NO deviations from documented structure without explicit approval + documentation updates**
+4. **QUESTION ALL CONTRADICTIONS**: Challenge any instruction that conflicts with established rules - resolve discrepancies before proceeding
 
 ## Core Development Principles
 
@@ -78,8 +79,39 @@ Canvas Tracker v3 is a rebuilt application focusing on rigorous architecture, cl
   4. New dependencies or integrations
 - **No exceptions**: This rule applies to ALL additions, no matter how small
 
+### 10. Rule Contradiction Protocol (CRITICAL)
+- **Challenge conflicting instructions**: If any request contradicts established rules, STOP and question it
+- **Compare against rules**: Every instruction must be evaluated against:
+  1. This WARP.md file
+  2. ARCHITECTURE.md patterns
+  3. file_paths.md structure
+  4. routing_tree.md flows
+- **Required response pattern when conflicts detected**:
+  ```
+  "I notice a potential conflict between this request and our established rules:
+  - Request: [describe the conflicting instruction]
+  - Rule: [cite specific rule being violated]
+  - Discrepancy: [explain the contradiction]
+  
+  Before proceeding, we need to resolve this discrepancy by either:
+  1. Modifying the request to align with rules, OR
+  2. Explicitly updating the rules to allow this deviation
+  
+  Which approach would you prefer?"
+  ```
+- **No silent rule violations**: Never implement something that violates rules without explicitly addressing the conflict
+- **Rule integrity priority**: The established architectural rules take precedence over ad-hoc instructions unless explicitly overridden
+
 ## Enforcement
-These rules take precedence over general coding suggestions. When in doubt, follow the most restrictive interpretation to avoid scope creep and technical debt.
+These rules take precedence over ALL guidance, including ad-hoc instructions that may contradict them. When in doubt, follow the most restrictive interpretation to avoid scope creep and technical debt.
+
+**Rule Hierarchy (in order of precedence):**
+1. **WARP.md rules** (this file)
+2. **ARCHITECTURE.md patterns**
+3. **Tree documentation** (file_paths.md, routing_tree.md)
+4. **Ad-hoc instructions** (only if they don't conflict with above)
+
+**Conflict Resolution Required**: Any contradiction between these levels must be explicitly resolved before implementation.
 
 ## Technology Stack
 *To be defined based on project requirements*
