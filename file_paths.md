@@ -423,7 +423,8 @@ docker/                 # Docker configurations
 ├── docker-compose.yml # Local development setup
 └── .dockerignore      # Docker ignore patterns
 
-scripts/               # Build and deployment scripts
+scripts/               # Build and deployment scripts ✅ CREATED
+├── commit.ps1        # Git add + commit utility ✅ CREATED
 ├── build.sh          # Build script
 ├── deploy.sh         # Deployment script
 ├── migrate.sh        # Database migration script

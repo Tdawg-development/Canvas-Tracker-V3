@@ -16,7 +16,8 @@
     "db:migrate": "knex migrate:latest --knexfile src/infrastructure/persistence/knex/knexfile.ts",
     "db:migrate:rollback": "knex migrate:rollback --knexfile src/infrastructure/persistence/knex/knexfile.ts",
     "db:seed": "knex seed:run --knexfile src/infrastructure/persistence/knex/knexfile.ts",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "commit": "powershell -ExecutionPolicy Bypass -File scripts/commit.ps1"
   },
   "keywords": [
     "canvas",
