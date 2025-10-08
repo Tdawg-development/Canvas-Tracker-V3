@@ -3,6 +3,11 @@
 ## Project Overview
 Canvas Tracker v3 is a rebuilt application focusing on rigorous architecture, clear component boundaries, and technical debt prevention. These rules ensure we avoid the issues encountered in previous versions.
 
+## ⚠️ CRITICAL RULES - READ FIRST
+1. **ALWAYS consult `file_paths.md`, `routing_tree.md`, and `ARCHITECTURE.md` before implementing anything**
+2. **UPDATE tree documents immediately when adding ANY file, route, or component**
+3. **NO deviations from documented structure without explicit approval + documentation updates**
+
 ## Core Development Principles
 
 ### 1. Architecture & Component Boundaries
@@ -37,6 +42,9 @@ Canvas Tracker v3 is a rebuilt application focusing on rigorous architecture, cl
 - Maintain `routing_tree.md` for navigation and route documentation
 - Update documentation immediately when adding components, routes, or structural changes
 - Always consult these files before making architectural decisions
+- **MANDATORY**: Refer to tree documents and ARCHITECTURE.md for implementation guidance
+- **MANDATORY**: Any deviation from documented structure requires explicit approval AND documentation updates
+- **MANDATORY**: Update tree documents whenever ANY file or component is added to the project
 
 ### 6. Change Management
 - Before modifying existing components, document current behavior
@@ -55,6 +63,20 @@ Canvas Tracker v3 is a rebuilt application focusing on rigorous architecture, cl
 - Ask questions about ambiguous specifications
 - Validate completed work against original requirements
 - Report completion with summary of what was implemented
+
+### 9. Architectural Adherence (CRITICAL)
+- **Before implementing ANY change**: Consult `file_paths.md`, `routing_tree.md`, and `ARCHITECTURE.md` first
+- **Implementation guidance**: All architectural patterns and file locations are pre-defined in our documentation
+- **Deviation protocol**: Any deviation from documented structure requires:
+  1. Explicit approval from project lead
+  2. Update to affected documentation files BEFORE implementation
+  3. Justification in commit message
+- **Documentation updates**: Update tree documents immediately when adding:
+  1. New files or directories
+  2. New routes or endpoints  
+  3. New components or services
+  4. New dependencies or integrations
+- **No exceptions**: This rule applies to ALL additions, no matter how small
 
 ## Enforcement
 These rules take precedence over general coding suggestions. When in doubt, follow the most restrictive interpretation to avoid scope creep and technical debt.
