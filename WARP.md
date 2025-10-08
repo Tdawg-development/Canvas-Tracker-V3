@@ -82,12 +82,19 @@ Canvas Tracker v3 is a rebuilt application focusing on rigorous architecture, cl
 
 ### 10. Git Workflow Protocol (CRITICAL)
 - **Local commits encouraged**: Commit frequently to track progress locally
+- **Commit utility available**: Use `powershell scripts\commit.ps1 "Your message"` for streamlined workflow
 - **Push verification required**: Before any `git push`, user must verify the checkpoint is stable
 - **Verification process**:
   1. Review all changes since last stable checkpoint
   2. Test functionality works as expected
   3. Confirm documentation is up to date
   4. Explicitly approve push with "Ready to push" or similar confirmation
+- **Commit script features**:
+  - Automatic git add + commit in one command
+  - Optional file specification (defaults to all files)
+  - Dry-run mode: `-DryRun` for testing
+  - Verbose mode: `-VerboseMode` for detailed output
+  - Built-in Git Workflow Protocol reminders
 - **Benefits**: Prevents broken commits, maintains clean remote history, allows experimental work
 - **Exception**: Only push immediately if explicitly requested (e.g., "commit and push this")
 
