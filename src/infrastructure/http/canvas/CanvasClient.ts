@@ -17,11 +17,17 @@ export class CanvasClient {
   private lastRequestTime: number = 0;
   private requestCount: number = 0;
   private readonly requestWindow: number = 60 * 60 * 1000; // 1 hour in milliseconds
+  
+  // Metrics tracking for integration with scheduler
+  private totalRequests: number = 0;
+  private successfulRequests: number = 0;
+  private responseTimes: number[] = [];
+  private lastMetricsReset: number = Date.now();
 
   constructor(config: CanvasApiConfig) {
     // Canvas Free for Teachers: 600 requests/hour, penalties for exceeding
     this.config = {
-      rateLimitRequestsPerHour: 600, // Actual Canvas Free limit
+      rateLimitRequestsPerHour: 600, // Canvas Free rate limit
       timeout: 30000, // Standard timeout
       retryAttempts: 3, // Standard retries
       retryDelay: 1000, // Standard delay
@@ -36,6 +42,7 @@ export class CanvasClient {
     endpoint: string,
     options: CanvasApiRequestOptions = {}
   ): Promise<CanvasApiResponse<T>> {
+    const startTime = Date.now();
     await this.enforceRateLimit();
 
     const url = this.buildUrl(endpoint, options.params);
@@ -46,9 +53,11 @@ export class CanvasClient {
     for (let attempt = 1; attempt <= this.config.retryAttempts!; attempt++) {
       try {
         const response = await this.makeRequest(url, requestOptions);
+        const responseTime = Date.now() - startTime;
         
         if (response.ok) {
           const data = await this.parseResponse<T>(response);
+          this.recordMetrics(true, responseTime);
           return { data };
         }
         
@@ -56,6 +65,7 @@ export class CanvasClient {
         const error = await this.parseError(response);
         if (response.status < 500 && attempt === 1) {
           // Don't retry client errors (4xx), return immediately
+          this.recordMetrics(false, responseTime);
           return { errors: [error] };
         }
         
@@ -72,6 +82,8 @@ export class CanvasClient {
     }
 
     // All retries failed
+    const totalTime = Date.now() - startTime;
+    this.recordMetrics(false, totalTime);
     return {
       errors: [{
         message: lastError?.message || 'Request failed after all retries',
@@ -111,7 +123,7 @@ export class CanvasClient {
   /**
    * Build full URL with query parameters
    */
-  private buildUrl(endpoint: string, params?: Record<string, string | number | boolean>): string {
+  private buildUrl(endpoint: string, params?: Record<string, any>): string {
     const baseUrl = this.config.baseUrl.replace(/\/$/, '');
     const cleanEndpoint = endpoint.replace(/^\//, '');
     let url = `${baseUrl}/api/v1/${cleanEndpoint}`;
@@ -119,7 +131,14 @@ export class CanvasClient {
     if (params && Object.keys(params).length > 0) {
       const searchParams = new URLSearchParams();
       Object.entries(params).forEach(([key, value]) => {
-        searchParams.append(key, String(value));
+        if (Array.isArray(value)) {
+          // Handle array parameters (like include[])
+          value.forEach(item => {
+            searchParams.append(key, String(item));
+          });
+        } else {
+          searchParams.append(key, String(value));
+        }
       });
       url += `?${searchParams.toString()}`;
     }
@@ -149,6 +168,72 @@ export class CanvasClient {
   private async makeRequest(url: string, options: any): Promise<Response> {
     this.recordRequest();
     return fetch(url, options);
+  }
+  
+  /**
+   * Make request with full response details (for debugging)
+   */
+  public async requestWithFullResponse<T>(
+    endpoint: string,
+    options: CanvasApiRequestOptions = {}
+  ): Promise<{
+    data?: T;
+    errors?: CanvasApiError[];
+    httpStatus: number;
+    httpStatusText: string;
+    headers: Record<string, string>;
+    url: string;
+    responseTime: number;
+  }> {
+    const startTime = Date.now();
+    await this.enforceRateLimit();
+
+    const url = this.buildUrl(endpoint, options.params);
+    const requestOptions = this.buildRequestOptions(options);
+
+    try {
+      const response = await this.makeRequest(url, requestOptions);
+      const responseTime = Date.now() - startTime;
+      
+      // Capture all headers
+      const headers: Record<string, string> = {};
+      response.headers.forEach((value, key) => {
+        headers[key] = value;
+      });
+      
+      const result = {
+        httpStatus: response.status,
+        httpStatusText: response.statusText,
+        headers,
+        url,
+        responseTime,
+      };
+      
+      if (response.ok) {
+        const data = await this.parseResponse<T>(response);
+        this.recordMetrics(true, responseTime);
+        return { ...result, data };
+      } else {
+        const error = await this.parseError(response);
+        this.recordMetrics(false, responseTime);
+        return { ...result, errors: [error] };
+      }
+      
+    } catch (error) {
+      const responseTime = Date.now() - startTime;
+      this.recordMetrics(false, responseTime);
+      return {
+        httpStatus: 0,
+        httpStatusText: 'Network Error',
+        headers: {},
+        url,
+        responseTime,
+        errors: [{
+          message: (error as Error).message,
+          error_code: 'NETWORK_ERROR',
+        }],
+      };
+    }
   }
 
   /**
@@ -226,6 +311,22 @@ export class CanvasClient {
   private recordRequest(): void {
     this.requestCount++;
   }
+  
+  /**
+   * Record metrics for monitoring and scheduler integration
+   */
+  private recordMetrics(success: boolean, responseTime: number): void {
+    this.totalRequests++;
+    if (success) {
+      this.successfulRequests++;
+    }
+    
+    // Keep last 100 response times for average calculation
+    this.responseTimes.push(responseTime);
+    if (this.responseTimes.length > 100) {
+      this.responseTimes.shift();
+    }
+  }
 
   /**
    * Delay utility for retries and rate limiting
@@ -246,6 +347,26 @@ export class CanvasClient {
       requestsInWindow: this.requestCount,
       maxRequests: this.config.rateLimitRequestsPerHour!,
       windowResetTime: new Date(this.lastRequestTime + this.requestWindow),
+    };
+  }
+  
+  /**
+   * Get request metrics for monitoring
+   */
+  public getMetrics(): {
+    totalRequests: number;
+    successRate: number;
+    averageResponseTime: number;
+  } {
+    const successRate = this.totalRequests > 0 ? (this.successfulRequests / this.totalRequests) * 100 : 100;
+    const averageResponseTime = this.responseTimes.length > 0 
+      ? this.responseTimes.reduce((sum, time) => sum + time, 0) / this.responseTimes.length
+      : 0;
+      
+    return {
+      totalRequests: this.totalRequests,
+      successRate,
+      averageResponseTime,
     };
   }
 }
