@@ -8,29 +8,15 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { CanvasGatewayHttp } from '../../src/infrastructure/http/canvas/CanvasGatewayHttp';
-import { CanvasApiConfig } from '../../src/infrastructure/http/canvas/CanvasTypes';
+import { CanvasCalls } from '../core/canvas-calls';
 import { CanvasCourseStaging, CanvasStudentStaging, CanvasModuleStaging, CanvasAssignmentStaging } from './canvas-staging-data';
 
 export class CanvasDataConstructor {
-  private gateway: CanvasGatewayHttp;
+  private canvasCalls: CanvasCalls;
 
   constructor() {
-    const canvasUrl = process.env.CANVAS_URL;
-    const canvasToken = process.env.CANVAS_TOKEN;
-
-    if (!canvasUrl || !canvasToken) {
-      throw new Error('Missing Canvas configuration. Please set CANVAS_URL and CANVAS_TOKEN environment variables.');
-    }
-
-    const config: CanvasApiConfig = {
-      baseUrl: canvasUrl,
-      token: canvasToken,
-      rateLimitRequestsPerHour: 600,
-      accountType: 'free',
-    };
-
-    this.gateway = new CanvasGatewayHttp(config);
+    // Use CanvasCalls which handles Canvas configuration internally
+    this.canvasCalls = new CanvasCalls();
   }
 
   /**
@@ -61,7 +47,7 @@ export class CanvasDataConstructor {
       course.addModules(modulesData);
       
       const processingTime = Date.now() - startTime;
-      const apiCalls = this.gateway.getApiStatus().schedulerMetrics.totalRequests;
+      const apiCalls = this.canvasCalls.getApiStatus().schedulerMetrics.totalRequests;
       
       console.log('\n🎉 CONSTRUCTION COMPLETED!');
       console.log('===========================');
@@ -78,25 +64,28 @@ export class CanvasDataConstructor {
   }
 
   /**
-   * Get course basic information
+   * Get course basic information using CanvasCalls
    */
   private async getCourseData(courseId: number): Promise<CanvasCourseStaging> {
     try {
-      const response = await this.gateway.getClient().requestWithFullResponse(
-        `courses/${courseId}`,
-        {
-          params: {
-            include: ['calendar']
-          }
-        }
-      );
+      const courseInfo = await this.canvasCalls.getCourseInfo(courseId);
       
-      if (!response.data) {
+      if (!courseInfo) {
         throw new Error(`Course ${courseId} not found or not accessible`);
       }
       
-      const courseData = response.data as any;
-      console.log(`   ✅ Course: ${courseData.name} (${courseData.course_code})`);
+      console.log(`   ✅ Course: ${courseInfo.name} (${courseInfo.course_code})`);
+      
+      // Convert CanvasCalls course info to full course data for staging
+      const courseData = {
+        id: courseInfo.id,
+        name: courseInfo.name,
+        course_code: courseInfo.course_code,
+        workflow_state: courseInfo.workflow_state,
+        start_at: courseInfo.start_at,
+        end_at: courseInfo.end_at,
+        calendar: { ics: null } // Will be populated if needed
+      };
       
       return new CanvasCourseStaging(courseData);
       
@@ -107,11 +96,21 @@ export class CanvasDataConstructor {
   }
 
   /**
-   * Get students enrollment data with grades
+   * Get students enrollment data with grades using CanvasCalls
    */
   private async getStudentsData(courseId: number): Promise<any[]> {
     try {
-      const response = await this.gateway.getClient().requestWithFullResponse(
+      // Get basic student info from CanvasCalls
+      const courseData = await this.canvasCalls.getActiveStudentsAndAssignments(courseId);
+      console.log(`   ✅ Found ${courseData.students.length} active students via CanvasCalls`);
+      
+      // For staging, we need enrollment data with grades, so we'll still need direct API call
+      // But we can validate against the CanvasCalls student list
+      const validStudentIds = courseData.students.map(s => s.id);
+      
+      // Get detailed enrollment data with grades (still needed for staging)
+      const gateway = (this.canvasCalls as any).gateway; // Access gateway through CanvasCalls
+      const response = await gateway.getClient().requestWithFullResponse(
         `courses/${courseId}/enrollments`,
         {
           params: {
@@ -123,16 +122,22 @@ export class CanvasDataConstructor {
         }
       );
       
-      const studentsData = (response.data as any[]) || [];
-      console.log(`   ✅ Found ${studentsData.length} active students`);
+      const enrollmentData = (response.data as any[]) || [];
+      
+      // Filter to only students that CanvasCalls identified as active
+      const validEnrollments = enrollmentData.filter(enrollment => 
+        validStudentIds.includes(enrollment.user_id)
+      );
+      
+      console.log(`   ✅ Validated ${validEnrollments.length} student enrollments with grades`);
       
       // Show sample student data
-      if (studentsData.length > 0) {
-        const sampleStudent = studentsData[0];
+      if (validEnrollments.length > 0) {
+        const sampleStudent = validEnrollments[0];
         console.log(`   📊 Sample: ${sampleStudent.user?.name} (Score: ${sampleStudent.grades?.current_score || 'Not set'})`);
       }
       
-      return studentsData;
+      return validEnrollments;
       
     } catch (error) {
       console.error(`   ❌ Failed to get students for course ${courseId}:`, error);
@@ -141,11 +146,13 @@ export class CanvasDataConstructor {
   }
 
   /**
-   * Get modules data with assignments
+   * Get modules data with assignments using CanvasCalls gateway
    */
   private async getModulesData(courseId: number): Promise<any[]> {
     try {
-      const response = await this.gateway.getClient().requestWithFullResponse(
+      // Access the gateway through CanvasCalls for consistency
+      const gateway = (this.canvasCalls as any).gateway;
+      const response = await gateway.getClient().requestWithFullResponse(
         `courses/${courseId}/modules`,
         {
           params: {
@@ -201,7 +208,9 @@ export class CanvasDataConstructor {
    */
   async getStudentAssignmentAnalytics(courseId: number, studentId: number): Promise<any[]> {
     try {
-      const response = await this.gateway.getClient().requestWithFullResponse(
+      // Use CanvasCalls gateway for consistency
+      const gateway = (this.canvasCalls as any).gateway;
+      const response = await gateway.getClient().requestWithFullResponse(
         `courses/${courseId}/analytics/users/${studentId}/assignments`,
         {
           params: {
@@ -247,7 +256,9 @@ export class CanvasDataConstructor {
     try {
       const startTime = Date.now();
       
-      const response = await this.gateway.getClient().requestWithFullResponse(
+      // Use CanvasCalls gateway for consistency
+      const gateway = (this.canvasCalls as any).gateway;
+      const response = await gateway.getClient().requestWithFullResponse(
         'courses',
         {
           params: {
@@ -308,19 +319,19 @@ export class CanvasDataConstructor {
   }
 
   /**
-   * Get API status for debugging
+   * Get API status for debugging - via CanvasCalls
    */
   getApiStatus() {
-    return this.gateway.getApiStatus();
+    return this.canvasCalls.getApiStatus();
   }
 
   /**
-   * Validate course access before construction
+   * Validate course access before construction - via CanvasCalls
    */
   async validateCourseAccess(courseId: number): Promise<boolean> {
     try {
-      const response = await this.gateway.getClient().requestWithFullResponse(`courses/${courseId}`, {});
-      return response.data !== null;
+      const courseInfo = await this.canvasCalls.getCourseInfo(courseId);
+      return courseInfo !== null;
     } catch (error) {
       return false;
     }

@@ -92,13 +92,14 @@ function Start-InteractiveMode {
                 
                 Write-Host "`nRunning demo: $(Format-DemoName $selectedFile.Name)" -ForegroundColor Green
                 Write-Host "File: $relativePath" -ForegroundColor Gray
-                Write-Host "=" * 50 -ForegroundColor Gray
+                Write-Host ("=" * 50) -ForegroundColor Gray
                 
                 # Run the demo
                 $command = "ts-node `"$relativePath`""
                 Invoke-Expression $command
                 
-                Write-Host "`n" + "=" * 50 -ForegroundColor Gray
+                Write-Host ""
+                Write-Host ("=" * 50) -ForegroundColor Gray
                 Write-Host "Demo completed." -ForegroundColor Green
                 return
             }
@@ -134,7 +135,7 @@ function Start-Demo {
     
     Write-Host "Running demo: $(Format-DemoName $targetFile.Name)" -ForegroundColor Green
     Write-Host "File: $relativePath" -ForegroundColor Gray
-    Write-Host "=" * 50 -ForegroundColor Gray
+    Write-Host ("=" * 50) -ForegroundColor Gray
     
     # Run the demo
     $command = "ts-node `"$relativePath`""

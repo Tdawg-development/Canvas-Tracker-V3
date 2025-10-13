@@ -2,8 +2,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { CanvasGatewayHttp } from './src/infrastructure/http/canvas/CanvasGatewayHttp';
-import { CanvasApiConfig } from './src/infrastructure/http/canvas/CanvasTypes';
+import { CanvasGatewayHttp } from '../../src/infrastructure/http/canvas/CanvasGatewayHttp';
+import { CanvasApiConfig } from '../../src/infrastructure/http/canvas/CanvasTypes';
 import { CanvasGradesPuller, GradesPullInputs, StudentGradeResult, GradesPullResult } from './pull-student-grades';
 
 // Database interface types (for future database integration)
