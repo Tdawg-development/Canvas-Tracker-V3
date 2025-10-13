@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2024-10-13
+
+### Added - Layer 0 Object Lifecycle & Canvas Timezone Handling
+- **Layer 0 Object Lifecycle Models**: Complete soft-delete and lifecycle management system
+  - `ObjectStatus`: Individual Canvas object lifecycle tracking (courses, students, assignments)
+  - `EnrollmentStatus`: Student-course enrollment relationship lifecycle tracking
+  - Soft-delete functionality with user approval workflows for data preservation
+  - Dependency tracking for user metadata and historical data
+  - Object reactivation support when Canvas objects return after removal
+  - Comprehensive query methods for pending deletions and lifecycle state management
+- **Canvas Timezone Handler**: Production-ready timezone handling for Canvas API integration
+  - Native support for Canvas datetime format (`2025-07-28T16:31:18Z`)
+  - Timezone-aware datetime conversion, storage, and retrieval
+  - Database compatibility layer handling SQLite timezone stripping
+  - Cross-timezone comparison utilities for reliable datetime operations
+  - Helper functions for Canvas datetime parsing and API format conversion
+
+### Fixed - Test Infrastructure & Timezone Issues
+- **Transaction Management**: Resolved SQLAlchemy session teardown issues
+  - Fixed `ResourceClosedError` exceptions during test cleanup
+  - Improved test fixture handling for both committed and uncommitted transactions
+  - Eliminated test noise and improved development experience
+- **Timezone Compatibility**: Fixed timezone-related test failures
+  - Proper timezone-aware datetime comparison in database tests
+  - Consistent handling of naive vs timezone-aware datetimes across models
+  - SQLite timezone stripping compatibility for cross-platform development
+
+### Technical Improvements
+- Enhanced model initialization ensuring boolean fields never have `None` values
+- Added 28 comprehensive Layer 0 lifecycle model tests covering all state transitions
+- Added 22 timezone handler tests covering Canvas datetime scenarios
+- Improved database test isolation and state management reliability
+- Extended utility module structure for Canvas-specific operations
+
+### Quality Assurance
+- **Complete Test Coverage**: All 143 database tests now pass without errors or warnings
+- **Zero Transaction Issues**: Eliminated all SQLAlchemy transaction teardown problems
+- **Timezone Reliability**: Robust datetime handling ready for production Canvas API integration
+
 ## [0.2.0] - 2024-10-13
 
 ### Added - Database Layer 1 (Canvas Data Models)

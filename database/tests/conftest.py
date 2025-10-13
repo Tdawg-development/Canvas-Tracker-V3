@@ -61,11 +61,23 @@ def db_session(db_manager):
     # Begin a transaction
     transaction = session.begin()
     
-    yield session
-    
-    # Rollback transaction and close session
-    transaction.rollback()
-    session.close()
+    try:
+        yield session
+    finally:
+        # Properly handle transaction cleanup
+        try:
+            # Check if transaction is still active before rolling back
+            if transaction.is_active:
+                transaction.rollback()
+        except Exception:
+            # If rollback fails, force session rollback
+            try:
+                session.rollback()
+            except Exception:
+                pass  # Ignore rollback errors during cleanup
+        finally:
+            # Always close the session
+            session.close()
 
 
 @pytest.fixture(scope="function") 

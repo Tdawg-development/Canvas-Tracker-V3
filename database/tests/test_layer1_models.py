@@ -22,6 +22,7 @@ from database.models.layer1_canvas import (
     CanvasEnrollment
 )
 from database import initialize_database
+from database.utils.timezone_handler import CanvasTimezoneHandler
 
 
 class TestCanvasCourse:
@@ -225,7 +226,8 @@ class TestCanvasEnrollment:
         
         assert saved_enrollment is not None
         assert saved_enrollment.enrollment_status == "active"
-        assert saved_enrollment.enrollment_date == enrollment_date
+        # Use timezone handler to compare datetimes properly (SQLite strips timezone info)
+        assert CanvasTimezoneHandler.compare_datetimes(saved_enrollment.enrollment_date, enrollment_date)
     
     def test_enrollment_status_checking(self, db_session):
         """Test enrollment status helper methods."""
