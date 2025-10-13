@@ -132,6 +132,9 @@ class CanvasBaseModel(BaseModel, SyncTrackingMixin, CanvasObjectMixin):
     - Timestamp tracking (created_at, updated_at)
     - Sync tracking (last_synced)
     - Canvas object patterns (name field)
+    
+    Note: This includes an auto-incrementing id field from BaseModel.
+    For Canvas objects that need Canvas IDs as primary keys, use CanvasEntityModel instead.
     """
     
     __abstract__ = True
@@ -140,6 +143,184 @@ class CanvasBaseModel(BaseModel, SyncTrackingMixin, CanvasObjectMixin):
         """String representation showing class, Canvas name, and sync status."""
         sync_status = "synced" if self.last_synced else "never synced"
         return f"<{self.__class__.__name__}(name='{self.name}', {sync_status})>"
+    
+    def mark_synced(self, sync_time=None):
+        """
+        Mark this object as synchronized.
+        
+        Args:
+            sync_time (datetime, optional): Sync timestamp. Defaults to now.
+        """
+        if sync_time is None:
+            sync_time = datetime.now(timezone.utc)
+        self.last_synced = sync_time
+    
+    def is_recently_synced(self, threshold_minutes=60):
+        """
+        Check if object was synced recently.
+        
+        Args:
+            threshold_minutes (int): Minutes threshold for "recent"
+            
+        Returns:
+            bool: True if synced within threshold, False otherwise
+        """
+        if not self.last_synced:
+            return False
+        
+        now = datetime.now(timezone.utc)
+        threshold = now.timestamp() - (threshold_minutes * 60)
+        return self.last_synced.timestamp() > threshold
+
+
+class CanvasEntityModel(Base, TimestampMixin, SyncTrackingMixin, CanvasObjectMixin):
+    """
+    Base model for Canvas entities that use Canvas IDs as primary keys.
+    
+    Unlike CanvasBaseModel, this does NOT include an auto-incrementing id field.
+    Canvas entities define their own primary key structure using Canvas IDs.
+    
+    Provides:
+    - Timestamp tracking (created_at, updated_at)
+    - Sync tracking (last_synced)
+    - Canvas object patterns (name field)
+    - Utility methods for Canvas-specific operations
+    
+    Use this for Layer 1 Canvas data models like courses, students, assignments.
+    """
+    
+    __abstract__ = True
+    
+    def __repr__(self):
+        """String representation showing class, Canvas name, and sync status."""
+        sync_status = "synced" if self.last_synced else "never synced"
+        # Try to get the primary key value for display
+        pk_columns = [col for col in self.__table__.columns if col.primary_key]
+        if pk_columns:
+            pk_value = getattr(self, pk_columns[0].name, 'unknown')
+            return f"<{self.__class__.__name__}({pk_columns[0].name}={pk_value}, name='{self.name}', {sync_status})>"
+        return f"<{self.__class__.__name__}(name='{self.name}', {sync_status})>"
+    
+    def to_dict(self):
+        """
+        Convert model instance to dictionary.
+        
+        Returns:
+            dict: Dictionary representation of the model
+        """
+        result = {}
+        for column in self.__table__.columns:
+            value = getattr(self, column.name)
+            # Convert datetime objects to ISO strings for JSON serialization
+            if isinstance(value, datetime):
+                value = value.isoformat()
+            result[column.name] = value
+        return result
+    
+    @classmethod
+    def from_dict(cls, data):
+        """
+        Create model instance from dictionary.
+        
+        Args:
+            data (dict): Dictionary with model field values
+            
+        Returns:
+            CanvasEntityModel: New instance of the model
+        """
+        # Filter out keys that don't correspond to table columns
+        valid_keys = {column.name for column in cls.__table__.columns}
+        filtered_data = {k: v for k, v in data.items() if k in valid_keys}
+        return cls(**filtered_data)
+    
+    def mark_synced(self, sync_time=None):
+        """
+        Mark this object as synchronized.
+        
+        Args:
+            sync_time (datetime, optional): Sync timestamp. Defaults to now.
+        """
+        if sync_time is None:
+            sync_time = datetime.now(timezone.utc)
+        self.last_synced = sync_time
+    
+    def is_recently_synced(self, threshold_minutes=60):
+        """
+        Check if object was synced recently.
+        
+        Args:
+            threshold_minutes (int): Minutes threshold for "recent"
+            
+        Returns:
+            bool: True if synced within threshold, False otherwise
+        """
+        if not self.last_synced:
+            return False
+        
+        now = datetime.now(timezone.utc)
+        threshold = now.timestamp() - (threshold_minutes * 60)
+        return self.last_synced.timestamp() > threshold
+
+
+class CanvasRelationshipModel(Base, TimestampMixin, SyncTrackingMixin):
+    """
+    Base model for Canvas relationship models (like enrollments).
+    
+    Unlike CanvasEntityModel, this does NOT include the name field or other
+    Canvas object patterns, since relationships don't have names.
+    
+    Provides:
+    - Timestamp tracking (created_at, updated_at)
+    - Sync tracking (last_synced)
+    - Utility methods for Canvas-specific operations
+    
+    Use this for relationship models like CanvasEnrollment.
+    """
+    
+    __abstract__ = True
+    
+    def __repr__(self):
+        """String representation showing class and sync status."""
+        sync_status = "synced" if self.last_synced else "never synced"
+        # Try to get the primary key values for display
+        pk_columns = [col for col in self.__table__.columns if col.primary_key]
+        if pk_columns:
+            pk_values = [f"{col.name}={getattr(self, col.name, 'unknown')}" for col in pk_columns]
+            pk_str = ", ".join(pk_values)
+            return f"<{self.__class__.__name__}({pk_str}, {sync_status})>"
+        return f"<{self.__class__.__name__}({sync_status})>"
+    
+    def to_dict(self):
+        """
+        Convert model instance to dictionary.
+        
+        Returns:
+            dict: Dictionary representation of the model
+        """
+        result = {}
+        for column in self.__table__.columns:
+            value = getattr(self, column.name)
+            # Convert datetime objects to ISO strings for JSON serialization
+            if isinstance(value, datetime):
+                value = value.isoformat()
+            result[column.name] = value
+        return result
+    
+    @classmethod
+    def from_dict(cls, data):
+        """
+        Create model instance from dictionary.
+        
+        Args:
+            data (dict): Dictionary with model field values
+            
+        Returns:
+            CanvasRelationshipModel: New instance of the model
+        """
+        # Filter out keys that don't correspond to table columns
+        valid_keys = {column.name for column in cls.__table__.columns}
+        filtered_data = {k: v for k, v in data.items() if k in valid_keys}
+        return cls(**filtered_data)
     
     def mark_synced(self, sync_time=None):
         """

@@ -53,6 +53,8 @@ from .base import (
     Base,
     BaseModel,
     CanvasBaseModel,
+    CanvasEntityModel,
+    CanvasRelationshipModel,
     HistoricalBaseModel,
     MetadataBaseModel,
     TimestampMixin,
@@ -80,7 +82,7 @@ from .utils import (
 )
 
 # Version information
-__version__ = "3.0.0"
+__version__ = "0.2.0"
 __author__ = "Canvas Tracker Development Team"
 
 # Main exports
@@ -112,6 +114,8 @@ __all__ = [
     'Base',
     'BaseModel',
     'CanvasBaseModel',
+    'CanvasEntityModel',
+    'CanvasRelationshipModel',
     'HistoricalBaseModel',
     'MetadataBaseModel',
     'TimestampMixin',
