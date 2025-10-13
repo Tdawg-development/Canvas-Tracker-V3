@@ -18,7 +18,9 @@
     "db:seed": "knex seed:run --knexfile src/infrastructure/persistence/knex/knexfile.ts",
     "clean": "rimraf dist",
     "commit": "powershell -ExecutionPolicy Bypass -File scripts/commit.ps1",
-    "test-api": "ts-node test-canvas-api.ts"
+    "demo": "powershell -ExecutionPolicy Bypass -File scripts/run-demo.ps1",
+    "demo:list": "powershell -ExecutionPolicy Bypass -File scripts/run-demo.ps1 -List",
+    "demo:interactive": "powershell -ExecutionPolicy Bypass -File scripts/run-demo.ps1 -Interactive"
   },
   "keywords": [
     "canvas",

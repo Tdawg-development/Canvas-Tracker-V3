@@ -1,0 +1,2272 @@
+========================================
+RAW CANVAS COURSE STAGING DATA STRUCTURE
+========================================
+Generated: 2025-10-09T23:03:27.300Z
+Course ID: 7982015
+
+========================================
+COURSE OBJECT (CanvasCourseStaging)
+========================================
+id: 7982015
+name: "JDU 1st Section"
+course_code: "JDU 1st"
+calendar.ics: "https://canvas.instructure.com/feeds/calendars/course_OalfzaAAzTzwPi2NK8Qa4XpZ8nRUgMluGkVXEAJv.ics"
+students.length: 33
+modules.length: 4
+
+========================================
+STUDENTS ARRAY (CanvasStudentStaging[])
+========================================
+Total Students: 33
+
+--- STUDENT 1 ---
+id: 112767089
+user_id: 111929282
+created_at: "2024-05-01T13:03:41Z"
+last_activity_at: "2025-01-29T20:50:39Z"
+current_score: 98.53
+final_score: 98.53
+user.id: 111929282
+user.name: "Brad Allen"
+user.sortable_name: "Allen, Brad"
+user.login_id: "bradhallen"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 2 ---
+id: 112935284
+user_id: 112054294
+created_at: "2024-05-13T23:30:41Z"
+last_activity_at: "2024-08-20T22:16:16Z"
+current_score: 100
+final_score: 100
+user.id: 112054294
+user.name: "Joshua Bowden"
+user.sortable_name: "Bowden, Joshua"
+user.login_id: "vitalivour"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 3 ---
+id: 112966305
+user_id: 112077315
+created_at: "2024-05-16T03:20:21Z"
+last_activity_at: "2025-10-03T01:16:06Z"
+current_score: 99.27
+final_score: 99.27
+user.id: 112077315
+user.name: "Hayden Burton"
+user.sortable_name: "Burton, Hayden"
+user.login_id: "Hayden.Burton"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 4 ---
+id: 118778010
+user_id: 116714773
+created_at: "2025-05-08T21:12:33Z"
+last_activity_at: "2025-10-07T13:25:25Z"
+current_score: 96.34
+final_score: 96.34
+user.id: 116714773
+user.name: "Tyler Chambers"
+user.sortable_name: "Chambers, Tyler"
+user.login_id: "TylerChambers"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 5 ---
+id: 112833803
+user_id: 111979660
+created_at: "2024-05-06T17:29:12Z"
+last_activity_at: "2025-05-11T16:02:54Z"
+current_score: 99.27
+final_score: 99.27
+user.id: 111979660
+user.name: "Zachary Clark"
+user.sortable_name: "Clark, Zachary"
+user.login_id: "zacharyclark"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 6 ---
+id: 112851940
+user_id: 111992870
+created_at: "2024-05-07T19:01:37Z"
+last_activity_at: "2025-08-19T22:05:58Z"
+current_score: 99.27
+final_score: 99.27
+user.id: 111992870
+user.name: "Tayson Copeland"
+user.sortable_name: "Copeland, Tayson"
+user.login_id: "taysoncopeland"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 7 ---
+id: 114028536
+user_id: 111040631
+created_at: "2024-08-02T20:48:21Z"
+last_activity_at: "2025-08-08T08:14:22Z"
+current_score: 96.34
+final_score: 96.34
+user.id: 111040631
+user.name: "Brian Cower"
+user.sortable_name: "Cower, Brian"
+user.login_id: "briancower"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 8 ---
+id: 112933293
+user_id: 112052799
+created_at: "2024-05-13T20:22:41Z"
+last_activity_at: "2025-01-30T14:02:15Z"
+current_score: 100
+final_score: 100
+user.id: 112052799
+user.name: "Caysen Cummings"
+user.sortable_name: "Cummings, Caysen"
+user.login_id: "caysencummings"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 9 ---
+id: 112894835
+user_id: 112023176
+created_at: "2024-05-10T14:38:17Z"
+last_activity_at: "2025-06-17T20:48:49Z"
+current_score: 100
+final_score: 100
+user.id: 112023176
+user.name: "Taj-Mahal Boyd Earl"
+user.sortable_name: "Earl, Taj-Mahal Boyd"
+user.login_id: "Tajearl"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 10 ---
+id: 112834715
+user_id: 111980264
+created_at: "2024-05-06T18:51:28Z"
+last_activity_at: "2025-10-02T19:18:45Z"
+current_score: 99.27
+final_score: 99.27
+user.id: 111980264
+user.name: "Dylan Folkman "
+user.sortable_name: "Folkman, Dylan"
+user.login_id: "DylanFolkman"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 11 ---
+id: 112936269
+user_id: 112055091
+created_at: "2024-05-14T01:10:31Z"
+last_activity_at: "2025-04-02T17:58:34Z"
+current_score: 95.97
+final_score: 95.97
+user.id: 112055091
+user.name: "Connor Frandsen"
+user.sortable_name: "Frandsen, Connor"
+user.login_id: "Connorf22"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 12 ---
+id: 113243081
+user_id: 112298474
+created_at: "2024-06-05T17:36:49Z"
+last_activity_at: "2025-08-06T08:18:01Z"
+current_score: 98.17
+final_score: 98.17
+user.id: 112298474
+user.name: "Braedon Gill"
+user.sortable_name: "Gill, Braedon"
+user.login_id: "BraedonGIll"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 13 ---
+id: 117437884
+user_id: 115488817
+created_at: "2025-02-11T20:08:28Z"
+last_activity_at: "2025-08-28T18:56:43Z"
+current_score: 94.74
+final_score: 94.74
+user.id: 115488817
+user.name: "Wyatt Hales"
+user.sortable_name: "Hales, Wyatt"
+user.login_id: "Whales"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 14 ---
+id: 112456058
+user_id: 111680898
+created_at: "2024-04-08T14:39:21Z"
+last_activity_at: "2025-04-28T15:48:44Z"
+current_score: 99.27
+final_score: 99.27
+user.id: 111680898
+user.name: "Jayce Hart"
+user.sortable_name: "Hart, Jayce"
+user.login_id: "Jayceh23"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 15 ---
+id: 117818161
+user_id: 115772355
+created_at: "2025-03-05T00:03:38Z"
+last_activity_at: "2025-09-09T15:27:08Z"
+current_score: 97.8
+final_score: 97.8
+user.id: 115772355
+user.name: "Bridger Jacob Hoffman"
+user.sortable_name: "Hoffman, Bridger Jacob"
+user.login_id: "bridger hoffman"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 16 ---
+id: 114308768
+user_id: 113099677
+created_at: "2024-08-15T23:27:40Z"
+last_activity_at: "2025-07-03T06:52:22Z"
+current_score: 94.87
+final_score: 94.87
+user.id: 113099677
+user.name: "Jared hurd"
+user.sortable_name: "hurd, Jared"
+user.login_id: "jaredhurd"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 17 ---
+id: 115531508
+user_id: 114044240
+created_at: "2024-10-16T17:14:11Z"
+last_activity_at: "2025-05-13T06:26:07Z"
+current_score: 97.44
+final_score: 97.44
+user.id: 114044240
+user.name: "bryson jensen"
+user.sortable_name: "jensen, bryson"
+user.login_id: "bjensenjdm"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 18 ---
+id: 113999660
+user_id: 112884494
+created_at: "2024-08-01T15:25:43Z"
+last_activity_at: "2025-07-22T14:52:28Z"
+current_score: 99.24
+final_score: 95.6
+user.id: 112884494
+user.name: "Landon"
+user.sortable_name: "Landon"
+user.login_id: "LandonIsaacson1"
+submitted_assignments.length: 29
+missing_assignments.length: 1
+hasMissingAssignments(): true
+--- SUBMITTED ASSIGNMENTS ---
+  [0] assignment_id: 41536834
+  [0] title: "Intro to CNC Machines 201"
+  [0] status: "on_time"
+  [0] submission.score: 5
+  [0] submission.submitted_at: "2024-08-01T16:03:34Z"
+  [0] submission.posted_at: "2024-08-02T16:38:17Z"
+  [0] points_possible: 5
+  [0] excused: false
+  [1] assignment_id: 41536836
+  [1] title: "Blueprint Reading 131"
+  [1] status: "on_time"
+  [1] submission.score: 5
+  [1] submission.submitted_at: "2024-08-19T17:05:00Z"
+  [1] submission.posted_at: "2024-08-20T21:08:35Z"
+  [1] points_possible: 5
+  [1] excused: false
+  [2] assignment_id: 41536844
+  [2] title: "Basics of Tolerance 121"
+  [2] status: "on_time"
+  [2] submission.score: 5
+  [2] submission.submitted_at: "2024-08-20T01:55:34Z"
+  [2] submission.posted_at: "2024-08-20T21:09:30Z"
+  [2] points_possible: 5
+  [2] excused: false
+  [3] assignment_id: 41536864
+  [3] title: "5s Overview 151"
+  [3] status: "on_time"
+  [3] submission.score: 5
+  [3] submission.submitted_at: "2024-08-29T17:33:46Z"
+  [3] submission.posted_at: "2024-08-29T17:45:07Z"
+  [3] points_possible: 5
+  [3] excused: false
+  [4] assignment_id: 41536958
+  [4] title: "Lean Manufacturing 101"
+  [4] status: "on_time"
+  [4] submission.score: 5
+  [4] submission.submitted_at: "2024-08-29T16:52:18Z"
+  [4] submission.posted_at: "2024-08-29T17:45:41Z"
+  [4] points_possible: 5
+  [4] excused: false
+  [5] assignment_id: 41536963
+  [5] title: "Cutting Processes 111"
+  [5] status: "on_time"
+  [5] submission.score: 5
+  [5] submission.submitted_at: "2024-08-09T15:56:55Z"
+  [5] submission.posted_at: "2024-08-20T21:15:21Z"
+  [5] points_possible: 5
+  [5] excused: false
+  [6] assignment_id: 41536964
+  [6] title: "Basic Cutting Theory 201"
+  [6] status: "on_time"
+  [6] submission.score: 5
+  [6] submission.submitted_at: "2024-08-09T17:02:03Z"
+  [6] submission.posted_at: "2024-08-21T20:04:04Z"
+  [6] points_possible: 5
+  [6] excused: false
+  [7] assignment_id: 41536965
+  [7] title: "Basics of CNC Lathe 211"
+  [7] status: "on_time"
+  [7] submission.score: 5
+  [7] submission.submitted_at: "2024-08-01T16:12:54Z"
+  [7] submission.posted_at: "2024-08-21T20:06:05Z"
+  [7] points_possible: 5
+  [7] excused: false
+  [8] assignment_id: 41536969
+  [8] title: "Basics of the CNC Swiss-Type Lathe 215"
+  [8] status: "on_time"
+  [8] submission.score: 5
+  [8] submission.submitted_at: "2024-08-08T15:00:57Z"
+  [8] submission.posted_at: "2024-08-21T20:14:09Z"
+  [8] points_possible: 5
+  [8] excused: false
+  [9] assignment_id: 41536972
+  [9] title: "Basics of CNC Mill 212"
+  [9] status: "on_time"
+  [9] submission.score: 5
+  [9] submission.submitted_at: "2024-08-01T16:14:10Z"
+  [9] submission.posted_at: "2024-08-23T17:10:31Z"
+  [9] points_possible: 5
+  [9] excused: false
+  [10] assignment_id: 41536977
+  [10] title: "Overview of Machine Tools 121"
+  [10] status: "on_time"
+  [10] submission.score: 5
+  [10] submission.submitted_at: "2024-08-12T15:21:05Z"
+  [10] submission.posted_at: "2024-08-28T15:17:32Z"
+  [10] points_possible: 5
+  [10] excused: false
+  [11] assignment_id: 41537024
+  [11] title: "NIMS Core Machining Skills 121"
+  [11] status: "on_time"
+  [11] submission.score: 5
+  [11] submission.submitted_at: "2024-08-12T14:12:52Z"
+  [11] submission.posted_at: "2024-08-29T17:56:45Z"
+  [11] points_possible: 5
+  [11] excused: false
+  [12] assignment_id: 41537077
+  [12] title: "NIMS Core CNC Millings Skills 141"
+  [12] status: "on_time"
+  [12] submission.score: 5
+  [12] submission.submitted_at: "2024-08-13T15:27:47Z"
+  [12] submission.posted_at: "2024-08-29T17:50:22Z"
+  [12] points_possible: 5
+  [12] excused: false
+  [13] assignment_id: 41537083
+  [13] title: "NIMS Core CNC Turning Skills 142"
+  [13] status: "on_time"
+  [13] submission.score: 5
+  [13] submission.submitted_at: "2024-08-13T15:03:41Z"
+  [13] submission.posted_at: "2024-08-29T17:59:40Z"
+  [13] points_possible: 5
+  [13] excused: false
+  [14] assignment_id: 41864862
+  [14] title: "HOW TO INSTALL A VISE"
+  [14] status: "on_time"
+  [14] submission.score: 2
+  [14] submission.submitted_at: "2024-08-13T15:36:01Z"
+  [14] submission.posted_at: "2024-08-13T15:36:01Z"
+  [14] points_possible: 3
+  [14] excused: false
+  [15] assignment_id: 41865440
+  [15] title: "The types of CNC Machines Explained"
+  [15] status: "on_time"
+  [15] submission.score: 2
+  [15] submission.submitted_at: "2024-08-13T15:30:23Z"
+  [15] submission.posted_at: "2024-08-12T20:17:43Z"
+  [15] points_possible: 2
+  [15] excused: false
+  [16] assignment_id: 41865441
+  [16] title: "HOW TO SET WORK OFFSETS MANUALLY"
+  [16] status: "on_time"
+  [16] submission.score: 3
+  [16] submission.submitted_at: "2024-08-13T15:40:50Z"
+  [16] submission.posted_at: "2024-08-12T20:28:26Z"
+  [16] points_possible: 3
+  [16] excused: false
+  [17] assignment_id: 41865446
+  [17] title: "CONVENTIONAL OD MICROMETER"
+  [17] status: "on_time"
+  [17] submission.score: 3
+  [17] submission.submitted_at: "2024-08-20T03:22:13Z"
+  [17] submission.posted_at: "2024-08-20T02:07:32Z"
+  [17] points_possible: 3
+  [17] excused: false
+  [18] assignment_id: 41865451
+  [18] title: "DIGITAL CALIPER"
+  [18] status: "on_time"
+  [18] submission.score: 5
+  [18] submission.submitted_at: "2024-08-20T02:03:09Z"
+  [18] submission.posted_at: "2024-08-20T01:57:27Z"
+  [18] points_possible: 5
+  [18] excused: false
+  [19] assignment_id: 41865455
+  [19] title: "DIGITAL OD MICROMETER"
+  [19] status: "on_time"
+  [19] submission.score: 2
+  [19] submission.submitted_at: "2024-08-20T02:05:31Z"
+  [19] submission.posted_at: "2024-08-20T02:05:31Z"
+  [19] points_possible: 2
+  [19] excused: false
+  [20] assignment_id: 41865459
+  [20] title: "LATHE TOOLING: OD ROUGHER"
+  [20] status: "on_time"
+  [20] submission.score: 2
+  [20] submission.submitted_at: "2024-08-26T20:28:50Z"
+  [20] submission.posted_at: "2024-08-12T16:39:24Z"
+  [20] points_possible: 2
+  [20] excused: false
+  [21] assignment_id: 41865464
+  [21] title: "LATHE TOOLING: OD GROOVERS"
+  [21] status: "on_time"
+  [21] submission.score: 5
+  [21] submission.submitted_at: "2024-08-12T17:21:51Z"
+  [21] submission.posted_at: "2024-08-12T17:21:15Z"
+  [21] points_possible: 5
+  [21] excused: false
+  [22] assignment_id: 41865470
+  [22] title: "LATHE TOOLING: FACE GROOVER"
+  [22] status: "on_time"
+  [22] submission.score: 2
+  [22] submission.submitted_at: "2024-08-12T18:35:50Z"
+  [22] submission.posted_at: "2024-08-12T18:35:50Z"
+  [22] points_possible: 2
+  [22] excused: false
+  [23] assignment_id: 41865471
+  [23] title: "LATHE TOOLING: DRILLS & TAPS"
+  [23] status: "on_time"
+  [23] submission.score: 2
+  [23] submission.submitted_at: "2024-08-12T20:40:35Z"
+  [23] submission.posted_at: "2024-08-12T20:40:21Z"
+  [23] points_possible: 2
+  [23] excused: false
+  [24] assignment_id: 41865475
+  [24] title: "LATHE TOOLING: ID BORING BAR"
+  [24] status: "on_time"
+  [24] submission.score: 2
+  [24] submission.submitted_at: "2024-08-12T20:39:09Z"
+  [24] submission.posted_at: "2024-08-12T20:38:11Z"
+  [24] points_possible: 2
+  [24] excused: false
+  [25] assignment_id: 42580046
+  [25] title: "Beginner Inspection Quiz"
+  [25] status: "on_time"
+  [25] submission.score: 9
+  [25] submission.submitted_at: "2024-08-20T03:34:36Z"
+  [25] submission.posted_at: "2024-08-20T03:34:36Z"
+  [25] points_possible: 9
+  [25] excused: false
+  [26] assignment_id: 44025211
+  [26] title: "Tool Presetter Quiz"
+  [26] status: "on_time"
+  [26] submission.score: 7.5
+  [26] submission.submitted_at: "2024-08-19T16:26:32Z"
+  [26] submission.posted_at: "2024-08-19T16:26:32Z"
+  [26] points_possible: 7.5
+  [26] excused: false
+  [27] assignment_id: 44233721
+  [27] title: "Tool Presetter Hands on Practice"
+  [27] status: "on_time"
+  [27] submission.score: 9
+  [27] submission.submitted_at: "2024-08-30T18:20:06Z"
+  [27] submission.posted_at: "2024-08-30T18:20:06Z"
+  [27] points_possible: 9
+  [27] excused: false
+  [28] assignment_id: 45681144
+  [28] title: "Hole Standards and Inspection 141"
+  [28] status: "on_time"
+  [28] submission.score: 5
+  [28] submission.submitted_at: "2024-08-20T00:57:09Z"
+  [28] submission.posted_at: "2024-08-29T18:11:35Z"
+  [28] points_possible: 5
+  [28] excused: false
+--- MISSING ASSIGNMENTS ---
+  [0] assignment_id: 45680066
+  [0] title: "Math: Fractions and Decimals 111"
+  [0] status: "floating"
+  [0] submission.score: null
+  [0] submission.submitted_at: null
+  [0] submission.posted_at: null
+  [0] points_possible: 5
+  [0] excused: false
+
+--- STUDENT 19 ---
+id: 112882057
+user_id: 112016789
+created_at: "2024-05-09T20:54:12Z"
+last_activity_at: "2025-09-08T12:38:18Z"
+current_score: 94.87
+final_score: 94.87
+user.id: 112016789
+user.name: "Zachary Leeper"
+user.sortable_name: "Leeper, Zachary"
+user.login_id: "Zacharyleeper"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 20 ---
+id: 113054341
+user_id: 112147421
+created_at: "2024-05-22T14:48:18Z"
+last_activity_at: "2025-01-29T14:41:13Z"
+current_score: 98.73
+final_score: 56.78
+user.id: 112147421
+user.name: "Jonathan Tyler Limburg"
+user.sortable_name: "Limburg, Jonathan Tyler"
+user.login_id: "JonathanLimburg"
+submitted_assignments.length: 19
+missing_assignments.length: 11
+hasMissingAssignments(): true
+--- SUBMITTED ASSIGNMENTS ---
+  [0] assignment_id: 41536834
+  [0] title: "Intro to CNC Machines 201"
+  [0] status: "on_time"
+  [0] submission.score: 5
+  [0] submission.submitted_at: "2024-08-13T16:36:19Z"
+  [0] submission.posted_at: "2024-08-15T19:47:32Z"
+  [0] points_possible: 5
+  [0] excused: false
+  [1] assignment_id: 41536963
+  [1] title: "Cutting Processes 111"
+  [1] status: "on_time"
+  [1] submission.score: 5
+  [1] submission.submitted_at: "2024-08-14T14:12:22Z"
+  [1] submission.posted_at: "2024-08-20T21:21:41Z"
+  [1] points_possible: 5
+  [1] excused: false
+  [2] assignment_id: 41536964
+  [2] title: "Basic Cutting Theory 201"
+  [2] status: "on_time"
+  [2] submission.score: 5
+  [2] submission.submitted_at: "2024-10-14T13:51:10Z"
+  [2] submission.posted_at: "2024-10-14T14:49:25Z"
+  [2] points_possible: 5
+  [2] excused: false
+  [3] assignment_id: 41536965
+  [3] title: "Basics of CNC Lathe 211"
+  [3] status: "on_time"
+  [3] submission.score: 5
+  [3] submission.submitted_at: "2024-10-15T13:39:20Z"
+  [3] submission.posted_at: "2024-10-15T15:24:47Z"
+  [3] points_possible: 5
+  [3] excused: false
+  [4] assignment_id: 41536969
+  [4] title: "Basics of the CNC Swiss-Type Lathe 215"
+  [4] status: "on_time"
+  [4] submission.score: 5
+  [4] submission.submitted_at: "2024-10-17T14:16:25Z"
+  [4] submission.posted_at: "2024-10-17T16:38:43Z"
+  [4] points_possible: 5
+  [4] excused: false
+  [5] assignment_id: 41536972
+  [5] title: "Basics of CNC Mill 212"
+  [5] status: "on_time"
+  [5] submission.score: 5
+  [5] submission.submitted_at: "2024-10-21T19:11:48Z"
+  [5] submission.posted_at: "2024-10-21T20:13:50Z"
+  [5] points_possible: 5
+  [5] excused: false
+  [6] assignment_id: 41536977
+  [6] title: "Overview of Machine Tools 121"
+  [6] status: "on_time"
+  [6] submission.score: 5
+  [6] submission.submitted_at: "2024-10-14T18:13:26Z"
+  [6] submission.posted_at: "2024-10-14T19:06:44Z"
+  [6] points_possible: 5
+  [6] excused: false
+  [7] assignment_id: 41537024
+  [7] title: "NIMS Core Machining Skills 121"
+  [7] status: "on_time"
+  [7] submission.score: 5
+  [7] submission.submitted_at: "2024-10-14T14:37:47Z"
+  [7] submission.posted_at: "2024-10-14T14:50:05Z"
+  [7] points_possible: 5
+  [7] excused: false
+  [8] assignment_id: 41537077
+  [8] title: "NIMS Core CNC Millings Skills 141"
+  [8] status: "on_time"
+  [8] submission.score: 5
+  [8] submission.submitted_at: "2025-01-16T16:50:07Z"
+  [8] submission.posted_at: "2025-01-16T17:35:22Z"
+  [8] points_possible: 5
+  [8] excused: false
+  [9] assignment_id: 41537083
+  [9] title: "NIMS Core CNC Turning Skills 142"
+  [9] status: "on_time"
+  [9] submission.score: 5
+  [9] submission.submitted_at: "2024-10-21T15:11:44Z"
+  [9] submission.posted_at: "2024-10-21T19:09:55Z"
+  [9] points_possible: 5
+  [9] excused: false
+  [10] assignment_id: 41864862
+  [10] title: "HOW TO INSTALL A VISE"
+  [10] status: "on_time"
+  [10] submission.score: 3
+  [10] submission.submitted_at: "2024-08-13T16:41:20Z"
+  [10] submission.posted_at: "2024-08-13T16:41:20Z"
+  [10] points_possible: 3
+  [10] excused: false
+  [11] assignment_id: 41865440
+  [11] title: "The types of CNC Machines Explained"
+  [11] status: "on_time"
+  [11] submission.score: 1
+  [11] submission.submitted_at: "2024-10-22T14:40:51Z"
+  [11] submission.posted_at: "2024-10-22T14:39:17Z"
+  [11] points_possible: 2
+  [11] excused: false
+  [12] assignment_id: 41865441
+  [12] title: "HOW TO SET WORK OFFSETS MANUALLY"
+  [12] status: "on_time"
+  [12] submission.score: 3
+  [12] submission.submitted_at: "2024-10-30T14:14:53Z"
+  [12] submission.posted_at: "2024-10-30T14:14:53Z"
+  [12] points_possible: 3
+  [12] excused: false
+  [13] assignment_id: 41865459
+  [13] title: "LATHE TOOLING: OD ROUGHER"
+  [13] status: "on_time"
+  [13] submission.score: 2
+  [13] submission.submitted_at: "2024-10-15T14:31:16Z"
+  [13] submission.posted_at: "2024-10-15T14:31:16Z"
+  [13] points_possible: 2
+  [13] excused: false
+  [14] assignment_id: 41865464
+  [14] title: "LATHE TOOLING: OD GROOVERS"
+  [14] status: "on_time"
+  [14] submission.score: 5
+  [14] submission.submitted_at: "2024-10-15T15:00:42Z"
+  [14] submission.posted_at: "2024-10-15T15:00:42Z"
+  [14] points_possible: 5
+  [14] excused: false
+  [15] assignment_id: 41865470
+  [15] title: "LATHE TOOLING: FACE GROOVER"
+  [15] status: "on_time"
+  [15] submission.score: 2
+  [15] submission.submitted_at: "2024-10-15T15:06:09Z"
+  [15] submission.posted_at: "2024-10-15T15:06:09Z"
+  [15] points_possible: 2
+  [15] excused: false
+  [16] assignment_id: 41865471
+  [16] title: "LATHE TOOLING: DRILLS & TAPS"
+  [16] status: "on_time"
+  [16] submission.score: 2
+  [16] submission.submitted_at: "2024-10-17T15:30:48Z"
+  [16] submission.posted_at: "2024-10-17T15:30:48Z"
+  [16] points_possible: 2
+  [16] excused: false
+  [17] assignment_id: 41865475
+  [17] title: "LATHE TOOLING: ID BORING BAR"
+  [17] status: "on_time"
+  [17] submission.score: 2
+  [17] submission.submitted_at: "2024-10-21T13:42:41Z"
+  [17] submission.posted_at: "2024-10-21T13:39:53Z"
+  [17] points_possible: 2
+  [17] excused: false
+  [18] assignment_id: 44025211
+  [18] title: "Tool Presetter Quiz"
+  [18] status: "on_time"
+  [18] submission.score: 7.5
+  [18] submission.submitted_at: "2025-01-27T14:31:52Z"
+  [18] submission.posted_at: "2025-01-27T14:31:52Z"
+  [18] points_possible: 7.5
+  [18] excused: false
+--- MISSING ASSIGNMENTS ---
+  [0] assignment_id: 41536836
+  [0] title: "Blueprint Reading 131"
+  [0] status: "floating"
+  [0] submission.score: null
+  [0] submission.submitted_at: null
+  [0] submission.posted_at: null
+  [0] points_possible: 5
+  [0] excused: false
+  [1] assignment_id: 41536844
+  [1] title: "Basics of Tolerance 121"
+  [1] status: "floating"
+  [1] submission.score: null
+  [1] submission.submitted_at: null
+  [1] submission.posted_at: null
+  [1] points_possible: 5
+  [1] excused: false
+  [2] assignment_id: 41536864
+  [2] title: "5s Overview 151"
+  [2] status: "floating"
+  [2] submission.score: null
+  [2] submission.submitted_at: null
+  [2] submission.posted_at: null
+  [2] points_possible: 5
+  [2] excused: false
+  [3] assignment_id: 41536958
+  [3] title: "Lean Manufacturing 101"
+  [3] status: "floating"
+  [3] submission.score: null
+  [3] submission.submitted_at: null
+  [3] submission.posted_at: null
+  [3] points_possible: 5
+  [3] excused: false
+  [4] assignment_id: 41865446
+  [4] title: "CONVENTIONAL OD MICROMETER"
+  [4] status: "floating"
+  [4] submission.score: null
+  [4] submission.submitted_at: null
+  [4] submission.posted_at: null
+  [4] points_possible: 3
+  [4] excused: false
+  [5] assignment_id: 41865451
+  [5] title: "DIGITAL CALIPER"
+  [5] status: "floating"
+  [5] submission.score: null
+  [5] submission.submitted_at: null
+  [5] submission.posted_at: null
+  [5] points_possible: 5
+  [5] excused: false
+  [6] assignment_id: 41865455
+  [6] title: "DIGITAL OD MICROMETER"
+  [6] status: "floating"
+  [6] submission.score: null
+  [6] submission.submitted_at: null
+  [6] submission.posted_at: null
+  [6] points_possible: 2
+  [6] excused: false
+  [7] assignment_id: 42580046
+  [7] title: "Beginner Inspection Quiz"
+  [7] status: "floating"
+  [7] submission.score: null
+  [7] submission.submitted_at: null
+  [7] submission.posted_at: null
+  [7] points_possible: 9
+  [7] excused: false
+  [8] assignment_id: 44233721
+  [8] title: "Tool Presetter Hands on Practice"
+  [8] status: "floating"
+  [8] submission.score: null
+  [8] submission.submitted_at: null
+  [8] submission.posted_at: null
+  [8] points_possible: 9
+  [8] excused: false
+  [9] assignment_id: 45680066
+  [9] title: "Math: Fractions and Decimals 111"
+  [9] status: "floating"
+  [9] submission.score: null
+  [9] submission.submitted_at: null
+  [9] submission.posted_at: null
+  [9] points_possible: 5
+  [9] excused: false
+  [10] assignment_id: 45681144
+  [10] title: "Hole Standards and Inspection 141"
+  [10] status: "floating"
+  [10] submission.score: null
+  [10] submission.submitted_at: null
+  [10] submission.posted_at: null
+  [10] points_possible: 5
+  [10] excused: false
+
+--- STUDENT 21 ---
+id: 112934995
+user_id: 110799212
+created_at: "2024-05-13T23:00:30Z"
+last_activity_at: "2025-08-06T04:18:20Z"
+current_score: 97.44
+final_score: 97.44
+user.id: 110799212
+user.name: "Xander Nielsen"
+user.sortable_name: "Nielsen, Xander"
+user.login_id: "xandernielsen"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 22 ---
+id: 118274946
+user_id: 116197850
+created_at: "2025-04-02T20:35:47Z"
+last_activity_at: "2025-09-18T06:38:07Z"
+current_score: 99.22
+final_score: 92.67
+user.id: 116197850
+user.name: "Drake Parker"
+user.sortable_name: "Parker, Drake"
+user.login_id: "DrakeParker"
+submitted_assignments.length: 29
+missing_assignments.length: 1
+hasMissingAssignments(): true
+--- SUBMITTED ASSIGNMENTS ---
+  [0] assignment_id: 41536834
+  [0] title: "Intro to CNC Machines 201"
+  [0] status: "on_time"
+  [0] submission.score: 5
+  [0] submission.submitted_at: "2025-06-30T23:04:35Z"
+  [0] submission.posted_at: "2025-07-01T13:42:24Z"
+  [0] points_possible: 5
+  [0] excused: false
+  [1] assignment_id: 41536836
+  [1] title: "Blueprint Reading 131"
+  [1] status: "on_time"
+  [1] submission.score: 5
+  [1] submission.submitted_at: "2025-09-17T05:39:51Z"
+  [1] submission.posted_at: "2025-09-17T14:20:26Z"
+  [1] points_possible: 5
+  [1] excused: false
+  [2] assignment_id: 41536844
+  [2] title: "Basics of Tolerance 121"
+  [2] status: "on_time"
+  [2] submission.score: 5
+  [2] submission.submitted_at: "2025-07-28T19:47:17Z"
+  [2] submission.posted_at: "2025-07-28T20:30:46Z"
+  [2] points_possible: 5
+  [2] excused: false
+  [3] assignment_id: 41536864
+  [3] title: "5s Overview 151"
+  [3] status: "on_time"
+  [3] submission.score: 5
+  [3] submission.submitted_at: "2025-07-18T22:18:50Z"
+  [3] submission.posted_at: "2025-07-21T14:51:38Z"
+  [3] points_possible: 5
+  [3] excused: false
+  [4] assignment_id: 41536958
+  [4] title: "Lean Manufacturing 101"
+  [4] status: "on_time"
+  [4] submission.score: 5
+  [4] submission.submitted_at: "2025-09-17T07:33:49Z"
+  [4] submission.posted_at: "2025-09-17T14:21:36Z"
+  [4] points_possible: 5
+  [4] excused: false
+  [5] assignment_id: 41536963
+  [5] title: "Cutting Processes 111"
+  [5] status: "on_time"
+  [5] submission.score: 5
+  [5] submission.submitted_at: "2025-06-30T23:30:53Z"
+  [5] submission.posted_at: "2025-07-01T13:44:18Z"
+  [5] points_possible: 5
+  [5] excused: false
+  [6] assignment_id: 41536964
+  [6] title: "Basic Cutting Theory 201"
+  [6] status: "on_time"
+  [6] submission.score: 5
+  [6] submission.submitted_at: "2025-07-01T01:03:42Z"
+  [6] submission.posted_at: "2025-07-01T13:44:45Z"
+  [6] points_possible: 5
+  [6] excused: false
+  [7] assignment_id: 41536965
+  [7] title: "Basics of CNC Lathe 211"
+  [7] status: "on_time"
+  [7] submission.score: 5
+  [7] submission.submitted_at: "2025-07-18T15:13:55Z"
+  [7] submission.posted_at: "2025-07-21T14:51:54Z"
+  [7] points_possible: 5
+  [7] excused: false
+  [8] assignment_id: 41536969
+  [8] title: "Basics of the CNC Swiss-Type Lathe 215"
+  [8] status: "on_time"
+  [8] submission.score: 5
+  [8] submission.submitted_at: "2025-07-18T15:55:10Z"
+  [8] submission.posted_at: "2025-07-21T14:52:06Z"
+  [8] points_possible: 5
+  [8] excused: false
+  [9] assignment_id: 41536972
+  [9] title: "Basics of CNC Mill 212"
+  [9] status: "on_time"
+  [9] submission.score: 5
+  [9] submission.submitted_at: "2025-07-18T21:58:02Z"
+  [9] submission.posted_at: "2025-07-21T14:52:20Z"
+  [9] points_possible: 5
+  [9] excused: false
+  [10] assignment_id: 41536977
+  [10] title: "Overview of Machine Tools 121"
+  [10] status: "on_time"
+  [10] submission.score: 5
+  [10] submission.submitted_at: "2025-07-17T18:24:07Z"
+  [10] submission.posted_at: "2025-07-17T18:31:52Z"
+  [10] points_possible: 5
+  [10] excused: false
+  [11] assignment_id: 41537024
+  [11] title: "NIMS Core Machining Skills 121"
+  [11] status: "on_time"
+  [11] submission.score: 5
+  [11] submission.submitted_at: "2025-07-01T01:20:10Z"
+  [11] submission.posted_at: "2025-07-01T13:45:50Z"
+  [11] points_possible: 5
+  [11] excused: false
+  [12] assignment_id: 41537077
+  [12] title: "NIMS Core CNC Millings Skills 141"
+  [12] status: "on_time"
+  [12] submission.score: 5
+  [12] submission.submitted_at: "2025-07-28T16:14:19Z"
+  [12] submission.posted_at: "2025-07-28T20:30:59Z"
+  [12] points_possible: 5
+  [12] excused: false
+  [13] assignment_id: 41537083
+  [13] title: "NIMS Core CNC Turning Skills 142"
+  [13] status: "on_time"
+  [13] submission.score: 5
+  [13] submission.submitted_at: "2025-07-18T19:19:51Z"
+  [13] submission.posted_at: "2025-07-21T14:52:32Z"
+  [13] points_possible: 5
+  [13] excused: false
+  [14] assignment_id: 41864862
+  [14] title: "HOW TO INSTALL A VISE"
+  [14] status: "on_time"
+  [14] submission.score: 3
+  [14] submission.submitted_at: "2025-07-17T19:56:49Z"
+  [14] submission.posted_at: "2025-07-17T19:56:49Z"
+  [14] points_possible: 3
+  [14] excused: false
+  [15] assignment_id: 41865440
+  [15] title: "The types of CNC Machines Explained"
+  [15] status: "on_time"
+  [15] submission.score: 2
+  [15] submission.submitted_at: "2025-07-17T20:55:07Z"
+  [15] submission.posted_at: "2025-07-17T20:55:07Z"
+  [15] points_possible: 2
+  [15] excused: false
+  [16] assignment_id: 41865441
+  [16] title: "HOW TO SET WORK OFFSETS MANUALLY"
+  [16] status: "on_time"
+  [16] submission.score: 3
+  [16] submission.submitted_at: "2025-07-17T21:00:32Z"
+  [16] submission.posted_at: "2025-07-17T21:00:19Z"
+  [16] points_possible: 3
+  [16] excused: false
+  [17] assignment_id: 41865446
+  [17] title: "CONVENTIONAL OD MICROMETER"
+  [17] status: "on_time"
+  [17] submission.score: 3
+  [17] submission.submitted_at: "2025-07-18T16:35:16Z"
+  [17] submission.posted_at: "2025-07-18T16:32:08Z"
+  [17] points_possible: 3
+  [17] excused: false
+  [18] assignment_id: 41865451
+  [18] title: "DIGITAL CALIPER"
+  [18] status: "on_time"
+  [18] submission.score: 5
+  [18] submission.submitted_at: "2025-07-18T16:22:00Z"
+  [18] submission.posted_at: "2025-07-18T16:22:00Z"
+  [18] points_possible: 5
+  [18] excused: false
+  [19] assignment_id: 41865455
+  [19] title: "DIGITAL OD MICROMETER"
+  [19] status: "on_time"
+  [19] submission.score: 2
+  [19] submission.submitted_at: "2025-07-18T16:26:50Z"
+  [19] submission.posted_at: "2025-07-18T16:24:37Z"
+  [19] points_possible: 2
+  [19] excused: false
+  [20] assignment_id: 41865459
+  [20] title: "LATHE TOOLING: OD ROUGHER"
+  [20] status: "on_time"
+  [20] submission.score: 2
+  [20] submission.submitted_at: "2025-07-17T19:29:00Z"
+  [20] submission.posted_at: "2025-07-17T19:29:00Z"
+  [20] points_possible: 2
+  [20] excused: false
+  [21] assignment_id: 41865464
+  [21] title: "LATHE TOOLING: OD GROOVERS"
+  [21] status: "on_time"
+  [21] submission.score: 5
+  [21] submission.submitted_at: "2025-07-17T19:38:07Z"
+  [21] submission.posted_at: "2025-07-17T19:38:07Z"
+  [21] points_possible: 5
+  [21] excused: false
+  [22] assignment_id: 41865470
+  [22] title: "LATHE TOOLING: FACE GROOVER"
+  [22] status: "on_time"
+  [22] submission.score: 2
+  [22] submission.submitted_at: "2025-07-17T19:42:04Z"
+  [22] submission.posted_at: "2025-07-17T19:42:04Z"
+  [22] points_possible: 2
+  [22] excused: false
+  [23] assignment_id: 41865471
+  [23] title: "LATHE TOOLING: DRILLS & TAPS"
+  [23] status: "on_time"
+  [23] submission.score: 2
+  [23] submission.submitted_at: "2025-07-17T19:48:25Z"
+  [23] submission.posted_at: "2025-07-17T19:48:25Z"
+  [23] points_possible: 2
+  [23] excused: false
+  [24] assignment_id: 41865475
+  [24] title: "LATHE TOOLING: ID BORING BAR"
+  [24] status: "on_time"
+  [24] submission.score: 2
+  [24] submission.submitted_at: "2025-07-17T19:50:56Z"
+  [24] submission.posted_at: "2025-07-17T19:50:56Z"
+  [24] points_possible: 2
+  [24] excused: false
+  [25] assignment_id: 42580046
+  [25] title: "Beginner Inspection Quiz"
+  [25] status: "on_time"
+  [25] submission.score: 8
+  [25] submission.submitted_at: "2025-07-18T16:51:08Z"
+  [25] submission.posted_at: "2025-07-18T16:51:08Z"
+  [25] points_possible: 9
+  [25] excused: false
+  [26] assignment_id: 44025211
+  [26] title: "Tool Presetter Quiz"
+  [26] status: "on_time"
+  [26] submission.score: 7.5
+  [26] submission.submitted_at: "2025-07-18T16:17:10Z"
+  [26] submission.posted_at: "2025-07-18T16:17:10Z"
+  [26] points_possible: 7.5
+  [26] excused: false
+  [27] assignment_id: 45680066
+  [27] title: "Math: Fractions and Decimals 111"
+  [27] status: "on_time"
+  [27] submission.score: 5
+  [27] submission.submitted_at: "2025-09-18T05:50:45Z"
+  [27] submission.posted_at: "2025-09-18T13:27:44Z"
+  [27] points_possible: 5
+  [27] excused: false
+  [28] assignment_id: 45681144
+  [28] title: "Hole Standards and Inspection 141"
+  [28] status: "on_time"
+  [28] submission.score: 5
+  [28] submission.submitted_at: "2025-09-17T06:09:38Z"
+  [28] submission.posted_at: "2025-09-17T14:22:57Z"
+  [28] points_possible: 5
+  [28] excused: false
+--- MISSING ASSIGNMENTS ---
+  [0] assignment_id: 44233721
+  [0] title: "Tool Presetter Hands on Practice"
+  [0] status: "floating"
+  [0] submission.score: null
+  [0] submission.submitted_at: null
+  [0] submission.posted_at: null
+  [0] points_possible: 9
+  [0] excused: false
+
+--- STUDENT 23 ---
+id: 112838572
+user_id: 111982921
+created_at: "2024-05-06T23:40:11Z"
+last_activity_at: "2025-09-25T22:23:43Z"
+current_score: 97.44
+final_score: 97.44
+user.id: 111982921
+user.name: "Tyler Perkins"
+user.sortable_name: "Perkins, Tyler"
+user.login_id: "TylerPerkins"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 24 ---
+id: 118776839
+user_id: 116713740
+created_at: "2025-05-08T19:57:43Z"
+last_activity_at: "2025-05-30T22:53:22Z"
+current_score: 100
+final_score: 29.3
+user.id: 116713740
+user.name: "Tate Potokar"
+user.sortable_name: "Potokar, Tate"
+user.login_id: "TatePotokar"
+submitted_assignments.length: 8
+missing_assignments.length: 22
+hasMissingAssignments(): true
+--- SUBMITTED ASSIGNMENTS ---
+  [0] assignment_id: 41536834
+  [0] title: "Intro to CNC Machines 201"
+  [0] status: "on_time"
+  [0] submission.score: 5
+  [0] submission.submitted_at: "2025-05-27T16:01:20Z"
+  [0] submission.posted_at: "2025-05-28T14:13:55Z"
+  [0] points_possible: 5
+  [0] excused: false
+  [1] assignment_id: 41536836
+  [1] title: "Blueprint Reading 131"
+  [1] status: "on_time"
+  [1] submission.score: 5
+  [1] submission.submitted_at: "2025-05-27T21:25:48Z"
+  [1] submission.posted_at: "2025-05-28T14:14:07Z"
+  [1] points_possible: 5
+  [1] excused: false
+  [2] assignment_id: 41536844
+  [2] title: "Basics of Tolerance 121"
+  [2] status: "on_time"
+  [2] submission.score: 5
+  [2] submission.submitted_at: "2025-05-28T21:26:47Z"
+  [2] submission.posted_at: "2025-06-04T14:29:56Z"
+  [2] points_possible: 5
+  [2] excused: false
+  [3] assignment_id: 41536864
+  [3] title: "5s Overview 151"
+  [3] status: "on_time"
+  [3] submission.score: 5
+  [3] submission.submitted_at: "2025-05-29T17:22:47Z"
+  [3] submission.posted_at: "2025-06-04T14:30:08Z"
+  [3] points_possible: 5
+  [3] excused: false
+  [4] assignment_id: 41536958
+  [4] title: "Lean Manufacturing 101"
+  [4] status: "on_time"
+  [4] submission.score: 5
+  [4] submission.submitted_at: "2025-05-30T20:11:04Z"
+  [4] submission.posted_at: "2025-06-04T14:30:20Z"
+  [4] points_possible: 5
+  [4] excused: false
+  [5] assignment_id: 41536963
+  [5] title: "Cutting Processes 111"
+  [5] status: "on_time"
+  [5] submission.score: 5
+  [5] submission.submitted_at: "2025-05-27T16:57:45Z"
+  [5] submission.posted_at: "2025-05-28T14:14:53Z"
+  [5] points_possible: 5
+  [5] excused: false
+  [6] assignment_id: 41536964
+  [6] title: "Basic Cutting Theory 201"
+  [6] status: "on_time"
+  [6] submission.score: 5
+  [6] submission.submitted_at: "2025-05-28T17:04:55Z"
+  [6] submission.posted_at: "2025-05-28T20:06:15Z"
+  [6] points_possible: 5
+  [6] excused: false
+  [7] assignment_id: 41536965
+  [7] title: "Basics of CNC Lathe 211"
+  [7] status: "on_time"
+  [7] submission.score: 5
+  [7] submission.submitted_at: "2025-05-30T20:29:20Z"
+  [7] submission.posted_at: "2025-06-04T14:31:48Z"
+  [7] points_possible: 5
+  [7] excused: false
+--- MISSING ASSIGNMENTS ---
+  [0] assignment_id: 41536969
+  [0] title: "Basics of the CNC Swiss-Type Lathe 215"
+  [0] status: "floating"
+  [0] submission.score: null
+  [0] submission.submitted_at: null
+  [0] submission.posted_at: null
+  [0] points_possible: 5
+  [0] excused: false
+  [1] assignment_id: 41536972
+  [1] title: "Basics of CNC Mill 212"
+  [1] status: "floating"
+  [1] submission.score: null
+  [1] submission.submitted_at: null
+  [1] submission.posted_at: null
+  [1] points_possible: 5
+  [1] excused: false
+  [2] assignment_id: 41536977
+  [2] title: "Overview of Machine Tools 121"
+  [2] status: "floating"
+  [2] submission.score: null
+  [2] submission.submitted_at: null
+  [2] submission.posted_at: null
+  [2] points_possible: 5
+  [2] excused: false
+  [3] assignment_id: 41537024
+  [3] title: "NIMS Core Machining Skills 121"
+  [3] status: "floating"
+  [3] submission.score: null
+  [3] submission.submitted_at: null
+  [3] submission.posted_at: null
+  [3] points_possible: 5
+  [3] excused: false
+  [4] assignment_id: 41537077
+  [4] title: "NIMS Core CNC Millings Skills 141"
+  [4] status: "floating"
+  [4] submission.score: null
+  [4] submission.submitted_at: null
+  [4] submission.posted_at: null
+  [4] points_possible: 5
+  [4] excused: false
+  [5] assignment_id: 41537083
+  [5] title: "NIMS Core CNC Turning Skills 142"
+  [5] status: "floating"
+  [5] submission.score: null
+  [5] submission.submitted_at: null
+  [5] submission.posted_at: null
+  [5] points_possible: 5
+  [5] excused: false
+  [6] assignment_id: 41864862
+  [6] title: "HOW TO INSTALL A VISE"
+  [6] status: "floating"
+  [6] submission.score: null
+  [6] submission.submitted_at: null
+  [6] submission.posted_at: null
+  [6] points_possible: 3
+  [6] excused: false
+  [7] assignment_id: 41865440
+  [7] title: "The types of CNC Machines Explained"
+  [7] status: "floating"
+  [7] submission.score: null
+  [7] submission.submitted_at: null
+  [7] submission.posted_at: null
+  [7] points_possible: 2
+  [7] excused: false
+  [8] assignment_id: 41865441
+  [8] title: "HOW TO SET WORK OFFSETS MANUALLY"
+  [8] status: "floating"
+  [8] submission.score: null
+  [8] submission.submitted_at: null
+  [8] submission.posted_at: null
+  [8] points_possible: 3
+  [8] excused: false
+  [9] assignment_id: 41865446
+  [9] title: "CONVENTIONAL OD MICROMETER"
+  [9] status: "floating"
+  [9] submission.score: null
+  [9] submission.submitted_at: null
+  [9] submission.posted_at: null
+  [9] points_possible: 3
+  [9] excused: false
+  [10] assignment_id: 41865451
+  [10] title: "DIGITAL CALIPER"
+  [10] status: "floating"
+  [10] submission.score: null
+  [10] submission.submitted_at: null
+  [10] submission.posted_at: null
+  [10] points_possible: 5
+  [10] excused: false
+  [11] assignment_id: 41865455
+  [11] title: "DIGITAL OD MICROMETER"
+  [11] status: "floating"
+  [11] submission.score: null
+  [11] submission.submitted_at: null
+  [11] submission.posted_at: null
+  [11] points_possible: 2
+  [11] excused: false
+  [12] assignment_id: 41865459
+  [12] title: "LATHE TOOLING: OD ROUGHER"
+  [12] status: "floating"
+  [12] submission.score: null
+  [12] submission.submitted_at: null
+  [12] submission.posted_at: null
+  [12] points_possible: 2
+  [12] excused: false
+  [13] assignment_id: 41865464
+  [13] title: "LATHE TOOLING: OD GROOVERS"
+  [13] status: "floating"
+  [13] submission.score: null
+  [13] submission.submitted_at: null
+  [13] submission.posted_at: null
+  [13] points_possible: 5
+  [13] excused: false
+  [14] assignment_id: 41865470
+  [14] title: "LATHE TOOLING: FACE GROOVER"
+  [14] status: "floating"
+  [14] submission.score: null
+  [14] submission.submitted_at: null
+  [14] submission.posted_at: null
+  [14] points_possible: 2
+  [14] excused: false
+  [15] assignment_id: 41865471
+  [15] title: "LATHE TOOLING: DRILLS & TAPS"
+  [15] status: "floating"
+  [15] submission.score: null
+  [15] submission.submitted_at: null
+  [15] submission.posted_at: null
+  [15] points_possible: 2
+  [15] excused: false
+  [16] assignment_id: 41865475
+  [16] title: "LATHE TOOLING: ID BORING BAR"
+  [16] status: "floating"
+  [16] submission.score: null
+  [16] submission.submitted_at: null
+  [16] submission.posted_at: null
+  [16] points_possible: 2
+  [16] excused: false
+  [17] assignment_id: 42580046
+  [17] title: "Beginner Inspection Quiz"
+  [17] status: "floating"
+  [17] submission.score: null
+  [17] submission.submitted_at: null
+  [17] submission.posted_at: null
+  [17] points_possible: 9
+  [17] excused: false
+  [18] assignment_id: 44025211
+  [18] title: "Tool Presetter Quiz"
+  [18] status: "floating"
+  [18] submission.score: null
+  [18] submission.submitted_at: null
+  [18] submission.posted_at: null
+  [18] points_possible: 7.5
+  [18] excused: false
+  [19] assignment_id: 44233721
+  [19] title: "Tool Presetter Hands on Practice"
+  [19] status: "floating"
+  [19] submission.score: null
+  [19] submission.submitted_at: null
+  [19] submission.posted_at: null
+  [19] points_possible: 9
+  [19] excused: false
+  [20] assignment_id: 45680066
+  [20] title: "Math: Fractions and Decimals 111"
+  [20] status: "floating"
+  [20] submission.score: null
+  [20] submission.submitted_at: null
+  [20] submission.posted_at: null
+  [20] points_possible: 5
+  [20] excused: false
+  [21] assignment_id: 45681144
+  [21] title: "Hole Standards and Inspection 141"
+  [21] status: "floating"
+  [21] submission.score: null
+  [21] submission.submitted_at: null
+  [21] submission.posted_at: null
+  [21] points_possible: 5
+  [21] excused: false
+
+--- STUDENT 25 ---
+id: 114474960
+user_id: 113226714
+created_at: "2024-08-22T20:55:36Z"
+last_activity_at: "2025-02-13T15:17:42Z"
+current_score: 95.97
+final_score: 95.97
+user.id: 113226714
+user.name: "Ben Rendon"
+user.sortable_name: "Rendon, Ben"
+user.login_id: "benrendon"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 26 ---
+id: 112934633
+user_id: 112053861
+created_at: "2024-05-13T22:20:54Z"
+last_activity_at: "2025-09-18T00:49:33Z"
+current_score: 97.8
+final_score: 97.8
+user.id: 112053861
+user.name: "Tristen Riley"
+user.sortable_name: "Riley, Tristen"
+user.login_id: "Tristenriley"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 27 ---
+id: 114305974
+user_id: 113097745
+created_at: "2024-08-15T20:36:00Z"
+last_activity_at: "2025-04-01T01:51:54Z"
+current_score: 100
+final_score: 100
+user.id: 113097745
+user.name: "Dirk Roberts "
+user.sortable_name: "Roberts, Dirk"
+user.login_id: "DirkRoberts"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 28 ---
+id: 117013293
+user_id: 115171682
+created_at: "2025-01-22T21:58:45Z"
+last_activity_at: "2025-08-01T02:29:38Z"
+current_score: 97.65
+final_score: 91.21
+user.id: 115171682
+user.name: "Chandler Roueche"
+user.sortable_name: "Roueche, Chandler"
+user.login_id: "CHANDLERROUECHE"
+submitted_assignments.length: 29
+missing_assignments.length: 1
+hasMissingAssignments(): true
+--- SUBMITTED ASSIGNMENTS ---
+  [0] assignment_id: 41536834
+  [0] title: "Intro to CNC Machines 201"
+  [0] status: "on_time"
+  [0] submission.score: 5
+  [0] submission.submitted_at: "2025-02-15T05:11:46Z"
+  [0] submission.posted_at: "2025-02-19T22:32:01Z"
+  [0] points_possible: 5
+  [0] excused: false
+  [1] assignment_id: 41536836
+  [1] title: "Blueprint Reading 131"
+  [1] status: "on_time"
+  [1] submission.score: 5
+  [1] submission.submitted_at: "2025-05-01T02:06:37Z"
+  [1] submission.posted_at: "2025-05-01T13:40:23Z"
+  [1] points_possible: 5
+  [1] excused: false
+  [2] assignment_id: 41536844
+  [2] title: "Basics of Tolerance 121"
+  [2] status: "on_time"
+  [2] submission.score: 5
+  [2] submission.submitted_at: "2025-05-01T03:53:17Z"
+  [2] submission.posted_at: "2025-05-01T13:41:23Z"
+  [2] points_possible: 5
+  [2] excused: false
+  [3] assignment_id: 41536864
+  [3] title: "5s Overview 151"
+  [3] status: "on_time"
+  [3] submission.score: 5
+  [3] submission.submitted_at: "2025-07-01T02:53:02Z"
+  [3] submission.posted_at: "2025-07-01T13:42:52Z"
+  [3] points_possible: 5
+  [3] excused: false
+  [4] assignment_id: 41536958
+  [4] title: "Lean Manufacturing 101"
+  [4] status: "on_time"
+  [4] submission.score: 5
+  [4] submission.submitted_at: "2025-07-01T04:19:02Z"
+  [4] submission.posted_at: "2025-07-01T13:43:09Z"
+  [4] points_possible: 5
+  [4] excused: false
+  [5] assignment_id: 41536963
+  [5] title: "Cutting Processes 111"
+  [5] status: "on_time"
+  [5] submission.score: 5
+  [5] submission.submitted_at: "2025-02-15T05:13:00Z"
+  [5] submission.posted_at: "2025-02-24T16:46:54Z"
+  [5] points_possible: 5
+  [5] excused: false
+  [6] assignment_id: 41536964
+  [6] title: "Basic Cutting Theory 201"
+  [6] status: "on_time"
+  [6] submission.score: 5
+  [6] submission.submitted_at: "2025-02-15T05:47:40Z"
+  [6] submission.posted_at: "2025-02-24T16:48:03Z"
+  [6] points_possible: 5
+  [6] excused: false
+  [7] assignment_id: 41536965
+  [7] title: "Basics of CNC Lathe 211"
+  [7] status: "on_time"
+  [7] submission.score: 5
+  [7] submission.submitted_at: "2025-02-15T07:16:41Z"
+  [7] submission.posted_at: "2025-02-24T16:48:36Z"
+  [7] points_possible: 5
+  [7] excused: false
+  [8] assignment_id: 41536969
+  [8] title: "Basics of the CNC Swiss-Type Lathe 215"
+  [8] status: "on_time"
+  [8] submission.score: 5
+  [8] submission.submitted_at: "2025-02-15T08:00:05Z"
+  [8] submission.posted_at: "2025-02-24T16:49:07Z"
+  [8] points_possible: 5
+  [8] excused: false
+  [9] assignment_id: 41536972
+  [9] title: "Basics of CNC Mill 212"
+  [9] status: "on_time"
+  [9] submission.score: 5
+  [9] submission.submitted_at: "2025-02-19T20:12:11Z"
+  [9] submission.posted_at: "2025-02-24T16:50:07Z"
+  [9] points_possible: 5
+  [9] excused: false
+  [10] assignment_id: 41536977
+  [10] title: "Overview of Machine Tools 121"
+  [10] status: "on_time"
+  [10] submission.score: 5
+  [10] submission.submitted_at: "2025-02-15T06:56:58Z"
+  [10] submission.posted_at: "2025-02-24T16:50:22Z"
+  [10] points_possible: 5
+  [10] excused: false
+  [11] assignment_id: 41537024
+  [11] title: "NIMS Core Machining Skills 121"
+  [11] status: "on_time"
+  [11] submission.score: 5
+  [11] submission.submitted_at: "2025-02-15T06:09:29Z"
+  [11] submission.posted_at: "2025-02-24T16:50:43Z"
+  [11] points_possible: 5
+  [11] excused: false
+  [12] assignment_id: 41537077
+  [12] title: "NIMS Core CNC Millings Skills 141"
+  [12] status: "on_time"
+  [12] submission.score: 5
+  [12] submission.submitted_at: "2025-05-01T00:28:47Z"
+  [12] submission.posted_at: "2025-05-01T13:41:38Z"
+  [12] points_possible: 5
+  [12] excused: false
+  [13] assignment_id: 41537083
+  [13] title: "NIMS Core CNC Turning Skills 142"
+  [13] status: "on_time"
+  [13] submission.score: 5
+  [13] submission.submitted_at: "2025-02-19T19:54:30Z"
+  [13] submission.posted_at: "2025-02-24T16:50:59Z"
+  [13] points_possible: 5
+  [13] excused: false
+  [14] assignment_id: 41864862
+  [14] title: "HOW TO INSTALL A VISE"
+  [14] status: "on_time"
+  [14] submission.score: 3
+  [14] submission.submitted_at: "2025-05-01T00:35:04Z"
+  [14] submission.posted_at: "2025-05-01T00:35:04Z"
+  [14] points_possible: 3
+  [14] excused: false
+  [15] assignment_id: 41865440
+  [15] title: "The types of CNC Machines Explained"
+  [15] status: "on_time"
+  [15] submission.score: 2
+  [15] submission.submitted_at: "2025-02-19T20:16:44Z"
+  [15] submission.posted_at: "2025-02-19T20:16:44Z"
+  [15] points_possible: 2
+  [15] excused: false
+  [16] assignment_id: 41865441
+  [16] title: "HOW TO SET WORK OFFSETS MANUALLY"
+  [16] status: "on_time"
+  [16] submission.score: 3
+  [16] submission.submitted_at: "2025-02-19T20:19:53Z"
+  [16] submission.posted_at: "2025-02-19T20:19:53Z"
+  [16] points_possible: 3
+  [16] excused: false
+  [17] assignment_id: 41865446
+  [17] title: "CONVENTIONAL OD MICROMETER"
+  [17] status: "on_time"
+  [17] submission.score: 3
+  [17] submission.submitted_at: "2025-07-01T04:43:35Z"
+  [17] submission.posted_at: "2025-07-01T04:43:35Z"
+  [17] points_possible: 3
+  [17] excused: false
+  [18] assignment_id: 41865451
+  [18] title: "DIGITAL CALIPER"
+  [18] status: "on_time"
+  [18] submission.score: 5
+  [18] submission.submitted_at: "2025-07-01T04:23:41Z"
+  [18] submission.posted_at: "2025-07-01T04:23:41Z"
+  [18] points_possible: 5
+  [18] excused: false
+  [19] assignment_id: 41865455
+  [19] title: "DIGITAL OD MICROMETER"
+  [19] status: "on_time"
+  [19] submission.score: 2
+  [19] submission.submitted_at: "2025-07-01T04:30:48Z"
+  [19] submission.posted_at: "2025-07-01T04:30:48Z"
+  [19] points_possible: 2
+  [19] excused: false
+  [20] assignment_id: 41865459
+  [20] title: "LATHE TOOLING: OD ROUGHER"
+  [20] status: "on_time"
+  [20] submission.score: 2
+  [20] submission.submitted_at: "2025-02-15T07:21:34Z"
+  [20] submission.posted_at: "2025-02-15T07:21:34Z"
+  [20] points_possible: 2
+  [20] excused: false
+  [21] assignment_id: 41865464
+  [21] title: "LATHE TOOLING: OD GROOVERS"
+  [21] status: "on_time"
+  [21] submission.score: 5
+  [21] submission.submitted_at: "2025-02-15T07:32:30Z"
+  [21] submission.posted_at: "2025-02-15T07:32:30Z"
+  [21] points_possible: 5
+  [21] excused: false
+  [22] assignment_id: 41865470
+  [22] title: "LATHE TOOLING: FACE GROOVER"
+  [22] status: "on_time"
+  [22] submission.score: 2
+  [22] submission.submitted_at: "2025-02-15T07:35:36Z"
+  [22] submission.posted_at: "2025-02-15T07:35:21Z"
+  [22] points_possible: 2
+  [22] excused: false
+  [23] assignment_id: 41865471
+  [23] title: "LATHE TOOLING: DRILLS & TAPS"
+  [23] status: "on_time"
+  [23] submission.score: 2
+  [23] submission.submitted_at: "2025-07-01T00:24:34Z"
+  [23] submission.posted_at: "2025-07-01T00:24:34Z"
+  [23] points_possible: 2
+  [23] excused: false
+  [24] assignment_id: 41865475
+  [24] title: "LATHE TOOLING: ID BORING BAR"
+  [24] status: "on_time"
+  [24] submission.score: 1
+  [24] submission.submitted_at: "2025-07-01T04:51:30Z"
+  [24] submission.posted_at: "2025-07-01T04:50:27Z"
+  [24] points_possible: 2
+  [24] excused: false
+  [25] assignment_id: 42580046
+  [25] title: "Beginner Inspection Quiz"
+  [25] status: "on_time"
+  [25] submission.score: 7
+  [25] submission.submitted_at: "2025-07-01T04:33:58Z"
+  [25] submission.posted_at: "2025-07-01T04:33:58Z"
+  [25] points_possible: 9
+  [25] excused: false
+  [26] assignment_id: 44025211
+  [26] title: "Tool Presetter Quiz"
+  [26] status: "on_time"
+  [26] submission.score: 7.5
+  [26] submission.submitted_at: "2025-05-01T01:03:46Z"
+  [26] submission.posted_at: "2025-05-01T01:03:46Z"
+  [26] points_possible: 7.5
+  [26] excused: false
+  [27] assignment_id: 45680066
+  [27] title: "Math: Fractions and Decimals 111"
+  [27] status: "on_time"
+  [27] submission.score: 5
+  [27] submission.submitted_at: "2025-07-01T01:59:51Z"
+  [27] submission.posted_at: "2025-07-01T13:50:32Z"
+  [27] points_possible: 5
+  [27] excused: false
+  [28] assignment_id: 45681144
+  [28] title: "Hole Standards and Inspection 141"
+  [28] status: "on_time"
+  [28] submission.score: 5
+  [28] submission.submitted_at: "2025-05-01T02:58:23Z"
+  [28] submission.posted_at: "2025-05-01T13:42:16Z"
+  [28] points_possible: 5
+  [28] excused: false
+--- MISSING ASSIGNMENTS ---
+  [0] assignment_id: 44233721
+  [0] title: "Tool Presetter Hands on Practice"
+  [0] status: "floating"
+  [0] submission.score: null
+  [0] submission.submitted_at: null
+  [0] submission.posted_at: null
+  [0] points_possible: 9
+  [0] excused: false
+
+--- STUDENT 29 ---
+id: 120551363
+user_id: 118284019
+created_at: "2025-08-20T19:11:17Z"
+last_activity_at: "2025-10-09T18:32:23Z"
+current_score: 94.87
+final_score: 27.11
+user.id: 118284019
+user.name: "Clayton Smith"
+user.sortable_name: "Smith, Clayton"
+user.login_id: "JadeRadish"
+submitted_assignments.length: 9
+missing_assignments.length: 21
+hasMissingAssignments(): true
+--- SUBMITTED ASSIGNMENTS ---
+  [0] assignment_id: 41536834
+  [0] title: "Intro to CNC Machines 201"
+  [0] status: "on_time"
+  [0] submission.score: 5
+  [0] submission.submitted_at: "2025-08-28T13:26:31Z"
+  [0] submission.posted_at: "2025-08-28T14:13:10Z"
+  [0] points_possible: 5
+  [0] excused: false
+  [1] assignment_id: 41536963
+  [1] title: "Cutting Processes 111"
+  [1] status: "on_time"
+  [1] submission.score: 5
+  [1] submission.submitted_at: "2025-09-16T20:08:36Z"
+  [1] submission.posted_at: "2025-09-16T22:01:15Z"
+  [1] points_possible: 5
+  [1] excused: false
+  [2] assignment_id: 41536964
+  [2] title: "Basic Cutting Theory 201"
+  [2] status: "on_time"
+  [2] submission.score: 5
+  [2] submission.submitted_at: "2025-09-16T21:33:50Z"
+  [2] submission.posted_at: "2025-09-16T22:01:35Z"
+  [2] points_possible: 5
+  [2] excused: false
+  [3] assignment_id: 41536965
+  [3] title: "Basics of CNC Lathe 211"
+  [3] status: "on_time"
+  [3] submission.score: 5
+  [3] submission.submitted_at: "2025-10-09T13:16:28Z"
+  [3] submission.posted_at: "2025-10-09T18:52:22Z"
+  [3] points_possible: 5
+  [3] excused: false
+  [4] assignment_id: 41536977
+  [4] title: "Overview of Machine Tools 121"
+  [4] status: "on_time"
+  [4] submission.score: 5
+  [4] submission.submitted_at: "2025-09-17T20:50:11Z"
+  [4] submission.posted_at: "2025-09-17T21:58:41Z"
+  [4] points_possible: 5
+  [4] excused: false
+  [5] assignment_id: 41537024
+  [5] title: "NIMS Core Machining Skills 121"
+  [5] status: "on_time"
+  [5] submission.score: 5
+  [5] submission.submitted_at: "2025-09-17T13:25:37Z"
+  [5] submission.posted_at: "2025-09-17T14:21:47Z"
+  [5] points_possible: 5
+  [5] excused: false
+  [6] assignment_id: 41865459
+  [6] title: "LATHE TOOLING: OD ROUGHER"
+  [6] status: "on_time"
+  [6] submission.score: 1
+  [6] submission.submitted_at: "2025-09-18T15:24:36Z"
+  [6] submission.posted_at: "2025-09-18T15:16:22Z"
+  [6] points_possible: 2
+  [6] excused: false
+  [7] assignment_id: 41865464
+  [7] title: "LATHE TOOLING: OD GROOVERS"
+  [7] status: "on_time"
+  [7] submission.score: 4
+  [7] submission.submitted_at: "2025-09-18T15:23:12Z"
+  [7] submission.posted_at: "2025-09-18T15:23:12Z"
+  [7] points_possible: 5
+  [7] excused: false
+  [8] assignment_id: 41865470
+  [8] title: "LATHE TOOLING: FACE GROOVER"
+  [8] status: "on_time"
+  [8] submission.score: 2
+  [8] submission.submitted_at: "2025-10-06T18:42:03Z"
+  [8] submission.posted_at: "2025-10-06T18:42:03Z"
+  [8] points_possible: 2
+  [8] excused: false
+--- MISSING ASSIGNMENTS ---
+  [0] assignment_id: 41536836
+  [0] title: "Blueprint Reading 131"
+  [0] status: "floating"
+  [0] submission.score: null
+  [0] submission.submitted_at: null
+  [0] submission.posted_at: null
+  [0] points_possible: 5
+  [0] excused: false
+  [1] assignment_id: 41536844
+  [1] title: "Basics of Tolerance 121"
+  [1] status: "floating"
+  [1] submission.score: null
+  [1] submission.submitted_at: null
+  [1] submission.posted_at: null
+  [1] points_possible: 5
+  [1] excused: false
+  [2] assignment_id: 41536864
+  [2] title: "5s Overview 151"
+  [2] status: "floating"
+  [2] submission.score: null
+  [2] submission.submitted_at: null
+  [2] submission.posted_at: null
+  [2] points_possible: 5
+  [2] excused: false
+  [3] assignment_id: 41536958
+  [3] title: "Lean Manufacturing 101"
+  [3] status: "floating"
+  [3] submission.score: null
+  [3] submission.submitted_at: null
+  [3] submission.posted_at: null
+  [3] points_possible: 5
+  [3] excused: false
+  [4] assignment_id: 41536969
+  [4] title: "Basics of the CNC Swiss-Type Lathe 215"
+  [4] status: "floating"
+  [4] submission.score: null
+  [4] submission.submitted_at: null
+  [4] submission.posted_at: null
+  [4] points_possible: 5
+  [4] excused: false
+  [5] assignment_id: 41536972
+  [5] title: "Basics of CNC Mill 212"
+  [5] status: "floating"
+  [5] submission.score: null
+  [5] submission.submitted_at: null
+  [5] submission.posted_at: null
+  [5] points_possible: 5
+  [5] excused: false
+  [6] assignment_id: 41537077
+  [6] title: "NIMS Core CNC Millings Skills 141"
+  [6] status: "floating"
+  [6] submission.score: null
+  [6] submission.submitted_at: null
+  [6] submission.posted_at: null
+  [6] points_possible: 5
+  [6] excused: false
+  [7] assignment_id: 41537083
+  [7] title: "NIMS Core CNC Turning Skills 142"
+  [7] status: "floating"
+  [7] submission.score: null
+  [7] submission.submitted_at: null
+  [7] submission.posted_at: null
+  [7] points_possible: 5
+  [7] excused: false
+  [8] assignment_id: 41864862
+  [8] title: "HOW TO INSTALL A VISE"
+  [8] status: "floating"
+  [8] submission.score: null
+  [8] submission.submitted_at: null
+  [8] submission.posted_at: null
+  [8] points_possible: 3
+  [8] excused: false
+  [9] assignment_id: 41865440
+  [9] title: "The types of CNC Machines Explained"
+  [9] status: "floating"
+  [9] submission.score: null
+  [9] submission.submitted_at: null
+  [9] submission.posted_at: null
+  [9] points_possible: 2
+  [9] excused: false
+  [10] assignment_id: 41865441
+  [10] title: "HOW TO SET WORK OFFSETS MANUALLY"
+  [10] status: "floating"
+  [10] submission.score: null
+  [10] submission.submitted_at: null
+  [10] submission.posted_at: null
+  [10] points_possible: 3
+  [10] excused: false
+  [11] assignment_id: 41865446
+  [11] title: "CONVENTIONAL OD MICROMETER"
+  [11] status: "floating"
+  [11] submission.score: null
+  [11] submission.submitted_at: null
+  [11] submission.posted_at: null
+  [11] points_possible: 3
+  [11] excused: false
+  [12] assignment_id: 41865451
+  [12] title: "DIGITAL CALIPER"
+  [12] status: "floating"
+  [12] submission.score: null
+  [12] submission.submitted_at: null
+  [12] submission.posted_at: null
+  [12] points_possible: 5
+  [12] excused: false
+  [13] assignment_id: 41865455
+  [13] title: "DIGITAL OD MICROMETER"
+  [13] status: "floating"
+  [13] submission.score: null
+  [13] submission.submitted_at: null
+  [13] submission.posted_at: null
+  [13] points_possible: 2
+  [13] excused: false
+  [14] assignment_id: 41865471
+  [14] title: "LATHE TOOLING: DRILLS & TAPS"
+  [14] status: "floating"
+  [14] submission.score: null
+  [14] submission.submitted_at: null
+  [14] submission.posted_at: null
+  [14] points_possible: 2
+  [14] excused: false
+  [15] assignment_id: 41865475
+  [15] title: "LATHE TOOLING: ID BORING BAR"
+  [15] status: "floating"
+  [15] submission.score: null
+  [15] submission.submitted_at: null
+  [15] submission.posted_at: null
+  [15] points_possible: 2
+  [15] excused: false
+  [16] assignment_id: 42580046
+  [16] title: "Beginner Inspection Quiz"
+  [16] status: "floating"
+  [16] submission.score: null
+  [16] submission.submitted_at: null
+  [16] submission.posted_at: null
+  [16] points_possible: 9
+  [16] excused: false
+  [17] assignment_id: 44025211
+  [17] title: "Tool Presetter Quiz"
+  [17] status: "floating"
+  [17] submission.score: null
+  [17] submission.submitted_at: null
+  [17] submission.posted_at: null
+  [17] points_possible: 7.5
+  [17] excused: false
+  [18] assignment_id: 44233721
+  [18] title: "Tool Presetter Hands on Practice"
+  [18] status: "floating"
+  [18] submission.score: null
+  [18] submission.submitted_at: null
+  [18] submission.posted_at: null
+  [18] points_possible: 9
+  [18] excused: false
+  [19] assignment_id: 45680066
+  [19] title: "Math: Fractions and Decimals 111"
+  [19] status: "floating"
+  [19] submission.score: null
+  [19] submission.submitted_at: null
+  [19] submission.posted_at: null
+  [19] points_possible: 5
+  [19] excused: false
+  [20] assignment_id: 45681144
+  [20] title: "Hole Standards and Inspection 141"
+  [20] status: "floating"
+  [20] submission.score: null
+  [20] submission.submitted_at: null
+  [20] submission.posted_at: null
+  [20] points_possible: 5
+  [20] excused: false
+
+--- STUDENT 30 ---
+id: 119913848
+user_id: 117791192
+created_at: "2025-07-15T16:51:04Z"
+last_activity_at: "2025-10-08T20:13:42Z"
+current_score: 98.9
+final_score: 98.9
+user.id: 117791192
+user.name: "Alexandria Stephens"
+user.sortable_name: "Stephens, Alexandria"
+user.login_id: "AlexandriaStephens"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 31 ---
+id: 119267390
+user_id: 117197169
+created_at: "2025-06-03T00:29:11Z"
+last_activity_at: "2025-10-03T01:08:59Z"
+current_score: 97.8
+final_score: 97.8
+user.id: 117197169
+user.name: "Zachary Thomas Swallow"
+user.sortable_name: "Swallow, Zachary Thomas"
+user.login_id: "ZacharySwallow"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 32 ---
+id: 113442181
+user_id: 112449730
+created_at: "2024-06-21T22:20:38Z"
+last_activity_at: "2024-09-15T15:12:22Z"
+current_score: 98.17
+final_score: 98.17
+user.id: 112449730
+user.name: "Jonathan Winfield"
+user.sortable_name: "Winfield, Jonathan"
+user.login_id: "Jackwinfield1997"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+--- STUDENT 33 ---
+id: 111451961
+user_id: 110945747
+created_at: "2024-01-29T23:18:42Z"
+last_activity_at: "2024-09-09T21:57:23Z"
+current_score: 98.17
+final_score: 98.17
+user.id: 110945747
+user.name: "Lindy Young"
+user.sortable_name: "Young, Lindy"
+user.login_id: "Lindyyoung"
+submitted_assignments.length: 0
+missing_assignments.length: 0
+hasMissingAssignments(): false
+
+========================================
+MODULES ARRAY (CanvasModuleStaging[])
+========================================
+Total Modules: 4
+
+--- MODULE 1 ---
+id: 15543255
+position: 2
+published: true
+assignments.length: 23
+--- MODULE ASSIGNMENTS ---
+  [0] id: 95875677
+  [0] position: 1
+  [0] published: true
+  [0] title: "Intro to CNC Machines 201"
+  [0] type: "Assignment"
+  [0] url: "https://canvas.instructure.com/api/v1/courses/7982015/assignments/41536834"
+  [0] content_details.points_possible: 5
+  [1] id: 95875894
+  [1] position: 2
+  [1] published: true
+  [1] title: "Cutting Processes 111"
+  [1] type: "Assignment"
+  [1] url: "https://canvas.instructure.com/api/v1/courses/7982015/assignments/41536963"
+  [1] content_details.points_possible: 5
+  [2] id: 95875895
+  [2] position: 3
+  [2] published: true
+  [2] title: "Basic Cutting Theory 201"
+  [2] type: "Assignment"
+  [2] url: "https://canvas.instructure.com/api/v1/courses/7982015/assignments/41536964"
+  [2] content_details.points_possible: 5
+  [3] id: 95876067
+  [3] position: 4
+  [3] published: true
+  [3] title: "NIMS Core Machining Skills 121"
+  [3] type: "Assignment"
+  [3] url: "https://canvas.instructure.com/api/v1/courses/7982015/assignments/41537024"
+  [3] content_details.points_possible: 5
+  [4] id: 95875925
+  [4] position: 5
+  [4] published: true
+  [4] title: "Overview of Machine Tools 121"
+  [4] type: "Assignment"
+  [4] url: "https://canvas.instructure.com/api/v1/courses/7982015/assignments/41536977"
+  [4] content_details.points_possible: 5
+  [5] id: 95875896
+  [5] position: 6
+  [5] published: true
+  [5] title: "Basics of CNC Lathe 211"
+  [5] type: "Assignment"
+  [5] url: "https://canvas.instructure.com/api/v1/courses/7982015/assignments/41536965"
+  [5] content_details.points_possible: 5
+  [6] id: 96705497
+  [6] position: 7
+  [6] published: true
+  [6] title: "LATHE TOOLING: OD ROUGHER"
+  [6] type: "Quiz"
+  [6] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/16129135"
+  [6] content_details.points_possible: 2
+  [7] id: 96705504
+  [7] position: 8
+  [7] published: true
+  [7] title: "LATHE TOOLING: OD FINISHER"
+  [7] type: "Quiz"
+  [7] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/16129137"
+  [7] content_details.points_possible: 3
+  [8] id: 96705507
+  [8] position: 9
+  [8] published: true
+  [8] title: "LATHE TOOLING: OD GROOVERS"
+  [8] type: "Quiz"
+  [8] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/16129138"
+  [8] content_details.points_possible: 5
+  [9] id: 96705521
+  [9] position: 10
+  [9] published: true
+  [9] title: "LATHE TOOLING: FACE GROOVER"
+  [9] type: "Quiz"
+  [9] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/16129141"
+  [9] content_details.points_possible: 2
+  [10] id: 95875903
+  [10] position: 11
+  [10] published: true
+  [10] title: "Basics of the CNC Swiss-Type Lathe 215"
+  [10] type: "Assignment"
+  [10] url: "https://canvas.instructure.com/api/v1/courses/7982015/assignments/41536969"
+  [10] content_details.points_possible: 5
+  [11] id: 96705523
+  [11] position: 12
+  [11] published: true
+  [11] title: "LATHE TOOLING: DRILLS & TAPS"
+  [11] type: "Quiz"
+  [11] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/16129142"
+  [11] content_details.points_possible: 2
+  [12] id: 96705530
+  [12] position: 13
+  [12] published: true
+  [12] title: "LATHE TOOLING: ID GROOVER"
+  [12] type: "Quiz"
+  [12] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/16129144"
+  [12] content_details.points_possible: 3
+  [13] id: 96705533
+  [13] position: 14
+  [13] published: true
+  [13] title: "LATHE TOOLING: ID BORING BAR"
+  [13] type: "Quiz"
+  [13] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/16129145"
+  [13] content_details.points_possible: 2
+  [14] id: 95876228
+  [14] position: 15
+  [14] published: true
+  [14] title: "NIMS Core CNC Turning Skills 142"
+  [14] type: "Assignment"
+  [14] url: "https://canvas.instructure.com/api/v1/courses/7982015/assignments/41537083"
+  [14] content_details.points_possible: 5
+  [15] id: 95875910
+  [15] position: 16
+  [15] published: true
+  [15] title: "Basics of CNC Mill 212"
+  [15] type: "Assignment"
+  [15] url: "https://canvas.instructure.com/api/v1/courses/7982015/assignments/41536972"
+  [15] content_details.points_possible: 5
+  [16] id: 96705463
+  [16] position: 17
+  [16] published: true
+  [16] title: "The types of CNC Machines Explained"
+  [16] type: "Quiz"
+  [16] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/16129124"
+  [16] content_details.points_possible: 2
+  [17] id: 96705465
+  [17] position: 18
+  [17] published: true
+  [17] title: "HOW TO SET WORK OFFSETS MANUALLY"
+  [17] type: "Quiz"
+  [17] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/16129126"
+  [17] content_details.points_possible: 3
+  [18] id: 95876214
+  [18] position: 19
+  [18] published: true
+  [18] title: "NIMS Core CNC Millings Skills 141"
+  [18] type: "Assignment"
+  [18] url: "https://canvas.instructure.com/api/v1/courses/7982015/assignments/41537077"
+  [18] content_details.points_possible: 5
+  [19] id: 96704614
+  [19] position: 20
+  [19] published: true
+  [19] title: "HOW TO INSTALL A VISE"
+  [19] type: "Quiz"
+  [19] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/16128747"
+  [19] content_details.points_possible: 3
+  [20] id: 96705468
+  [20] position: 21
+  [20] published: true
+  [20] title: "MANUAL FLATNESS CHECK"
+  [20] type: "Quiz"
+  [20] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/16129128"
+  [20] content_details.points_possible: 3
+  [21] id: 102250567
+  [21] position: 24
+  [21] published: true
+  [21] title: "Tool Presetter Quiz"
+  [21] type: "Quiz"
+  [21] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/17063369"
+  [21] content_details.points_possible: 7.5
+  [22] id: 102802955
+  [22] position: 25
+  [22] published: true
+  [22] title: "Tool Presetter Hands on Practice"
+  [22] type: "Quiz"
+  [22] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/17156253"
+  [22] content_details.points_possible: 9
+
+--- MODULE 2 ---
+id: 15542132
+position: 3
+published: true
+assignments.length: 10
+--- MODULE ASSIGNMENTS ---
+  [0] id: 95875678
+  [0] position: 2
+  [0] published: true
+  [0] title: "Blueprint Reading 131"
+  [0] type: "Assignment"
+  [0] url: "https://canvas.instructure.com/api/v1/courses/7982015/assignments/41536836"
+  [0] content_details.points_possible: 5
+  [1] id: 106700536
+  [1] position: 3
+  [1] published: true
+  [1] title: "Hole Standards and Inspection 141"
+  [1] type: "Assignment"
+  [1] url: "https://canvas.instructure.com/api/v1/courses/7982015/assignments/45681144"
+  [1] content_details.points_possible: 5
+  [2] id: 95875687
+  [2] position: 4
+  [2] published: true
+  [2] title: "Basics of Tolerance 121"
+  [2] type: "Assignment"
+  [2] url: "https://canvas.instructure.com/api/v1/courses/7982015/assignments/41536844"
+  [2] content_details.points_possible: 5
+  [3] id: 96705486
+  [3] position: 5
+  [3] published: true
+  [3] title: "DIGITAL CALIPER"
+  [3] type: "Quiz"
+  [3] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/16129132"
+  [3] content_details.points_possible: 5
+  [4] id: 96705490
+  [4] position: 9
+  [4] published: true
+  [4] title: "DIGITAL OD MICROMETER"
+  [4] type: "Quiz"
+  [4] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/16129133"
+  [4] content_details.points_possible: 2
+  [5] id: 96705475
+  [5] position: 11
+  [5] published: true
+  [5] title: "CONVENTIONAL OD MICROMETER"
+  [5] type: "Quiz"
+  [5] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/16129130"
+  [5] content_details.points_possible: 3
+  [6] id: 98556334
+  [6] position: 15
+  [6] published: true
+  [6] title: "Beginner Inspection Quiz"
+  [6] type: "Quiz"
+  [6] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/16443207"
+  [6] content_details.points_possible: 9
+  [7] id: 105237320
+  [7] position: 16
+  [7] published: true
+  [7] title: "Hands on Beginner Inspection Quiz"
+  [7] type: "Quiz"
+  [7] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/17565259"
+  [7] content_details.points_possible: 10
+  [8] id: 97661690
+  [8] position: 18
+  [8] published: false
+  [8] title: "High QA Academy - IM Explorer Training"
+  [8] type: "Assignment"
+  [8] url: "https://canvas.instructure.com/api/v1/courses/7982015/assignments/42226200"
+  [8] content_details.points_possible: 5
+  [9] id: 106697904
+  [9] position: 19
+  [9] published: true
+  [9] title: "Math: Fractions and Decimals 111"
+  [9] type: "Assignment"
+  [9] url: "https://canvas.instructure.com/api/v1/courses/7982015/assignments/45680066"
+  [9] content_details.points_possible: 5
+
+--- MODULE 3 ---
+id: 14050352
+position: 4
+published: true
+assignments.length: 2
+--- MODULE ASSIGNMENTS ---
+  [0] id: 95875690
+  [0] position: 4
+  [0] published: true
+  [0] title: "5s Overview 151"
+  [0] type: "Assignment"
+  [0] url: "https://canvas.instructure.com/api/v1/courses/7982015/assignments/41536864"
+  [0] content_details.points_possible: 5
+  [1] id: 95875871
+  [1] position: 5
+  [1] published: true
+  [1] title: "Lean Manufacturing 101"
+  [1] type: "Assignment"
+  [1] url: "https://canvas.instructure.com/api/v1/courses/7982015/assignments/41536958"
+  [1] content_details.points_possible: 5
+
+--- MODULE 4 ---
+id: 15672474
+position: 5
+published: true
+assignments.length: 1
+--- MODULE ASSIGNMENTS ---
+  [0] id: 106068329
+  [0] position: 1
+  [0] published: true
+  [0] title: "Survey"
+  [0] type: "Quiz"
+  [0] url: "https://canvas.instructure.com/api/v1/courses/7982015/quizzes/17707652"
+  [0] content_details.points_possible: 0
+
+========================================
+SUMMARY STATISTICS
+========================================
+course_id: 7982015
+course_name: JDU 1st Section
+students_count: 33
+modules_count: 4
+total_assignments: 36
+published_assignments: 35
+total_possible_points: 155.5
+students_with_scores: 33
+
+========================================
+OPTIMIZATION STATISTICS
+========================================
+Total Students: 33
+Students with Missing Assignments (API called): 6
+Students without Missing Assignments (API skipped): 27
+API Efficiency: 81.8% calls avoided

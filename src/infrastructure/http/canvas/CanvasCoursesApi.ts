@@ -25,15 +25,60 @@ export class CanvasCoursesApi {
       per_page: options.perPage || 100,
     };
 
-    if (options.includeEnrollments) {
-      params.include = 'enrollments';
+    const includes: string[] = [];
+    
+    // Always try to include total_students, though Canvas Free may not return it
+    includes.push('total_students');
+    
+    if (includes.length > 0) {
+      params.include = includes.join(',');
     }
 
     if (options.state) {
       params.state = options.state;
     }
 
-    return this.client.get<CanvasCourse[]>('courses', { params });
+    const response = await this.client.get<CanvasCourse[]>('courses', { params });
+    
+    // If Canvas didn't provide total_students and we need accurate counts,
+    // fetch them using the dedicated students endpoint
+    if (response.data && options.includeEnrollments) {
+      // Fetch student counts in parallel for better performance
+      const studentCountPromises = response.data.map(async (course) => {
+        if (course.total_students === undefined) {
+          try {
+            // Get actual student count using the users endpoint
+            const studentsResponse = await this.client.get<any[]>(`courses/${course.id}/users`, {
+              params: {
+                enrollment_type: 'student',
+                enrollment_state: 'active',
+                per_page: 100 // Get up to 100 students per course
+              }
+            });
+            
+            const studentCount = studentsResponse.data?.length || 0;
+            return { courseId: course.id, count: studentCount };
+          } catch (error) {
+            // Silently handle errors and default to 0
+            return { courseId: course.id, count: 0 };
+          }
+        }
+        return { courseId: course.id, count: course.total_students || 0 };
+      });
+      
+      const studentCounts = await Promise.all(studentCountPromises);
+      
+      // Apply the student counts to the courses
+      const countMap = new Map(studentCounts.map(sc => [sc.courseId, sc.count]));
+      response.data.forEach(course => {
+        const count = countMap.get(course.id);
+        if (count !== undefined) {
+          course.total_students = count;
+        }
+      });
+    }
+    
+    return response;
   }
 
   /**

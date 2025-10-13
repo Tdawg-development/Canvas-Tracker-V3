@@ -185,11 +185,9 @@ src/
 │   │       └── AnalyticsRepoKnex.ts
 │   ├── http/                  # External HTTP clients ✅ CREATED
 │   │   ├── canvas/           # Canvas API integration ✅ CREATED
-│   │   │   ├── CanvasGatewayHttp.ts # Canvas API implementation
-│   │   │   ├── CanvasClient.ts # Raw Canvas API client ✅ CREATED
-│   │   │   ├── CanvasCoursesApi.ts # Modular courses API component ✅ CREATED
-│   │   │   ├── CanvasAdaptiveScheduler.ts # Intelligent rate limiting scheduler ✅ CREATED
 │   │   │   ├── CanvasGatewayHttp.ts # Canvas API implementation ✅ CREATED
+│   │   │   ├── CanvasClient.ts # Raw Canvas API client with rate limiting ✅ CREATED
+│   │   │   ├── CanvasCoursesApi.ts # Modular courses API component ✅ CREATED
 │   │   │   ├── CanvasMappers.ts # Canvas data mapping
 │   │   │   └── CanvasTypes.ts # Canvas API type definitions ✅ CREATED
 │   │   └── common/           # Common HTTP utilities ✅ CREATED

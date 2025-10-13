@@ -57,7 +57,7 @@ export class CanvasDataConstructor {
       
       // Step 4: Construct the complete staging object
       console.log('🔨 Step 4: Constructing staging data objects...');
-      course.addStudents(studentsData);
+      course.addStudents(studentsData, this);
       course.addModules(modulesData);
       
       const processingTime = Date.now() - startTime;
@@ -184,6 +184,125 @@ export class CanvasDataConstructor {
       
     } catch (error) {
       console.error(`   ❌ Failed to get modules for course ${courseId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get student assignment analytics data
+   * Simple function that makes single API call to Canvas analytics endpoint
+   * 
+   * INPUT: courseId (number), studentId (number)
+   * OUTPUT: Array of assignment objects with status and scores
+   * 
+   * @param courseId - Canvas course ID
+   * @param studentId - Canvas user ID (student)
+   * @returns Array of assignment analytics objects
+   */
+  async getStudentAssignmentAnalytics(courseId: number, studentId: number): Promise<any[]> {
+    try {
+      const response = await this.gateway.getClient().requestWithFullResponse(
+        `courses/${courseId}/analytics/users/${studentId}/assignments`,
+        {
+          params: {
+            // Remove fields parameter to get full response
+          }
+        }
+      );
+      
+      const analyticsData = (response.data as any[]) || [];
+      
+      // Transform the data to match the expected output structure
+      const transformedData = analyticsData.map(item => ({
+        assignment_id: item.assignment_id,
+        title: item.title, // Include title from actual response
+        status: item.status, // "on_time" | "floating" | "late" | "missing" etc.
+        submission: {
+          score: item.submission?.score || null, // Get score from submission object
+          submitted_at: item.submission?.submitted_at || null,
+          posted_at: item.submission?.posted_at || null
+        },
+        points_possible: item.points_possible,
+        excused: item.excused
+      }));
+      
+      return transformedData;
+      
+    } catch (error) {
+      console.error(`❌ Failed to get assignment analytics for student ${studentId} in course ${courseId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all active courses and build course staging objects
+   * Calls the courses endpoint to get all courses connected to the API key
+   * Then builds a CanvasCourseStaging object for each course
+   * 
+   * @returns Array of CanvasCourseStaging objects for all active courses
+   */
+  async getAllActiveCoursesStaging(): Promise<CanvasCourseStaging[]> {
+    console.log('🏫 Getting all active courses from Canvas API...');
+    
+    try {
+      const startTime = Date.now();
+      
+      const response = await this.gateway.getClient().requestWithFullResponse(
+        'courses',
+        {
+          params: {
+            per_page: 100
+          }
+        }
+      );
+      
+      const coursesData = (response.data as any[]) || [];
+      const responseTime = Date.now() - startTime;
+      
+      console.log(`✅ Retrieved ${coursesData.length} courses in ${responseTime}ms`);
+      
+      // Filter for available courses only and build staging objects
+      console.log('🔨 Building course staging objects (available courses only)...');
+      const courseStaging: CanvasCourseStaging[] = [];
+      
+      let availableCount = 0;
+      let unpublishedCount = 0;
+      let otherCount = 0;
+      
+      coursesData.forEach(courseData => {
+        // Count workflow states
+        if (courseData.workflow_state === 'available') {
+          availableCount++;
+          // Build staging object only for available courses
+          const courseStagingObj = new CanvasCourseStaging(courseData);
+          courseStaging.push(courseStagingObj);
+        } else if (courseData.workflow_state === 'unpublished') {
+          unpublishedCount++;
+        } else {
+          otherCount++;
+        }
+      });
+      
+      console.log(`📊 Course Summary:`);
+      console.log(`   Total Retrieved: ${coursesData.length}`);
+      console.log(`   Available: ${availableCount}`);
+      console.log(`   Unpublished (filtered out): ${unpublishedCount}`);
+      if (otherCount > 0) {
+        console.log(`   Other states: ${otherCount}`);
+      }
+      console.log(`   Active Course Objects Created: ${availableCount}`);
+      
+      if (availableCount > 0) {
+        console.log('\n📋 Sample Courses:');
+        courseStaging.slice(0, 3).forEach((course, index) => {
+          console.log(`   ${index + 1}. ID: ${course.id} - "${course.name}" (${course.course_code})`);
+        });
+      }
+      
+      return courseStaging;
+      
+    } catch (error) {
+      console.error('💥 Failed to get active courses:', error);
       throw error;
     }
   }

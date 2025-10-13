@@ -6,7 +6,6 @@
 
 import { CanvasClient } from './CanvasClient';
 import { CanvasCoursesApi } from './CanvasCoursesApi';
-import { CanvasAdaptiveScheduler } from './CanvasAdaptiveScheduler';
 import {
   CanvasApiConfig,
   CanvasCourse,
@@ -19,17 +18,22 @@ import {
 export class CanvasGatewayHttp {
   private readonly client: CanvasClient;
   public readonly coursesApi: CanvasCoursesApi;
-  private readonly scheduler: CanvasAdaptiveScheduler;
 
   constructor(config: CanvasApiConfig) {
     this.client = new CanvasClient(config);
     this.coursesApi = new CanvasCoursesApi(this.client);
-    this.scheduler = new CanvasAdaptiveScheduler(this.client);
+  }
+
+  /**
+   * Get the underlying client for direct access (for testing)
+   */
+  public getClient(): CanvasClient {
+    return this.client;
   }
 
   /**
    * Get curriculum data with v2-like performance
-   * Uses adaptive scheduling to handle Canvas Free rate limits intelligently
+   * Uses built-in client rate limiting to handle Canvas Free rate limits safely
    */
   public async getCurriculumData(curriculum: CurriculumConfig): Promise<{
     courses: CanvasCourse[];
@@ -71,10 +75,16 @@ export class CanvasGatewayHttp {
         return sum + Math.max(5, Math.floor(studentCount / 3)); // ~1 assignment per 3 students
       }, 0);
 
-      // Get performance metrics
-      const schedulerMetrics = this.scheduler.getMetrics();
-      const performanceSummary = this.scheduler.getPerformanceSummary();
+      // Get performance metrics from client (more reliable than scheduler)
+      const clientMetrics = this.client.getMetrics();
       const syncTimeSeconds = (Date.now() - startTime) / 1000;
+      
+      // Determine performance status based on real metrics
+      const canHandle8Courses = clientMetrics.successRate > 90 && clientMetrics.averageResponseTime < 2000;
+      const status: 'optimal' | 'good' | 'throttled' | 'limited' = 
+        clientMetrics.successRate > 95 && clientMetrics.averageResponseTime < 1000 ? 'optimal' :
+        clientMetrics.successRate > 85 ? 'good' :
+        clientMetrics.successRate > 70 ? 'throttled' : 'limited';
 
       // Create sync status
       const syncStatus: CurriculumSyncStatus = {
@@ -95,10 +105,10 @@ export class CanvasGatewayHttp {
         syncStatus,
         performance: {
           syncTimeSeconds,
-          requestsMade: schedulerMetrics.totalRequests,
-          successRate: schedulerMetrics.successRate,
-          canHandle8Courses: performanceSummary.canHandle8Courses,
-          status: performanceSummary.status,
+          requestsMade: clientMetrics.totalRequests,
+          successRate: clientMetrics.successRate,
+          canHandle8Courses,
+          status,
         },
       };
 
@@ -241,20 +251,34 @@ export class CanvasGatewayHttp {
    */
   public getApiStatus(): {
     rateLimitStatus: ReturnType<CanvasClient['getRateLimitStatus']>;
-    schedulerMetrics: ReturnType<CanvasAdaptiveScheduler['getMetrics']>;
-    performanceSummary: ReturnType<CanvasAdaptiveScheduler['getPerformanceSummary']>;
+    schedulerMetrics: {
+      successRate: number;
+      averageResponseTime: number;
+      totalRequests: number;
+    };
+    performanceSummary: {
+      status: 'optimal' | 'good' | 'throttled' | 'limited';
+      canHandle8Courses: boolean;
+      estimatedSyncTime: string;
+    };
     recommendations: string[];
   } {
     const rateLimitStatus = this.client.getRateLimitStatus();
-    const schedulerMetrics = this.scheduler.getMetrics();
-    const performanceSummary = this.scheduler.getPerformanceSummary();
+    const clientMetrics = this.client.getMetrics();
+    
+    // Create performance summary based on actual client metrics
+    const canHandle8Courses = clientMetrics.successRate > 90 && clientMetrics.averageResponseTime < 2000;
+    const status: 'optimal' | 'good' | 'throttled' | 'limited' = 
+      clientMetrics.successRate > 95 && clientMetrics.averageResponseTime < 1000 ? 'optimal' :
+      clientMetrics.successRate > 85 ? 'good' :
+      clientMetrics.successRate > 70 ? 'throttled' : 'limited';
     
     const recommendations: string[] = [];
     
-    if (performanceSummary.status === 'optimal') {
+    if (status === 'optimal') {
       recommendations.push('Canvas API performing excellently - full speed ahead!');
-    } else if (performanceSummary.status === 'limited') {
-      recommendations.push('Rate limiting detected - scheduler is backing off automatically');
+    } else if (status === 'limited') {
+      recommendations.push('Rate limiting detected - API calls being throttled');
     }
     
     const percentUsed = (rateLimitStatus.requestsInWindow / rateLimitStatus.maxRequests) * 100;
@@ -264,17 +288,25 @@ export class CanvasGatewayHttp {
 
     return {
       rateLimitStatus,
-      schedulerMetrics,
-      performanceSummary,
+      schedulerMetrics: {
+        successRate: clientMetrics.successRate,
+        averageResponseTime: clientMetrics.averageResponseTime,
+        totalRequests: clientMetrics.totalRequests,
+      },
+      performanceSummary: {
+        status,
+        canHandle8Courses,
+        estimatedSyncTime: canHandle8Courses ? '20s' : '45s',
+      },
       recommendations,
     };
   }
 
   /**
-   * Reset scheduler for fresh start (useful for testing)
+   * Reset client metrics for fresh start (useful for testing)
    */
-  public resetScheduler(): void {
-    this.scheduler.reset();
+  public resetMetrics(): void {
+    this.client.resetMetrics();
   }
 
   /**

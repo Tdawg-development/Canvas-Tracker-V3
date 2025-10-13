@@ -1,0 +1,41 @@
+COURSE CLASS
+
+COURSE OBJECT || https://canvas.instructure.com/api/v1/courses?per_page=100x
+	"id": 1234567
+	"name": "sample-name"
+	"course_code": "Sample"
+	"calendar":{
+		"ics":"HTTPSLINK"
+	}
+	STUDENTS OBJECT || https://canvas.instructure.com/api/v1/courses/[COURSEID]/enrollments?type[]=StudentEnrollment&state[]=active&per_page=100
+		"id": 123456789
+		"user_id": 123456789
+		"created_at": "2024-05-01T13:03:41Z"
+		"last_activity_at": "2025-01-29T20:50:39Z"
+		"current_score": 94.87
+		"final_score": 27.11
+		"user"{
+			"id":123456789
+			"name": "John Doe"
+			"sortable_name": "Doe, John"
+			"login_id": "drjohn200"
+		}
+		
+
+	MODULES OBJECT || https://canvas.instructure.com/api/v1/courses/[COURSEID]/modules?include[]=items&include[]=content_details&per_page=100
+		"id": 12345678
+		"position": 2
+		"published": true
+		 
+
+		ASSIGNMENT OBJECT || INFORMATION GATHERED FROM MODULES OBJECT API CALL
+			"id": 12345678
+			"position": 11
+			"published": true
+			"title": "intro to blah-blah-blah"
+			"type": "assignment || quiz"
+			"url": "httpslink"
+			"content_details": {
+				"points_possible": 2
+			}
+			

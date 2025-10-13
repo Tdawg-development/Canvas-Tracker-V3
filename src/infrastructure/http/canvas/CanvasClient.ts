@@ -369,4 +369,14 @@ export class CanvasClient {
       averageResponseTime,
     };
   }
+  
+  /**
+   * Reset metrics for fresh start (useful for testing)
+   */
+  public resetMetrics(): void {
+    this.totalRequests = 0;
+    this.successfulRequests = 0;
+    this.responseTimes = [];
+    this.lastMetricsReset = Date.now();
+  }
 }
