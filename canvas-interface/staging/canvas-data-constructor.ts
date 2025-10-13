@@ -23,7 +23,7 @@ export class CanvasDataConstructor {
    * Main constructor method - builds complete course staging data
    */
   async constructCourseData(courseId: number): Promise<CanvasCourseStaging> {
-    console.log(`🏗️ Canvas Data Constructor: Building data for course ${courseId}`);
+    console.log(`🏗️ Canvas Data Constructor: Building data for course   ${courseId}`);
     console.log('==============================================================');
     
     const startTime = Date.now();

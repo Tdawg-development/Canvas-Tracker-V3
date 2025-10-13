@@ -1,0 +1,48 @@
+DB Framework!
+
+__init__.py -->
+
+Database utilities for Canvas Tracker V3.
+
+This package contains utility modules for database operations:
+- exceptions: Custom exception classes for database operations
+- validators: Data validation helpers (to be implemented)
+- transformers: Canvas API to database transformations (to be implemented)
+
+
+base.py -->
+
+SQLAlchemy Base and common mixins for Canvas Tracker V3 database.
+
+This module provides:
+- Declarative Base for all models
+- Common field mixins (timestamps, Canvas IDs)
+- Base model functionality shared across layers
+
+config.py -->
+
+Database configuration and connection settings for Canvas Tracker V3.
+
+This module handles:
+- Database URL configuration for different environments
+- SQLAlchemy engine configuration
+- Connection pooling and performance settings
+- Environment-specific database settings
+
+session.py -->
+
+Session management and database connection handling for Canvas Tracker V3.
+
+This module provides:
+- Session factory and management
+- Database connection lifecycle
+- Transaction handling utilities
+- Context managers for clean database operations
+
+exceptions.py -->
+
+Custom exceptions for Canvas Tracker V3 database operations.
+
+This module defines specific exceptions for different types of database
+operations and error conditions, providing clear error handling throughout
+the application.

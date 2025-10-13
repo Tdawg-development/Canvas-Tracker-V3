@@ -26,7 +26,7 @@ function askQuestion(question: string): Promise<string> {
 async function displayCourseData(course: CanvasCourseStaging) {
   console.log('\n📊 COMPLETE CANVAS STAGING DATA STRUCTURE');
   console.log('==========================================');
-  
+  console.log('\n THIS DEMO IS TO TEST "canvas-data-constructor"');
   // Warn user about large datasets
   const totalStudents = course.students.length;
   const totalAssignments = course.getAllAssignments().length;
