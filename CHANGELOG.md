@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2024-10-13
+
+### Added - Layer 2 Historical Data Models
+- **Complete Historical Data Architecture**: Append-only models for tracking changes over time
+  - `GradeHistory`: Student grade progression and change tracking across assignments/courses
+  - `AssignmentScore`: Detailed assignment-level scoring with submission status and timing
+  - `CourseSnapshot`: Course-level statistics and metrics captured at sync intervals
+- **Advanced Analytics Capabilities**:
+  - Grade trend analysis with configurable time windows
+  - Assignment completion rate tracking and late submission detection
+  - Course health monitoring with activity and performance metrics
+  - Historical change detection with improvement/decline identification
+- **Append-Only Data Integrity**: Historical records are never modified, only added
+  - Complete audit trail for all grade and assignment changes
+  - Trend analysis support with chronological ordering
+  - Data consistency validation across related historical records
+
+### Enhanced - Testing Infrastructure
+- **Comprehensive Layer 2 Test Suite**: 27 test cases covering all historical models
+  - Grade history creation, modification tracking, and trend analysis
+  - Assignment score validation, submission timing, and missing assignment detection
+  - Course snapshot metrics, health checks, and historical progression
+  - Cross-model integration testing for data consistency
+- **Advanced Test Scenarios**: Real-world workflow simulation
+  - Complete trend analysis workflows with grade progression over time
+  - Append-only behavior validation ensuring historical data preservation
+  - Timezone-aware datetime handling for accurate historical timestamps
+
+### Technical Improvements
+- Extended `HistoricalBaseModel` usage for consistent timestamp management
+- Robust query methods with flexible filtering and ordering options
+- Canvas timezone handler integration for reliable datetime comparisons
+- Comprehensive validation of NOT NULL constraints and data relationships
+
+### Database Architecture Progress
+- **Layer 0**: Object Lifecycle Management ✅ (v0.2.1)
+- **Layer 1**: Canvas Data Models ✅ (v0.2.0) 
+- **Layer 2**: Historical Data Models ✅ (v0.2.2) **NEW**
+- **Layer 3**: User Metadata Models ⏳ (Next: v0.2.3)
+
 ## [0.2.1] - 2024-10-13
 
 ### Added - Layer 0 Object Lifecycle & Canvas Timezone Handling
