@@ -285,6 +285,13 @@ class ConfigurationError(BaseConfigurationError):
         self.expected_type = expected_type
 
 
+# Layer-specific exception aliases for easier imports
+CanvasOperationError = SyncOperationError  # Canvas operations use sync error as base
+DataValidationError = ValidationError  # Alias for consistency
+RelationshipError = DataIntegrityError  # Relationship issues are integrity errors
+SyncConflictError = SyncOperationError  # Sync conflicts are sync operation errors
+
+
 # Convenience function for error handling
 def handle_operation_error(
     operation_name: str,

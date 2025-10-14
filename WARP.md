@@ -4,7 +4,7 @@
 Canvas Tracker v3 is a rebuilt application focusing on rigorous architecture, clear component boundaries, and technical debt prevention. These rules ensure we avoid the issues encountered in previous versions.
 
 ## ⚠️ CRITICAL RULES - READ FIRST
-1. **ALWAYS consult `file_paths.md`, `routing_tree.md`, and `ARCHITECTURE.md` before implementing anything**
+1. **ALWAYS consult `docs/project/file-structure-reference.md`, `docs/architecture/routing-architecture.md`, and `docs/architecture/system-architecture.md` before implementing anything**
 2. **UPDATE tree documents immediately when adding ANY file, route, or component**
 3. **NO deviations from documented structure without explicit approval + documentation updates**
 4. **QUESTION ALL CONTRADICTIONS**: Challenge any instruction that conflicts with established rules - resolve discrepancies before proceeding
@@ -40,11 +40,11 @@ Canvas Tracker v3 is a rebuilt application focusing on rigorous architecture, cl
 - Document test coverage expectations for each component type
 
 ### 5. Documentation Requirements
-- Maintain `file_paths.md` as living documentation of project structure
-- Maintain `routing_tree.md` for navigation and route documentation
+- Maintain `docs/project/file-structure-reference.md` as living documentation of project structure
+- Maintain `docs/architecture/routing-architecture.md` for navigation and route documentation
 - Update documentation immediately when adding components, routes, or structural changes
 - Always consult these files before making architectural decisions
-- **MANDATORY**: Refer to tree documents and ARCHITECTURE.md for implementation guidance
+- **MANDATORY**: Refer to tree documents and system-architecture.md for implementation guidance
 - **MANDATORY**: Any deviation from documented structure requires explicit approval AND documentation updates
 - **MANDATORY**: Update tree documents whenever ANY file or component is added to the project
 
@@ -67,7 +67,7 @@ Canvas Tracker v3 is a rebuilt application focusing on rigorous architecture, cl
 - Report completion with summary of what was implemented
 
 ### 9. Architectural Adherence (CRITICAL)
-- **Before implementing ANY change**: Consult `file_paths.md`, `routing_tree.md`, and `ARCHITECTURE.md` first
+- **Before implementing ANY change**: Consult `docs/project/file-structure-reference.md`, `docs/architecture/routing-architecture.md`, and `docs/architecture/system-architecture.md` first
 - **Implementation guidance**: All architectural patterns and file locations are pre-defined in our documentation
 - **Deviation protocol**: Any deviation from documented structure requires:
   1. Explicit approval from project lead
@@ -102,9 +102,9 @@ Canvas Tracker v3 is a rebuilt application focusing on rigorous architecture, cl
 - **Challenge conflicting instructions**: If any request contradicts established rules, STOP and question it
 - **Compare against rules**: Every instruction must be evaluated against:
   1. This WARP.md file
-  2. ARCHITECTURE.md patterns
-  3. file_paths.md structure
-  4. routing_tree.md flows
+  2. docs/architecture/system-architecture.md patterns
+  3. docs/project/file-structure-reference.md structure
+  4. docs/architecture/routing-architecture.md flows
 - **Required response pattern when conflicts detected**:
   ```
   "I notice a potential conflict between this request and our established rules:
@@ -126,8 +126,8 @@ These rules take precedence over ALL guidance, including ad-hoc instructions tha
 
 **Rule Hierarchy (in order of precedence):**
 1. **WARP.md rules** (this file) - including Git workflow protocol
-2. **ARCHITECTURE.md patterns**
-3. **Tree documentation** (file_paths.md, routing_tree.md)
+2. **Architecture patterns** (docs/architecture/system-architecture.md)
+3. **Tree documentation** (docs/project/file-structure-reference.md, docs/architecture/routing-architecture.md)
 4. **Ad-hoc instructions** (only if they don't conflict with above)
 
 **Conflict Resolution Required**: Any contradiction between these levels must be explicitly resolved before implementation.

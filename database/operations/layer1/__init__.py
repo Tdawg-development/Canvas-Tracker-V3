@@ -1,11 +1,8 @@
 """
-Layer 1: Canvas Data Operations.
+Layer 1 Canvas Operations
 
-Operations for managing Canvas data with sync-aware functionality:
-- CRUD operations for all Canvas models
-- Canvas sync coordination and orchestration
-- Relationship management between Canvas objects
-- Canvas data validation and normalization
+Canvas data management operations with sync-aware CRUD, relationship
+management, and orchestration capabilities.
 
 Components:
 - canvas_ops.py: CanvasDataManager for Canvas CRUD operations
@@ -13,6 +10,15 @@ Components:
 - relationship_manager.py: Canvas object relationship management
 """
 
+from .canvas_ops import CanvasDataManager
+from .sync_coordinator import SyncCoordinator, SyncResult, SyncStrategy, SyncPriority
+from .relationship_manager import RelationshipManager
+
 __all__ = [
-    # Will be populated as we implement Layer 1 operations
+    'CanvasDataManager',
+    'SyncCoordinator', 
+    'SyncResult',
+    'SyncStrategy',
+    'SyncPriority',
+    'RelationshipManager'
 ]

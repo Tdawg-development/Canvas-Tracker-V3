@@ -13,16 +13,27 @@ import { CanvasCourseStaging, CanvasStudentStaging, CanvasModuleStaging, CanvasA
 
 export class CanvasDataConstructor {
   private canvasCalls: CanvasCalls;
+  private mockCanvasApi?: any;
 
-  constructor() {
-    // Use CanvasCalls which handles Canvas configuration internally
-    this.canvasCalls = new CanvasCalls();
+  constructor(options?: { canvasApi?: any }) {
+    if (options?.canvasApi) {
+      // Use injected mock for testing
+      this.mockCanvasApi = options.canvasApi;
+    } else {
+      // Use CanvasCalls which handles Canvas configuration internally
+      this.canvasCalls = new CanvasCalls();
+    }
   }
 
   /**
    * Main constructor method - builds complete course staging data
    */
   async constructCourseData(courseId: number): Promise<CanvasCourseStaging> {
+    if (this.mockCanvasApi) {
+      // Testing mode - use mock API
+      return await this.constructCourseDataWithMockApi(courseId);
+    }
+    
     console.log(`🏗️ Canvas Data Constructor: Building data for course   ${courseId}`);
     console.log('==============================================================');
     
@@ -334,6 +345,78 @@ export class CanvasDataConstructor {
       return courseInfo !== null;
     } catch (error) {
       return false;
+    }
+  }
+  
+  /**
+   * Mock API implementation for testing
+   */
+  private async constructCourseDataWithMockApi(courseId: number): Promise<CanvasCourseStaging> {
+    try {
+      // Use mocked dependencies
+      const courseData = await this.mockCanvasApi.getCourse(courseId);
+      const studentsData = await this.mockCanvasApi.getCourseStudents(courseId);
+      const modulesData = await this.mockCanvasApi.getCourseModules(courseId);
+      const assignmentsData = await this.mockCanvasApi.getCourseAssignments(courseId);
+      const enrollmentsData = await this.mockCanvasApi.getCourseEnrollments(courseId);
+      
+      // Create course staging object
+      const course = new CanvasCourseStaging(courseData);
+      
+      // Add students (convert to Canvas API enrollment format)
+      if (studentsData && studentsData.length > 0) {
+        // Convert flat student data to Canvas API enrollment format
+        const enrollmentFormat = studentsData.map((student: any) => ({
+          id: student.id,
+          user_id: student.id,
+          created_at: student.enrollment_date || new Date().toISOString(),
+          last_activity_at: student.last_activity_at || null,
+          grades: {
+            current_score: student.current_score,
+            final_score: student.final_score
+          },
+          user: {
+            id: student.id,
+            name: student.name || 'Unknown Student',
+            sortable_name: student.name || 'Unknown Student',
+            login_id: student.login_id || `student${student.id}@example.com`
+          },
+          enrollment_state: student.enrollment_state || 'active'
+        }));
+        course.students = enrollmentFormat.map((student: any) => new CanvasStudentStaging(student));
+      } else if (enrollmentsData && enrollmentsData.length > 0) {
+        // Convert enrollment data to student format
+        const studentData = enrollmentsData.map((enrollment: any) => ({
+          id: enrollment.user_id || enrollment.student_id,
+          name: enrollment.name || `Student ${enrollment.user_id}`,
+          current_score: enrollment.current_score || 0,
+          final_score: enrollment.final_score || 0,
+          enrollment_state: enrollment.enrollment_state || 'active'
+        }));
+        course.students = studentData.map((student: any) => new CanvasStudentStaging(student));
+      }
+      
+      // Add modules
+      if (modulesData && modulesData.length > 0) {
+        course.modules = modulesData.map((module: any) => {
+          const moduleStaging = new CanvasModuleStaging(module);
+          
+          // Add assignments to this module
+          if (assignmentsData && assignmentsData.length > 0) {
+            const moduleAssignments = assignmentsData
+              .filter((assignment: any) => assignment.module_id === module.id)
+              .map((assignment: any) => new CanvasAssignmentStaging(assignment));
+            moduleStaging.assignments = moduleAssignments;
+          }
+          
+          return moduleStaging;
+        });
+      }
+      
+      return course;
+      
+    } catch (error) {
+      throw error;
     }
   }
 }

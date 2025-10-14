@@ -1,0 +1,36 @@
+{
+  "timestamp": 1760458559.698001,
+  "test_run_summary": {
+    "categories": {
+      "canvas_unit": {
+        "status": "completed",
+        "duration": 0.34899425506591797,
+        "total_tests": 0,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "return_code": 4,
+        "stdout": "",
+        "stderr": "ERROR: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]\n__main__.py: error: unrecognized arguments: --json-report --json-report-file=test_results.json\n  inifile: C:\\Users\\tyler\\Documents\\Canvas-Tracker-V3\\canvas-interface\\tests\\pytest.ini\n  rootdir: C:\\Users\\tyler\\Documents\\Canvas-Tracker-V3\\canvas-interface\\tests\n\n"
+      }
+    },
+    "start_time": 1760458559.3480022,
+    "total_tests": 0,
+    "total_passed": 0,
+    "total_failed": 0,
+    "total_skipped": 0,
+    "total_duration": 0.34899425506591797
+  },
+  "environment": {
+    "python_version": "3.9.13 (tags/v3.9.13:6de2ca5, May 17 2022, 16:36:42) [MSC v.1929 64 bit (AMD64)]",
+    "platform": "win32",
+    "working_directory": "C:\\Users\\tyler\\Documents\\Canvas-Tracker-V3\\canvas-interface\\tests"
+  },
+  "recommendations": [
+    {
+      "category": "coverage",
+      "priority": "high",
+      "message": "Test coverage appears low (0 tests total). Consider adding more comprehensive tests."
+    }
+  ]
+}

@@ -156,6 +156,11 @@ class CanvasAssignment(CanvasEntityModel):
     # Relationships
     course = relationship("CanvasCourse", back_populates="assignments")
     
+    # Relationship to historical assignment scores (Layer 2)
+    assignment_scores = relationship("AssignmentScore", 
+                                   primaryjoin="CanvasAssignment.id == foreign(AssignmentScore.assignment_id)",
+                                   viewonly=True)
+    
     def __repr__(self):
         """String representation showing assignment name and points."""
         points = f"{self.points_possible}pts" if self.points_possible else "no points"

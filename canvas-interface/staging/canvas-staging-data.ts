@@ -28,6 +28,20 @@ export class CanvasAssignmentStaging {
       points_possible: data.content_details?.points_possible || 0
     };
   }
+  
+  /**
+   * Check if this assignment is a quiz
+   */
+  isQuiz(): boolean {
+    return this.type.toLowerCase() === 'quiz';
+  }
+  
+  /**
+   * Check if this assignment is a regular assignment (not a quiz)
+   */
+  isAssignment(): boolean {
+    return this.type.toLowerCase() === 'assignment';
+  }
 }
 
 // Module Object
@@ -51,6 +65,13 @@ export class CanvasModuleStaging {
         .filter((item: any) => item.type === 'Assignment' || item.type === 'Quiz')
         .map((item: any) => new CanvasAssignmentStaging(item));
     }
+  }
+  
+  /**
+   * Get only published assignments from this module
+   */
+  getPublishedAssignments(): CanvasAssignmentStaging[] {
+    return this.assignments.filter(assignment => assignment.published);
   }
 }
 
@@ -180,6 +201,76 @@ export class CanvasStudentStaging {
   getTotalAssignments(): number {
     return this.submitted_assignments.length + this.missing_assignments.length;
   }
+  
+  /**
+   * Calculate grade improvement potential based on current vs final score gap
+   */
+  getGradeImprovementPotential(): number {
+    if (this.current_score === null || this.final_score === null) {
+      return 0; // Cannot calculate improvement potential without scores
+    }
+    
+    // Return the difference between final possible score and current score
+    return Math.max(0, this.final_score - this.current_score);
+  }
+  
+  /**
+   * Get student activity status based on last activity timestamp
+   */
+  getActivityStatus(): { status: string; lastActivity: string | null } {
+    if (!this.last_activity_at) {
+      return {
+        status: 'no_activity_recorded',
+        lastActivity: null
+      };
+    }
+    
+    const lastActivity = new Date(this.last_activity_at);
+    const now = new Date();
+    const daysSinceActivity = Math.floor((now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60 * 24));
+    
+    let status: string;
+    if (daysSinceActivity <= 1) {
+      status = 'very_recent'; // Active within last day
+    } else if (daysSinceActivity <= 7) {
+      status = 'recent'; // Active within last week
+    } else if (daysSinceActivity <= 30) {
+      status = 'moderate'; // Active within last month
+    } else {
+      status = 'inactive'; // No recent activity
+    }
+    
+    return {
+      status,
+      lastActivity: this.last_activity_at
+    };
+  }
+  
+  /**
+   * Validate that student data is complete and valid
+   */
+  isValid(): boolean {
+    // Check for required fields
+    if (!this.id || !this.user_id) {
+      return false;
+    }
+    
+    // Check user data
+    if (!this.user || !this.user.name || this.user.name === 'Unknown') {
+      return false;
+    }
+    
+    // Check that scores are valid if present
+    if (this.current_score !== null && (this.current_score < 0 || this.current_score > 100)) {
+      return false;
+    }
+    
+    if (this.final_score !== null && (this.final_score < 0 || this.final_score > 100)) {
+      return false;
+    }
+    
+    return true;
+  }
 }
 
 // Course Object
@@ -202,6 +293,16 @@ export class CanvasCourseStaging {
     };
     this.students = [];
     this.modules = [];
+    
+    // Auto-process modules if provided
+    if (data.modules && Array.isArray(data.modules)) {
+      this.addModules(data.modules);
+    }
+    
+    // Auto-process students if provided  
+    if (data.students && Array.isArray(data.students)) {
+      this.addStudents(data.students);
+    }
   }
 
   addStudents(studentsData: any[], dataConstructor?: any): void {
@@ -292,5 +393,59 @@ export class CanvasCourseStaging {
       total_possible_points: totalPoints,
       students_with_scores: this.students.filter(s => s.current_score !== null).length
     };
+  }
+  
+  /**
+   * Calculate comprehensive course statistics
+   */
+  calculateCourseStatistics(): {
+    averageGrade: number;
+    totalStudents: number;
+    totalAssignments: number;
+    passRate: number;
+    gradeDistribution: { range: string; count: number }[];
+  } {
+    const studentsWithScores = this.students.filter(s => s.current_score !== null);
+    
+    // Calculate average grade
+    const averageGrade = studentsWithScores.length > 0 
+      ? studentsWithScores.reduce((sum, student) => sum + (student.current_score || 0), 0) / studentsWithScores.length
+      : 0;
+    
+    // Calculate pass rate (assuming 70% is passing)
+    const passingStudents = studentsWithScores.filter(s => (s.current_score || 0) >= 70);
+    const passRate = studentsWithScores.length > 0 
+      ? (passingStudents.length / studentsWithScores.length) * 100
+      : 0;
+    
+    // Calculate grade distribution
+    const gradeDistribution = [
+      { range: 'A (90-100)', count: studentsWithScores.filter(s => (s.current_score || 0) >= 90).length },
+      { range: 'B (80-89)', count: studentsWithScores.filter(s => (s.current_score || 0) >= 80 && (s.current_score || 0) < 90).length },
+      { range: 'C (70-79)', count: studentsWithScores.filter(s => (s.current_score || 0) >= 70 && (s.current_score || 0) < 80).length },
+      { range: 'D (60-69)', count: studentsWithScores.filter(s => (s.current_score || 0) >= 60 && (s.current_score || 0) < 70).length },
+      { range: 'F (0-59)', count: studentsWithScores.filter(s => (s.current_score || 0) < 60).length }
+    ];
+    
+    return {
+      averageGrade: Math.round(averageGrade * 100) / 100, // Round to 2 decimal places
+      totalStudents: this.students.length,
+      totalAssignments: this.getAllAssignments().length,
+      passRate: Math.round(passRate * 100) / 100,
+      gradeDistribution
+    };
+  }
+  
+  /**
+   * Get students within a specific grade range
+   */
+  getStudentsByGradeRange(minGrade: number, maxGrade: number): CanvasStudentStaging[] {
+    return this.students.filter(student => {
+      if (student.current_score === null) {
+        return false; // Exclude students without scores
+      }
+      
+      return student.current_score >= minGrade && student.current_score <= maxGrade;
+    });
   }
 }
