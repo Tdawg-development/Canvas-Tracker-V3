@@ -61,7 +61,7 @@ class MetadataMixin:
     """
     Mixin for user metadata models.
     
-    Provides common user-generated content fields.
+    Provides common user-generated content fields and tag management methods.
     """
     
     @declared_attr
@@ -71,6 +71,54 @@ class MetadataMixin:
     @declared_attr
     def custom_tags(cls):
         return Column(Text, nullable=True)  # JSON string of tags
+    
+    def add_tag(self, tag):
+        """
+        Add a tag to the custom_tags JSON field.
+        
+        Args:
+            tag (str): Tag to add
+        """
+        import json
+        
+        if not self.custom_tags:
+            tags = []
+        else:
+            tags = json.loads(self.custom_tags)
+        
+        if tag not in tags:
+            tags.append(tag)
+            self.custom_tags = json.dumps(tags)
+    
+    def remove_tag(self, tag):
+        """
+        Remove a tag from the custom_tags JSON field.
+        
+        Args:
+            tag (str): Tag to remove
+        """
+        import json
+        
+        if not self.custom_tags:
+            return
+            
+        tags = json.loads(self.custom_tags)
+        if tag in tags:
+            tags.remove(tag)
+            self.custom_tags = json.dumps(tags)
+    
+    def get_tags(self):
+        """
+        Get list of tags from custom_tags JSON field.
+        
+        Returns:
+            list: List of tag strings
+        """
+        import json
+        
+        if not self.custom_tags:
+            return []
+        return json.loads(self.custom_tags)
 
 
 class BaseModel(Base, TimestampMixin):
@@ -371,67 +419,82 @@ class HistoricalBaseModel(BaseModel):
 
 class MetadataBaseModel(BaseModel, MetadataMixin):
     """
-    Base model for Layer 3 user metadata models.
+    Base model for Layer 3 user metadata models that need auto-incrementing IDs.
     
     Combines BaseModel functionality with user metadata patterns:
+    - Auto-incrementing id primary key
     - Timestamp tracking
     - Notes and custom tags fields
+    
+    Use MetadataEntityModel instead for metadata models that use natural keys as primary keys.
     """
     
     __abstract__ = True
-    
-    def add_tag(self, tag):
-        """
-        Add a tag to the custom_tags JSON field.
-        
-        Args:
-            tag (str): Tag to add
-        """
-        import json
-        
-        if not self.custom_tags:
-            tags = []
-        else:
-            tags = json.loads(self.custom_tags)
-        
-        if tag not in tags:
-            tags.append(tag)
-            self.custom_tags = json.dumps(tags)
-    
-    def remove_tag(self, tag):
-        """
-        Remove a tag from the custom_tags JSON field.
-        
-        Args:
-            tag (str): Tag to remove
-        """
-        import json
-        
-        if not self.custom_tags:
-            return
-            
-        tags = json.loads(self.custom_tags)
-        if tag in tags:
-            tags.remove(tag)
-            self.custom_tags = json.dumps(tags)
-    
-    def get_tags(self):
-        """
-        Get list of tags from custom_tags JSON field.
-        
-        Returns:
-            list: List of tag strings
-        """
-        import json
-        
-        if not self.custom_tags:
-            return []
-        return json.loads(self.custom_tags)
     
     def __repr__(self):
         """String representation showing class and whether it has notes."""
         has_notes = "with notes" if self.notes else "no notes"
         return f"<{self.__class__.__name__}({has_notes})>"
+
+
+class MetadataEntityModel(Base, TimestampMixin, MetadataMixin):
+    """
+    Base model for Layer 3 metadata entities that use natural keys as primary keys.
+    
+    Unlike MetadataBaseModel, this does NOT include an auto-incrementing id field.
+    Metadata entities define their own primary key structure using Canvas object IDs.
+    
+    Provides:
+    - Timestamp tracking (created_at, updated_at)
+    - User metadata patterns (notes, custom_tags, tag methods)
+    - Utility methods for metadata operations
+    
+    Use this for Layer 3 metadata models like StudentMetadata, AssignmentMetadata, CourseMetadata.
+    """
+    
+    __abstract__ = True
+    
+    def __repr__(self):
+        """String representation showing class and whether it has notes."""
+        has_notes = "with notes" if self.notes else "no notes"
+        # Try to get the primary key value for display
+        pk_columns = [col for col in self.__table__.columns if col.primary_key]
+        if pk_columns:
+            pk_value = getattr(self, pk_columns[0].name, 'unknown')
+            return f"<{self.__class__.__name__}({pk_columns[0].name}={pk_value}, {has_notes})>"
+        return f"<{self.__class__.__name__}({has_notes})>"
+    
+    def to_dict(self):
+        """
+        Convert model instance to dictionary.
+        
+        Returns:
+            dict: Dictionary representation of the model
+        """
+        result = {}
+        for column in self.__table__.columns:
+            value = getattr(self, column.name)
+            # Convert datetime objects to ISO strings for JSON serialization
+            if isinstance(value, datetime):
+                value = value.isoformat()
+            result[column.name] = value
+        return result
+    
+    @classmethod
+    def from_dict(cls, data):
+        """
+        Create model instance from dictionary.
+        
+        Args:
+            data (dict): Dictionary with model field values
+            
+        Returns:
+            MetadataEntityModel: New instance of the model
+        """
+        # Filter out keys that don't correspond to table columns
+        valid_keys = {column.name for column in cls.__table__.columns}
+        filtered_data = {k: v for k, v in data.items() if k in valid_keys}
+        return cls(**filtered_data)
 
 
 # Common column types that will be reused across models

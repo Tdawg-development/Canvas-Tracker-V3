@@ -19,10 +19,10 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, Text, Boolean, DateTime
 from sqlalchemy.sql import func
 
-from ..base import MetadataBaseModel
+from ..base import MetadataEntityModel
 
 
-class StudentMetadata(MetadataBaseModel):
+class StudentMetadata(MetadataEntityModel):
     """
     Persistent user-defined data for students.
     
@@ -32,9 +32,6 @@ class StudentMetadata(MetadataBaseModel):
     
     __tablename__ = 'student_metadata'
     
-    # Override the inherited auto-increment id to use student_id as the sole PK
-    id = None
-    
     # Reference to Canvas student (soft FK - no constraint)
     student_id = Column(Integer, primary_key=True)  # FK to canvas_students
     
@@ -42,7 +39,7 @@ class StudentMetadata(MetadataBaseModel):
     custom_group_id = Column(Text, nullable=True)
     enrollment_date = Column(DateTime, nullable=True, default=func.now())
     
-    # Notes and tags inherited from MetadataBaseModel:
+    # Notes and tags inherited from MetadataEntityModel (via MetadataMixin):
     # - notes (Text, nullable=True)  
     # - custom_tags (Text, nullable=True)  # JSON array
     
@@ -80,7 +77,7 @@ class StudentMetadata(MetadataBaseModel):
         return session.query(cls).filter_by(custom_group_id=group_id).all()
 
 
-class AssignmentMetadata(MetadataBaseModel):
+class AssignmentMetadata(MetadataEntityModel):
     """
     Persistent user-defined data for assignments.
     
@@ -90,15 +87,10 @@ class AssignmentMetadata(MetadataBaseModel):
     
     __tablename__ = 'assignment_metadata'
     
-    # Override the inherited auto-increment id to use assignment_id as the sole PK
-    id = None
-    
     # Reference to Canvas assignment (soft FK - no constraint)
     assignment_id = Column(Integer, primary_key=True)  # FK to canvas_assignments
     
-    # User-defined fields as per architecture
-    user_notes = Column(Text, nullable=True)
-    custom_tags = Column(Text, nullable=True)  # JSON array
+    # User-defined fields as per architecture (notes and custom_tags inherited from MetadataMixin)
     difficulty_rating = Column(Integer, nullable=True)
     estimated_hours = Column(Float, nullable=True)
     
@@ -188,7 +180,7 @@ class AssignmentMetadata(MetadataBaseModel):
         return session.query(cls).filter(cls.estimated_hours >= min_hours).all()
 
 
-class CourseMetadata(MetadataBaseModel):
+class CourseMetadata(MetadataEntityModel):
     """
     Persistent user-defined data for courses.
     
@@ -198,14 +190,10 @@ class CourseMetadata(MetadataBaseModel):
     
     __tablename__ = 'course_metadata'
     
-    # Override the inherited auto-increment id to use course_id as the sole PK
-    id = None
-    
     # Reference to Canvas course (soft FK - no constraint)
     course_id = Column(Integer, primary_key=True)  # FK to canvas_courses
     
-    # User-defined fields as per architecture
-    user_notes = Column(Text, nullable=True)
+    # User-defined fields as per architecture (notes and custom_tags inherited from MetadataMixin)
     custom_color = Column(Text, nullable=True)
     course_hours = Column(Integer, nullable=True)
     tracking_enabled = Column(Boolean, nullable=False, default=True)

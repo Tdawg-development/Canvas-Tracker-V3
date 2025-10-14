@@ -163,7 +163,7 @@ class TestAssignmentMetadata:
         """Test basic assignment metadata record creation."""
         assignment_meta = AssignmentMetadata(
             assignment_id=1001,
-            user_notes="This assignment covers advanced Python concepts",
+            notes="This assignment covers advanced Python concepts",
             difficulty_rating=4,
             estimated_hours=8.5
         )
@@ -177,7 +177,7 @@ class TestAssignmentMetadata:
         
         assert saved_record is not None
         assert saved_record.assignment_id == 1001
-        assert saved_record.user_notes == "This assignment covers advanced Python concepts"
+        assert saved_record.notes == "This assignment covers advanced Python concepts"
         assert saved_record.difficulty_rating == 4
         assert saved_record.estimated_hours == 8.5
         assert saved_record.created_at is not None
@@ -197,7 +197,7 @@ class TestAssignmentMetadata:
         
         assert saved_record is not None
         assert saved_record.assignment_id == 1002
-        assert saved_record.user_notes is None
+        assert saved_record.notes is None
         assert saved_record.custom_tags is None
         assert saved_record.difficulty_rating is None
         assert saved_record.estimated_hours is None
@@ -303,7 +303,7 @@ class TestAssignmentMetadata:
         """Test querying assignment metadata by assignment ID."""
         assignment_meta = AssignmentMetadata(
             assignment_id=2001,
-            user_notes="Test assignment metadata",
+            notes="Test assignment metadata",
             difficulty_rating=3
         )
         
@@ -376,7 +376,7 @@ class TestCourseMetadata:
         """Test basic course metadata record creation."""
         course_meta = CourseMetadata(
             course_id=5001,
-            user_notes="Advanced programming course, requires significant time commitment",
+            notes="Advanced programming course, requires significant time commitment",
             custom_color="#3498db",
             course_hours=120,
             tracking_enabled=True
@@ -389,7 +389,7 @@ class TestCourseMetadata:
         
         assert saved_record is not None
         assert saved_record.course_id == 5001
-        assert saved_record.user_notes == "Advanced programming course, requires significant time commitment"
+        assert saved_record.notes == "Advanced programming course, requires significant time commitment"
         assert saved_record.custom_color == "#3498db"
         assert saved_record.course_hours == 120
         assert saved_record.tracking_enabled is True
@@ -407,7 +407,7 @@ class TestCourseMetadata:
         
         assert saved_record is not None
         assert saved_record.course_id == 5002
-        assert saved_record.user_notes is None
+        assert saved_record.notes is None
         assert saved_record.custom_color is None
         assert saved_record.course_hours is None
         assert saved_record.tracking_enabled is True  # Default value
@@ -496,7 +496,7 @@ class TestCourseMetadata:
         """Test querying course metadata by course ID."""
         course_meta = CourseMetadata(
             course_id=6001,
-            user_notes="Test course metadata",
+            notes="Test course metadata",
             custom_color="#00FF00"
         )
         
@@ -576,13 +576,13 @@ class TestLayer3Integration:
         
         assignment_meta = AssignmentMetadata(
             assignment_id=9002,
-            user_notes="Assignment metadata without Canvas assignment",
+            notes="Assignment metadata without Canvas assignment",
             difficulty_rating=5
         )
         
         course_meta = CourseMetadata(
             course_id=9003,
-            user_notes="Course metadata without Canvas course",
+            notes="Course metadata without Canvas course",
             tracking_enabled=False
         )
         
@@ -632,8 +632,8 @@ class TestLayer3Integration:
         
         metadata_records = [
             StudentMetadata(student_id=arbitrary_ids[0], notes="Test student"),
-            AssignmentMetadata(assignment_id=arbitrary_ids[1], user_notes="Test assignment"),
-            CourseMetadata(course_id=arbitrary_ids[2], user_notes="Test course")
+            AssignmentMetadata(assignment_id=arbitrary_ids[1], notes="Test assignment"),
+            CourseMetadata(course_id=arbitrary_ids[2], notes="Test course")
         ]
         
         # Should save without foreign key constraint errors
