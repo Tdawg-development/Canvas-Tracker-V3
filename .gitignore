@@ -144,3 +144,14 @@ dmypy.json
 *.sqlite
 *.sqlite3
 canvas_tracker.db
+canvas_tracker_test.db
+
+# Debug and temporary files
+*debug*.txt
+*debug*.log
+typescript_enhancement_debug.txt
+test_debug.ts
+test_timestamp_fix.py
+
+# Temporary development directories
+canvas-interface/canvas-interface/
