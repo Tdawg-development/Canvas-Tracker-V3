@@ -27,32 +27,35 @@ User-generated metadata that persists across all sync operations. Contains front
 Tracks the lifecycle status of all Canvas objects across sync operations.
 
 ```sql
-object_type      TEXT NOT NULL           -- 'student', 'course', 'assignment'
-object_id        INTEGER NOT NULL        -- Canvas ID
-active           BOOLEAN DEFAULT TRUE
-removed_date     TIMESTAMP NULL
-pending_deletion BOOLEAN DEFAULT FALSE
-last_seen_sync   TIMESTAMP               -- Last sync where object was present
-created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-
-PRIMARY KEY (object_type, object_id)
+id                     INTEGER PRIMARY KEY    -- Auto-incrementing primary key
+object_type            TEXT NOT NULL           -- 'student', 'course', 'assignment'
+object_id              INTEGER NOT NULL        -- Canvas ID
+active                 BOOLEAN DEFAULT TRUE
+pending_deletion       BOOLEAN DEFAULT FALSE
+removed_date           TIMESTAMP NULL
+last_seen_sync         TIMESTAMP               -- Last sync where object was present
+removal_reason         TEXT NULL               -- Why object was marked for removal
+user_data_exists       BOOLEAN DEFAULT FALSE   -- Has associated user metadata
+historical_data_exists BOOLEAN DEFAULT FALSE   -- Has historical data
+created_at             TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+updated_at             TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ```
 
 #### `enrollment_status`
 Tracks student-course enrollment lifecycle separately from Canvas enrollment data.
 
 ```sql
-student_id       INTEGER NOT NULL        -- Canvas student ID
-course_id        INTEGER NOT NULL        -- Canvas course ID
-active           BOOLEAN DEFAULT TRUE
-removed_date     TIMESTAMP NULL
-pending_deletion BOOLEAN DEFAULT FALSE
-last_seen_sync   TIMESTAMP               -- Last sync where enrollment was present
-created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-
-PRIMARY KEY (student_id, course_id)
+id                     INTEGER PRIMARY KEY    -- Auto-incrementing primary key
+student_id             INTEGER NOT NULL        -- Canvas student ID
+course_id              INTEGER NOT NULL        -- Canvas course ID
+active                 BOOLEAN DEFAULT TRUE
+pending_deletion       BOOLEAN DEFAULT FALSE
+removed_date           TIMESTAMP NULL
+last_seen_sync         TIMESTAMP               -- Last sync where enrollment was present
+removal_reason         TEXT NULL               -- Why enrollment was removed
+historical_data_exists BOOLEAN DEFAULT FALSE   -- Has grade history data
+created_at             TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+updated_at             TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ```
 
 ### Layer 1: Canvas Data Tables
@@ -73,16 +76,19 @@ last_synced             TIMESTAMP
 
 #### `canvas_students`
 ```sql
-student_id        INTEGER PRIMARY KEY    -- Canvas student ID
+student_id        INTEGER PRIMARY KEY    -- Canvas student ID (enrollment ID)
 user_id           INTEGER
 name              TEXT NOT NULL
 login_id          TEXT NOT NULL
-email             TEXT
-current_score     INT NOT NULL           -- percentage based progress
-final_score       INT NOT NULL           -- percentage based final score
-enrollment_date       TIMESTAMP          -- tracks student course enrollment date
+email             TEXT                   -- Student email address
+current_score     INTEGER NOT NULL DEFAULT 0  -- percentage based progress
+final_score       INTEGER NOT NULL DEFAULT 0  -- percentage based final score
+enrollment_date   TIMESTAMP              -- tracks student course enrollment date
 last_activity     TIMESTAMP
+created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 last_synced       TIMESTAMP
+```
 ```
 
 #### `canvas_assignments`
@@ -106,49 +112,96 @@ FOREIGN KEY (course_id) REFERENCES canvas_courses(id)
 ```sql
 student_id        INTEGER NOT NULL       -- FK to canvas_students
 course_id         INTEGER NOT NULL       -- FK to canvas_courses
-enrollment_status TEXT
-enrollment_date   DATE                   -- FK to canvas_students
+enrollment_date   TIMESTAMP NOT NULL     -- Enrollment creation date
+enrollment_status TEXT                   -- 'active', 'inactive', etc.
+created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 last_synced       TIMESTAMP
 
 PRIMARY KEY (student_id, course_id, enrollment_date)
 FOREIGN KEY (student_id) REFERENCES canvas_students(student_id)
-FOREIGN KEY (course_id) REFERENCES canvas_courses(course_id)
-FOREIGN KEY (enrollment_date) REFERENCES canvas_students(enrollment_date)
+FOREIGN KEY (course_id) REFERENCES canvas_courses(id)
 ```
 
 ### Layer 2: Historical Data Tables
 
 #### `grade_history`
-Student-level grade snapshots capturing overall progress at sync time.
-
-```sql
-id                    INTEGER PRIMARY KEY
-student_id            INTEGER NOT NULL       -- FK to canvas_students
-course_id             INTEGER NOT NULL       -- FK to canvas_courses
-overall_grade_percent REAL
-missing_assignments   TEXT                   -- JSON array of assignment IDs
-recorded_at           TIMESTAMP NOT NULL
-sync_type             TEXT                   -- 'full_sync', 'student_sync', etc.
-
-FOREIGN KEY (student_id) REFERENCES canvas_students(id)
-FOREIGN KEY (course_id) REFERENCES canvas_courses(id)
-```
-
-#### `assignment_scores`
-Individual assignment grade tracking linked to grade history snapshots.
+Historical record of student grade changes over time.
 
 ```sql
 id                INTEGER PRIMARY KEY
-student_id        INTEGER NOT NULL       -- FK to canvas_students
-assignment_id     INTEGER NOT NULL       -- FK to canvas_assignments
-points_earned     REAL
-points_possible   REAL
-recorded_at       TIMESTAMP NOT NULL
-grade_history_id  INTEGER NOT NULL       -- FK to grade_history (snapshot link)
+student_id        INTEGER NOT NULL       -- Canvas student ID
+course_id         INTEGER NOT NULL       -- Canvas course ID
+assignment_id     INTEGER NULL           -- Canvas assignment ID (null for course grades)
+current_score     INTEGER NULL           -- Student's current score (percentage)
+final_score       INTEGER NULL           -- Student's potential final score (percentage)
+points_earned     REAL NULL              -- Actual points earned on assignment
+points_possible   REAL NULL              -- Total points possible for assignment
+grade_type        TEXT NOT NULL DEFAULT 'assignment'  -- 'assignment', 'course_current', 'course_final'
+submission_status TEXT NULL              -- 'submitted', 'missing', 'late', etc.
+previous_score    INTEGER NULL           -- Previous score for change detection
+score_change      INTEGER NULL           -- Change since last sync (positive/negative)
+recorded_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
-FOREIGN KEY (student_id) REFERENCES canvas_students(id)
+FOREIGN KEY (student_id) REFERENCES canvas_students(student_id)
+FOREIGN KEY (course_id) REFERENCES canvas_courses(id)
 FOREIGN KEY (assignment_id) REFERENCES canvas_assignments(id)
-FOREIGN KEY (grade_history_id) REFERENCES grade_history(id)
+```
+
+#### `assignment_scores`
+Historical record of individual assignment score changes.
+
+```sql
+id                INTEGER PRIMARY KEY
+student_id        INTEGER NOT NULL       -- Canvas student ID
+course_id         INTEGER NOT NULL       -- Canvas course ID
+assignment_id     INTEGER NOT NULL       -- Canvas assignment ID
+score             REAL NULL              -- Points earned on assignment
+points_possible   REAL NULL              -- Total points possible
+percentage        INTEGER NULL           -- Score as percentage (0-100)
+submitted_at      TIMESTAMP NULL         -- When assignment was submitted
+due_at            TIMESTAMP NULL         -- Assignment due date
+submission_status TEXT NOT NULL DEFAULT 'missing'  -- 'submitted', 'missing', 'late', 'on_time'
+graded_at         TIMESTAMP NULL         -- When assignment was graded
+grade_changed     BOOLEAN NOT NULL DEFAULT FALSE  -- Whether grade changed this sync
+previous_score    REAL NULL              -- Previous score for change detection
+score_change      REAL NULL              -- Change in points since last sync
+submission_type   TEXT NULL              -- 'online_text_entry', 'online_upload', etc.
+attempt_number    INTEGER NULL           -- Submission attempt number
+recorded_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+FOREIGN KEY (student_id) REFERENCES canvas_students(student_id)
+FOREIGN KEY (course_id) REFERENCES canvas_courses(id)
+FOREIGN KEY (assignment_id) REFERENCES canvas_assignments(id)
+```
+
+#### `course_snapshots`
+Historical snapshot of course-level statistics and metrics.
+
+```sql
+id                    INTEGER PRIMARY KEY
+course_id             INTEGER NOT NULL       -- Canvas course ID
+total_students        INTEGER NOT NULL DEFAULT 0      -- Total enrolled students
+active_students       INTEGER NOT NULL DEFAULT 0      -- Currently active students
+total_assignments     INTEGER NOT NULL DEFAULT 0      -- Total assignments in course
+published_assignments INTEGER NOT NULL DEFAULT 0      -- Published assignments
+graded_assignments    INTEGER NOT NULL DEFAULT 0      -- Assignments with grades
+average_score         REAL NULL              -- Course average score
+median_score          REAL NULL              -- Course median score
+passing_rate          REAL NULL              -- Percentage of passing students
+recent_submissions    INTEGER NOT NULL DEFAULT 0      -- Submissions in last 7 days
+pending_grading       INTEGER NOT NULL DEFAULT 0      -- Ungraded submissions
+sync_duration         REAL NULL              -- How long sync took (seconds)
+objects_synced        INTEGER NULL           -- Number of objects synced
+recorded_at           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+updated_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+FOREIGN KEY (course_id) REFERENCES canvas_courses(id)
 ```
 
 ### Layer 3: User Metadata Tables
@@ -158,14 +211,14 @@ Persistent user-defined data for students.
 
 ```sql
 student_id        INTEGER PRIMARY KEY                   -- FK to canvas_students
-notes             TEXT
-custom_group_id   TEXT
-enrollment_date   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-tags              TEXT                                  -- JSON array
+notes             TEXT NULL                             -- User notes about student
+custom_tags       TEXT NULL                             -- JSON array of custom tags
+custom_group_id   TEXT NULL                             -- Custom group assignment
+enrollment_date   TIMESTAMP DEFAULT CURRENT_TIMESTAMP   -- User-tracked enrollment date
 created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
-FOREIGN KEY (student_id) REFERENCES canvas_students(id)
+FOREIGN KEY (student_id) REFERENCES canvas_students(student_id)
 ```
 
 #### `assignment_metadata`
@@ -173,10 +226,10 @@ Persistent user-defined data for assignments.
 
 ```sql
 assignment_id     INTEGER PRIMARY KEY     -- FK to canvas_assignments
-user_notes        TEXT
-custom_tags       TEXT                    -- JSON array
-difficulty_rating INTEGER
-estimated_hours   REAL
+notes             TEXT NULL               -- User notes about assignment
+custom_tags       TEXT NULL               -- JSON array of custom tags
+difficulty_rating INTEGER NULL            -- User difficulty rating (1-5)
+estimated_hours   REAL NULL               -- Estimated completion time
 created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
@@ -188,10 +241,11 @@ Persistent user-defined data for courses.
 
 ```sql
 course_id         INTEGER PRIMARY KEY     -- FK to canvas_courses
-user_notes        TEXT
-custom_color      TEXT
-course_hours      INTEGER
-tracking_enabled  BOOLEAN DEFAULT TRUE
+notes             TEXT NULL               -- User notes about course
+custom_tags       TEXT NULL               -- JSON array of custom tags
+custom_color      TEXT NULL               -- Custom color for course display
+course_hours      INTEGER NULL            -- Expected total course hours
+tracking_enabled  BOOLEAN NOT NULL DEFAULT TRUE  -- Whether course is actively tracked
 created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
@@ -227,19 +281,42 @@ FOREIGN KEY (course_id) REFERENCES canvas_courses(id)
 
 ### Change Detection Logic
 ```python
-# Compare missing assignments lists
-previously_missing = set(last_grade_record.missing_assignments)
-currently_missing = set(current_canvas_data.missing_assignments)
+# Grade change detection for course-level tracking
+def detect_course_grade_changes(student_id, course_id, current_scores):
+    # Get last course-level grade record
+    last_record = session.query(GradeHistory).filter(
+        GradeHistory.student_id == student_id,
+        GradeHistory.course_id == course_id,
+        GradeHistory.grade_type.in_(['course_current', 'course_final'])
+    ).order_by(GradeHistory.recorded_at.desc()).first()
+    
+    # Check for current score changes
+    current_changed = (not last_record or 
+                      last_record.current_score != current_scores['current_score'])
+    
+    # Check for final score changes
+    final_changed = (not last_record or 
+                    last_record.final_score != current_scores['final_score'])
+    
+    return current_changed or final_changed
 
-# Detect submissions: assignments no longer missing
-submitted_assignments = previously_missing - currently_missing
-
-# Detect new missing: newly assigned or student fell behind  
-newly_missing = currently_missing - previously_missing
-
-# Grade change detection
-grade_changed = (last_grade_record.overall_grade_percent != 
-                current_canvas_data.overall_grade_percent)
+# Assignment-level change detection
+def detect_assignment_score_changes(student_id, assignment_id, new_score_data):
+    # Get last assignment score record
+    last_score = session.query(AssignmentScore).filter(
+        AssignmentScore.student_id == student_id,
+        AssignmentScore.assignment_id == assignment_id
+    ).order_by(AssignmentScore.recorded_at.desc()).first()
+    
+    # Compare current score
+    score_changed = (not last_score or 
+                    last_score.score != new_score_data.get('score'))
+    
+    # Check submission status change
+    status_changed = (not last_score or 
+                     last_score.submission_status != new_score_data.get('submission_status'))
+    
+    return score_changed or status_changed
 ```
 
 ---
@@ -276,8 +353,8 @@ Curricula are defined in frontend configuration files, not database tables.
 -- Example: Get all students in Web Dev Bootcamp curriculum
 SELECT DISTINCT cs.*, sm.notes, sm.custom_group_id
 FROM canvas_students cs
-JOIN canvas_enrollments ce ON cs.id = ce.student_id
-LEFT JOIN student_metadata sm ON cs.id = sm.student_id
+JOIN canvas_enrollments ce ON cs.student_id = ce.student_id
+LEFT JOIN student_metadata sm ON cs.student_id = sm.student_id
 WHERE ce.course_id IN (101, 102, 103)  -- Web Dev course IDs
 ```
 
@@ -460,12 +537,14 @@ WHERE es.active = TRUE;
 #### Pending Deletion Review:
 ```sql
 -- Get objects requiring user review for deletion
-SELECT os.object_type, os.object_id, os.removed_date,
+SELECT os.object_type, os.object_id, os.removed_date, os.removal_reason,
        CASE os.object_type 
            WHEN 'student' THEN (SELECT name FROM canvas_students WHERE student_id = os.object_id LIMIT 1)
            WHEN 'course' THEN (SELECT name FROM canvas_courses WHERE id = os.object_id LIMIT 1)  
            WHEN 'assignment' THEN (SELECT name FROM canvas_assignments WHERE id = os.object_id LIMIT 1)
-       END as object_name
+       END as object_name,
+       os.user_data_exists,
+       os.historical_data_exists
 FROM object_status os
 WHERE os.pending_deletion = TRUE
 ORDER BY os.removed_date DESC;
