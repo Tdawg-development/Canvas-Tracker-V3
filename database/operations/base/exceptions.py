@@ -73,6 +73,7 @@ class ValidationError(BaseDataValidationError):
         field_name: Optional[str] = None,
         invalid_value: Any = None,
         expected_format: Optional[str] = None,
+        operation_name: Optional[str] = None,
         **kwargs
     ):
         """
@@ -83,18 +84,17 @@ class ValidationError(BaseDataValidationError):
             field_name: Name of the field that failed validation
             invalid_value: The value that failed validation
             expected_format: Description of expected format/value
-            **kwargs: Additional arguments passed to OperationError
+            operation_name: Name of the operation that failed validation
+            **kwargs: Additional arguments passed to base classes
         """
         # Add operation-specific fields as attributes
         self.field_name = field_name
         self.invalid_value = invalid_value
         self.expected_format = expected_format
+        self.operation_name = operation_name
         
         # Initialize base class - it handles field_name and invalid_value in details
         super().__init__(message, field_name=field_name, invalid_value=invalid_value, **kwargs)
-        self.field_name = field_name
-        self.invalid_value = invalid_value
-        self.expected_format = expected_format
 
 
 class TransactionError(BaseTransactionError):
@@ -138,6 +138,7 @@ class DatabaseConnectionError(BaseConnectionError):
         message: str,
         connection_details: Optional[Dict[str, Any]] = None,
         retry_count: Optional[int] = None,
+        operation_name: Optional[str] = None,
         **kwargs
     ):
         """
@@ -147,11 +148,13 @@ class DatabaseConnectionError(BaseConnectionError):
             message: Human-readable connection error message
             connection_details: Information about the failed connection
             retry_count: Number of connection attempts made
-            **kwargs: Additional arguments passed to OperationError
+            operation_name: Name of the operation that failed
+            **kwargs: Additional arguments passed to base classes
         """
         super().__init__(message, **kwargs)
         self.connection_details = connection_details or {}
         self.retry_count = retry_count
+        self.operation_name = operation_name
 
 
 class BulkOperationError(OperationError):
@@ -304,9 +307,11 @@ def handle_operation_error(
         OperationError: Structured operation error with context
     """
     if isinstance(exception, OperationError):
-        # Already an operation error, just update context
+        # Already an operation error, preserve and enhance
         if context:
             exception.context.update(context)
+        if not exception.operation_name:
+            exception.operation_name = operation_name
         return exception
     
     # Map common exception types to specific operation errors
@@ -319,9 +324,25 @@ def handle_operation_error(
     
     error_class = error_mapping.get(type(exception), OperationError)
     
-    return error_class(
-        message=str(exception),
-        operation_name=operation_name,
-        context=context,
-        original_exception=exception
-    )
+    # Create the appropriate error type with proper initialization
+    if error_class == ValidationError:
+        return ValidationError(
+            message=str(exception),
+            operation_name=operation_name,
+            context=context,
+            original_exception=exception
+        )
+    elif error_class == DatabaseConnectionError:
+        return DatabaseConnectionError(
+            message=str(exception),
+            operation_name=operation_name,
+            context=context,
+            original_exception=exception
+        )
+    else:
+        return OperationError(
+            message=str(exception),
+            operation_name=operation_name,
+            context=context,
+            original_exception=exception
+        )
