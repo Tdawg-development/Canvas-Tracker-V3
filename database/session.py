@@ -318,6 +318,64 @@ def health_check(config: DatabaseConfig = None) -> bool:
     return get_db_manager(config).health_check()
 
 
+# Standalone context managers for easy usage in tests and operations
+@contextmanager
+def session_scope(config: DatabaseConfig = None) -> Generator[Session, None, None]:
+    """
+    Standalone context manager for database sessions with automatic transaction handling.
+    
+    Args:
+        config (DatabaseConfig, optional): Database configuration
+        
+    Yields:
+        Session: Database session
+        
+    Usage:
+        with session_scope() as session:
+            # Your database operations here
+            session.add(new_object)
+            # Automatically commits on success, rolls back on exception
+    """
+    db_manager = get_db_manager(config)
+    with db_manager.session_scope() as session:
+        yield session
+
+
+@contextmanager
+def transaction_scope(session: Session = None, config: DatabaseConfig = None) -> Generator[Session, None, None]:
+    """
+    Standalone context manager for explicit transaction control.
+    
+    Args:
+        session (Session, optional): Existing session to use. Creates new if None.
+        config (DatabaseConfig, optional): Database configuration
+        
+    Yields:
+        Session: Database session
+        
+    Usage:
+        with transaction_scope() as session:
+            # Your operations here
+            session.add(obj1)
+            session.add(obj2)
+            # Both committed together or both rolled back
+    """
+    if session is None:
+        # Create new session and manage it
+        with session_scope(config) as new_session:
+            yield new_session
+    else:
+        # Use provided session but still handle transaction
+        try:
+            yield session
+            if session.is_active:
+                session.commit()
+        except Exception as e:
+            if session.is_active:
+                session.rollback()
+            raise
+
+
 # Session decorators for easy transaction management
 def with_session(func):
     """

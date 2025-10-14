@@ -22,7 +22,7 @@ export class CanvasClient {
   private totalRequests: number = 0;
   private successfulRequests: number = 0;
   private responseTimes: number[] = [];
-  private lastMetricsReset: number = Date.now();
+  // private lastMetricsReset: number = Date.now();  // Unused but kept for future metrics
 
   constructor(config: CanvasApiConfig) {
     // Canvas Free for Teachers: 600 requests/hour, penalties for exceeding
@@ -377,6 +377,6 @@ export class CanvasClient {
     this.totalRequests = 0;
     this.successfulRequests = 0;
     this.responseTimes = [];
-    this.lastMetricsReset = Date.now();
+    // this.lastMetricsReset = Date.now();  // Commented out as unused
   }
 }

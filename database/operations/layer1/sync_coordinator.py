@@ -401,6 +401,15 @@ class SyncCoordinator(BaseOperation):
                     skipped += 1
                     continue
                 
+                # Ensure IDs are integers for database operations
+                try:
+                    student_id = int(student_id)
+                    course_id = int(course_id)
+                except (ValueError, TypeError) as e:
+                    sync_result.errors.append(f"Invalid ID format for enrollment {student_id}-{course_id}: {e}")
+                    skipped += 1
+                    continue
+                
                 # Check if enrollment exists before sync to determine created vs updated
                 existing = self.session.query(CanvasEnrollment).filter(
                     and_(

@@ -90,12 +90,15 @@ class CanvasDataManager(BaseOperation):
                 if not update_existing:
                     return existing
                 
+                # Always update last_synced to track when record was last verified against Canvas
+                existing.last_synced = datetime.now(timezone.utc)
+                
                 # Check if update is needed (change detection)
                 if self._course_needs_update(existing, canvas_data):
                     self._update_course_fields(existing, canvas_data)
                     existing.updated_at = datetime.now(timezone.utc)
-                    self.session.flush()
-                    
+                
+                self.session.flush()
                 return existing
             else:
                 # Create new course
@@ -149,9 +152,14 @@ class CanvasDataManager(BaseOperation):
                 existing = existing_map.get(course_id)
                 
                 if existing:
-                    if update_existing and self._course_needs_update(existing, course_data):
-                        self._update_course_fields(existing, course_data)
-                        existing.updated_at = datetime.now(timezone.utc)
+                    if update_existing:
+                        # Always update last_synced to track when record was last verified
+                        existing.last_synced = datetime.now(timezone.utc)
+                        
+                        if self._course_needs_update(existing, course_data):
+                            self._update_course_fields(existing, course_data)
+                            existing.updated_at = datetime.now(timezone.utc)
+                        
                         result['updated'].append(existing)
                     else:
                         result['skipped'].append(existing)
@@ -200,12 +208,15 @@ class CanvasDataManager(BaseOperation):
                 if not update_existing:
                     return existing
                 
+                # Always update last_synced to track when record was last verified against Canvas
+                existing.last_synced = datetime.now(timezone.utc)
+                
                 # Check if update is needed
                 if self._student_needs_update(existing, canvas_data):
                     self._update_student_fields(existing, canvas_data)
                     existing.updated_at = datetime.now(timezone.utc)
-                    self.session.flush()
-                    
+                
+                self.session.flush()
                 return existing
             else:
                 # Create new student
@@ -259,9 +270,14 @@ class CanvasDataManager(BaseOperation):
                 existing = existing_map.get(student_id)
                 
                 if existing:
-                    if update_existing and self._student_needs_update(existing, student_data):
-                        self._update_student_fields(existing, student_data)
-                        existing.updated_at = datetime.now(timezone.utc)
+                    if update_existing:
+                        # Always update last_synced to track when record was last verified
+                        existing.last_synced = datetime.now(timezone.utc)
+                        
+                        if self._student_needs_update(existing, student_data):
+                            self._update_student_fields(existing, student_data)
+                            existing.updated_at = datetime.now(timezone.utc)
+                        
                         result['updated'].append(existing)
                     else:
                         result['skipped'].append(existing)
@@ -312,12 +328,15 @@ class CanvasDataManager(BaseOperation):
                 if not update_existing:
                     return existing
                 
+                # Always update last_synced to track when record was last verified against Canvas
+                existing.last_synced = datetime.now(timezone.utc)
+                
                 # Check if update is needed
                 if self._assignment_needs_update(existing, canvas_data):
                     self._update_assignment_fields(existing, canvas_data)
                     existing.updated_at = datetime.now(timezone.utc)
-                    self.session.flush()
-                    
+                
+                self.session.flush()
                 return existing
             else:
                 # Create new assignment
@@ -364,12 +383,15 @@ class CanvasDataManager(BaseOperation):
                 if not update_existing:
                     return existing
                 
+                # Always update last_synced to track when record was last verified against Canvas
+                existing.last_synced = datetime.now(timezone.utc)
+                
                 # Check if update is needed
                 if self._enrollment_needs_update(existing, canvas_data):
                     self._update_enrollment_fields(existing, canvas_data)
                     existing.updated_at = datetime.now(timezone.utc)
-                    self.session.flush()
-                    
+                
+                self.session.flush()
                 return existing
             else:
                 # Create new enrollment
@@ -495,12 +517,21 @@ class CanvasDataManager(BaseOperation):
         current_score = canvas_data.get('current_score', existing.current_score) or 0
         final_score = canvas_data.get('final_score', existing.final_score) or 0
         
+        # Compare last_activity timestamps (from transformed data)
+        canvas_last_activity = canvas_data.get('last_activity')
+        if isinstance(canvas_last_activity, str):
+            try:
+                canvas_last_activity = datetime.fromisoformat(canvas_last_activity.replace('Z', '+00:00'))
+            except (ValueError, AttributeError):
+                canvas_last_activity = None
+        
         return (
             existing.name != name or
             existing.email != canvas_data.get('email', existing.email) or
             existing.login_id != login_id or
             existing.current_score != current_score or
-            existing.final_score != final_score
+            existing.final_score != final_score or
+            existing.last_activity != canvas_last_activity
         )
     
     def _assignment_needs_update(self, existing: CanvasAssignment, canvas_data: Dict[str, Any]) -> bool:
@@ -518,7 +549,7 @@ class CanvasDataManager(BaseOperation):
         return (
             existing.name != name or
             existing.points_possible != points_possible or
-            existing.type != canvas_data.get('type', existing.type) or
+            existing.assignment_type != canvas_data.get('assignment_type', canvas_data.get('type', existing.assignment_type)) or
             existing.published != canvas_data.get('published', existing.published) or
             existing.url != canvas_data.get('url', existing.url) or
             existing.module_position != canvas_data.get('position', existing.module_position)
@@ -532,15 +563,72 @@ class CanvasDataManager(BaseOperation):
     
     def _create_course_from_data(self, canvas_data: Dict[str, Any]) -> CanvasCourse:
         """Create new CanvasCourse from Canvas API data."""
+        # Parse Canvas timestamps
+        created_at = datetime.now(timezone.utc)
+        updated_at = datetime.now(timezone.utc)
+        
+        if canvas_data.get('created_at'):
+            try:
+                created_at_value = canvas_data['created_at']
+                if isinstance(created_at_value, datetime):
+                    created_at = created_at_value
+                else:
+                    created_at = datetime.fromisoformat(created_at_value.replace('Z', '+00:00'))
+            except (ValueError, AttributeError):
+                pass  # Use default
+                
+        if canvas_data.get('updated_at'):
+            try:
+                updated_at_value = canvas_data['updated_at']
+                if isinstance(updated_at_value, datetime):
+                    updated_at = updated_at_value
+                else:
+                    updated_at = datetime.fromisoformat(updated_at_value.replace('Z', '+00:00'))
+            except (ValueError, AttributeError):
+                updated_at = created_at  # Fallback to created_at
+        else:
+            updated_at = created_at
+        
         return CanvasCourse(
             id=canvas_data['id'],
             name=canvas_data.get('name', ''),
             course_code=canvas_data.get('course_code', ''),
-            calendar_ics=canvas_data.get('calendar', {}).get('ics', '') if canvas_data.get('calendar') else ''
+            calendar_ics=canvas_data.get('calendar', {}).get('ics', '') if canvas_data.get('calendar') else '',
+            created_at=created_at,
+            updated_at=updated_at,
+            last_synced=canvas_data.get('last_synced') or datetime.now(timezone.utc)
         )
     
     def _create_student_from_data(self, canvas_data: Dict[str, Any]) -> CanvasStudent:
         """Create new CanvasStudent from Canvas API data."""
+        # Parse Canvas timestamps
+        created_at = datetime.now(timezone.utc)
+        updated_at = datetime.now(timezone.utc)
+        enrollment_date = created_at
+        
+        if canvas_data.get('created_at'):
+            try:
+                created_at_value = canvas_data['created_at']
+                if isinstance(created_at_value, datetime):
+                    created_at = created_at_value
+                else:
+                    created_at = datetime.fromisoformat(created_at_value.replace('Z', '+00:00'))
+                enrollment_date = created_at  # Use Canvas creation time for enrollment
+            except (ValueError, AttributeError):
+                pass
+                
+        if canvas_data.get('updated_at'):
+            try:
+                updated_at_value = canvas_data['updated_at']
+                if isinstance(updated_at_value, datetime):
+                    updated_at = updated_at_value
+                else:
+                    updated_at = datetime.fromisoformat(updated_at_value.replace('Z', '+00:00'))
+            except (ValueError, AttributeError):
+                updated_at = created_at
+        else:
+            updated_at = created_at
+            
         return CanvasStudent(
             student_id=canvas_data['id'],
             user_id=canvas_data.get('user_id'),
@@ -549,23 +637,54 @@ class CanvasDataManager(BaseOperation):
             email=canvas_data.get('email', ''),
             current_score=canvas_data.get('current_score', 0) or 0,
             final_score=canvas_data.get('final_score', 0) or 0,
-            enrollment_date=datetime.fromisoformat(canvas_data['created_at'].replace('Z', '+00:00')) if canvas_data.get('created_at') else datetime.now(timezone.utc),
-            last_activity=datetime.fromisoformat(canvas_data['last_activity_at'].replace('Z', '+00:00')) if canvas_data.get('last_activity_at') else None
+            enrollment_date=enrollment_date,
+            last_activity=canvas_data.get('last_activity'),
+            created_at=created_at,
+            updated_at=updated_at,
+            last_synced=canvas_data.get('last_synced') or datetime.now(timezone.utc)
         )
     
     def _create_assignment_from_data(self, canvas_data: Dict[str, Any], course_id: int) -> CanvasAssignment:
         """Create new CanvasAssignment from Canvas API data."""
+        # Parse Canvas timestamps
+        created_at = datetime.now(timezone.utc)
+        updated_at = datetime.now(timezone.utc)
+        
+        if canvas_data.get('created_at'):
+            try:
+                created_at_value = canvas_data['created_at']
+                if isinstance(created_at_value, datetime):
+                    created_at = created_at_value
+                else:
+                    created_at = datetime.fromisoformat(created_at_value.replace('Z', '+00:00'))
+            except (ValueError, AttributeError):
+                pass
+                
+        if canvas_data.get('updated_at'):
+            try:
+                updated_at_value = canvas_data['updated_at']
+                if isinstance(updated_at_value, datetime):
+                    updated_at = updated_at_value
+                else:
+                    updated_at = datetime.fromisoformat(updated_at_value.replace('Z', '+00:00'))
+            except (ValueError, AttributeError):
+                updated_at = created_at
+        else:
+            updated_at = created_at
+        
         return CanvasAssignment(
             id=canvas_data['id'],
             course_id=course_id,
             module_id=canvas_data.get('module_id', 0),  # Required field from schema
-            module_position=canvas_data.get('position'),
+            module_position=canvas_data.get('module_position') or canvas_data.get('position'),
             name=canvas_data.get('title', canvas_data.get('name', '')),  # Canvas uses 'title'
-            type=canvas_data.get('type', 'Assignment'),
             url=canvas_data.get('url', ''),
             published=canvas_data.get('published', False),
             points_possible=canvas_data.get('content_details', {}).get('points_possible') if canvas_data.get('content_details') else canvas_data.get('points_possible'),
-            assignment_type=canvas_data.get('assignment_type')
+            assignment_type=canvas_data.get('assignment_type') or canvas_data.get('type'),  # Prefer assignment_type, fallback to type
+            created_at=created_at,
+            updated_at=updated_at,
+            last_synced=canvas_data.get('last_synced') or datetime.now(timezone.utc)
         )
     
     def _create_enrollment_from_data(
@@ -575,19 +694,92 @@ class CanvasDataManager(BaseOperation):
         canvas_data: Dict[str, Any]
     ) -> CanvasEnrollment:
         """Create new CanvasEnrollment from Canvas API data."""
-        enrollment_date = datetime.now(timezone.utc)
-        if canvas_data.get('created_at'):
+        try:
+            # Debug logging
+            self.logger.debug(f"Creating enrollment: student_id={student_id} (type: {type(student_id)}), course_id={course_id} (type: {type(course_id)})")
+            
+            enrollment_date = datetime.now(timezone.utc)
+            if canvas_data.get('created_at'):
+                try:
+                    created_at_value = canvas_data['created_at']
+                    if isinstance(created_at_value, datetime):
+                        # Already a datetime object
+                        enrollment_date = created_at_value
+                    else:
+                        # String that needs parsing
+                        enrollment_date = datetime.fromisoformat(created_at_value.replace('Z', '+00:00'))
+                    self.logger.debug(f"Parsed enrollment_date: {enrollment_date} (type: {type(enrollment_date)})")
+                except (ValueError, AttributeError) as e:
+                    self.logger.warning(f"Failed to parse enrollment date '{canvas_data.get('created_at')}': {e}")
+            
+            enrollment_status = canvas_data.get('enrollment_state', 'active')
+            self.logger.debug(f"Enrollment status: {enrollment_status} (type: {type(enrollment_status)})")
+            
+            # Ensure all values are correct types before creating model
+            if not isinstance(student_id, int):
+                raise ValueError(f"student_id must be int, got {type(student_id)}: {student_id}")
+            if not isinstance(course_id, int):
+                raise ValueError(f"course_id must be int, got {type(course_id)}: {course_id}")
+                
+            # Parse Canvas timestamps for created_at/updated_at
+            created_at = datetime.now(timezone.utc)
+            updated_at = datetime.now(timezone.utc)
+            
+            if canvas_data.get('created_at'):
+                try:
+                    created_at_value = canvas_data['created_at']
+                    if isinstance(created_at_value, datetime):
+                        # Already a datetime object
+                        created_at = created_at_value
+                    else:
+                        # String that needs parsing
+                        created_at = datetime.fromisoformat(created_at_value.replace('Z', '+00:00'))
+                    # Always use Canvas time for enrollment
+                    enrollment_date = created_at
+                except (ValueError, AttributeError):
+                    pass
+                    
+            if canvas_data.get('updated_at'):
+                try:
+                    updated_at_value = canvas_data['updated_at']
+                    if isinstance(updated_at_value, datetime):
+                        # Already a datetime object
+                        updated_at = updated_at_value
+                    else:
+                        # String that needs parsing
+                        updated_at = datetime.fromisoformat(updated_at_value.replace('Z', '+00:00'))
+                except (ValueError, AttributeError):
+                    updated_at = created_at
+            else:
+                updated_at = created_at
+            
+            # Log all parameters before model creation
+            params = {
+                'student_id': student_id,
+                'course_id': course_id,
+                'enrollment_date': enrollment_date,
+                'enrollment_status': enrollment_status,
+                'created_at': created_at,
+                'updated_at': updated_at,
+                'last_synced': canvas_data.get('last_synced') or datetime.now(timezone.utc)
+            }
+            self.logger.debug(f"CanvasEnrollment parameters: {params}")
+            for key, value in params.items():
+                self.logger.debug(f"  {key}: {value} (type: {type(value)})")
+            
+            # Try to create the model with detailed error handling
             try:
-                enrollment_date = datetime.fromisoformat(canvas_data['created_at'].replace('Z', '+00:00'))
-            except (ValueError, AttributeError):
-                pass
-        
-        return CanvasEnrollment(
-            student_id=student_id,
-            course_id=course_id,
-            enrollment_date=enrollment_date,
-            enrollment_status=canvas_data.get('enrollment_state', 'active')
-        )
+                enrollment = CanvasEnrollment(**params)
+                self.logger.debug(f"CanvasEnrollment instance created successfully: {enrollment}")
+                return enrollment
+            except Exception as model_error:
+                self.logger.error(f"Failed to create CanvasEnrollment instance: {model_error}")
+                self.logger.error(f"Error type: {type(model_error)}")
+                raise
+        except Exception as e:
+            self.logger.error(f"Failed to create enrollment from data: {e}")
+            self.logger.error(f"Data: student_id={student_id}, course_id={course_id}, canvas_data={canvas_data}")
+            raise
     
     def _update_course_fields(self, course: CanvasCourse, canvas_data: Dict[str, Any]) -> None:
         """Update existing course with new data."""
@@ -597,6 +789,20 @@ class CanvasDataManager(BaseOperation):
             course.course_code = canvas_data['course_code']
         if 'calendar' in canvas_data and canvas_data['calendar']:
             course.calendar_ics = canvas_data['calendar'].get('ics', '')
+        
+        # Update timestamp from Canvas data
+        if 'updated_at' in canvas_data:
+            try:
+                updated_at_value = canvas_data['updated_at']
+                if isinstance(updated_at_value, datetime):
+                    course.updated_at = updated_at_value
+                else:
+                    course.updated_at = datetime.fromisoformat(updated_at_value.replace('Z', '+00:00'))
+            except (ValueError, AttributeError):
+                course.updated_at = datetime.now(timezone.utc)
+        
+        # Always update last_synced on sync
+        course.last_synced = datetime.now(timezone.utc)
     
     def _update_student_fields(self, student: CanvasStudent, canvas_data: Dict[str, Any]) -> None:
         """Update existing student with new data."""
@@ -617,11 +823,31 @@ class CanvasDataManager(BaseOperation):
             student.current_score = canvas_data['current_score'] or 0
         if 'final_score' in canvas_data:
             student.final_score = canvas_data['final_score'] or 0
-        if 'last_activity_at' in canvas_data:
+        if 'last_activity' in canvas_data:
+            last_activity_value = canvas_data['last_activity']
+            if isinstance(last_activity_value, datetime):
+                student.last_activity = last_activity_value
+            elif isinstance(last_activity_value, str):
+                try:
+                    student.last_activity = datetime.fromisoformat(last_activity_value.replace('Z', '+00:00'))
+                except (ValueError, AttributeError):
+                    student.last_activity = None
+            else:
+                student.last_activity = last_activity_value  # None or other value
+        
+        # Update timestamp from Canvas data
+        if 'updated_at' in canvas_data:
             try:
-                student.last_activity = datetime.fromisoformat(canvas_data['last_activity_at'].replace('Z', '+00:00'))
+                updated_at_value = canvas_data['updated_at']
+                if isinstance(updated_at_value, datetime):
+                    student.updated_at = updated_at_value
+                else:
+                    student.updated_at = datetime.fromisoformat(updated_at_value.replace('Z', '+00:00'))
             except (ValueError, AttributeError):
-                student.last_activity = None
+                student.updated_at = datetime.now(timezone.utc)
+        
+        # Always update last_synced on sync
+        student.last_synced = datetime.now(timezone.utc)
     
     def _update_assignment_fields(self, assignment: CanvasAssignment, canvas_data: Dict[str, Any]) -> None:
         """Update existing assignment with new data."""
@@ -636,16 +862,49 @@ class CanvasDataManager(BaseOperation):
         elif 'points_possible' in canvas_data:
             assignment.points_possible = canvas_data['points_possible']
         
-        if 'type' in canvas_data:
-            assignment.type = canvas_data['type']
+        if 'assignment_type' in canvas_data:
+            assignment.assignment_type = canvas_data['assignment_type']
+        elif 'type' in canvas_data:
+            assignment.assignment_type = canvas_data['type']  # Fallback to type if assignment_type not available
+        if 'module_position' in canvas_data:
+            assignment.module_position = canvas_data['module_position']
+        elif 'position' in canvas_data:
+            assignment.module_position = canvas_data['position']
         if 'url' in canvas_data:
             assignment.url = canvas_data['url']
         if 'published' in canvas_data:
             assignment.published = canvas_data['published']
+        if 'last_synced' in canvas_data:
+            assignment.last_synced = canvas_data['last_synced']
         if 'position' in canvas_data:
             assignment.module_position = canvas_data['position']
+        
+        # Update timestamp from Canvas data
+        if 'updated_at' in canvas_data:
+            try:
+                updated_at_value = canvas_data['updated_at']
+                if isinstance(updated_at_value, datetime):
+                    assignment.updated_at = updated_at_value
+                else:
+                    assignment.updated_at = datetime.fromisoformat(updated_at_value.replace('Z', '+00:00'))
+            except (ValueError, AttributeError):
+                assignment.updated_at = datetime.now(timezone.utc)
     
     def _update_enrollment_fields(self, enrollment: CanvasEnrollment, canvas_data: Dict[str, Any]) -> None:
         """Update existing enrollment with new data."""
         if 'enrollment_state' in canvas_data:
             enrollment.enrollment_status = canvas_data['enrollment_state']
+        
+        # Update timestamp from Canvas data
+        if 'updated_at' in canvas_data:
+            try:
+                updated_at_value = canvas_data['updated_at']
+                if isinstance(updated_at_value, datetime):
+                    enrollment.updated_at = updated_at_value
+                else:
+                    enrollment.updated_at = datetime.fromisoformat(updated_at_value.replace('Z', '+00:00'))
+            except (ValueError, AttributeError):
+                enrollment.updated_at = datetime.now(timezone.utc)
+        
+        # Always update last_synced on sync
+        enrollment.last_synced = datetime.now(timezone.utc)

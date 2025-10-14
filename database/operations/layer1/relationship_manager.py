@@ -268,7 +268,9 @@ class RelationshipManager(BaseOperation):
         )
         
         if include_scores:
-            query = query.options(selectinload(CanvasAssignment.assignment_scores))
+            # Note: assignment_scores relationship removed to prevent forward dependency
+            # Scores must be fetched separately via AssignmentScore queries
+            pass
         
         return query.order_by(CanvasAssignment.module_position).all()
     

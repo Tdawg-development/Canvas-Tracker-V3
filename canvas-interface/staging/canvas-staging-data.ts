@@ -5,7 +5,7 @@
  * No transformation or processing - just clean staging of Canvas data.
  */
 
-// Assignment Object (from Modules API)
+// Assignment Object (from Modules API and Assignments API)
 export class CanvasAssignmentStaging {
   id: number;
   position: number;
@@ -16,6 +16,14 @@ export class CanvasAssignmentStaging {
   content_details: {
     points_possible: number;
   };
+  
+  // Canvas API timestamp fields
+  created_at?: string;
+  updated_at?: string;
+  
+  // Additional assignment fields from full API
+  workflow_state?: string;
+  assignment_type?: string;
 
   constructor(data: any) {
     this.id = data.id;
@@ -27,6 +35,14 @@ export class CanvasAssignmentStaging {
     this.content_details = {
       points_possible: data.content_details?.points_possible || 0
     };
+    
+    // Canvas API timestamp fields (if available from full assignment data)
+    this.created_at = data.created_at;
+    this.updated_at = data.updated_at;
+    
+    // Additional fields
+    this.workflow_state = data.workflow_state;
+    this.assignment_type = data.assignment_type;
   }
   
   /**
@@ -88,6 +104,7 @@ export class CanvasStudentStaging {
     name: string;
     sortable_name: string;
     login_id: string;
+    email?: string;
   };
   
   // Assignment analytics data
@@ -107,7 +124,8 @@ export class CanvasStudentStaging {
       id: data.user?.id || data.user_id,
       name: data.user?.name || 'Unknown',
       sortable_name: data.user?.sortable_name || 'Unknown',
-      login_id: data.user?.login_id || 'Unknown'
+      login_id: data.user?.login_id || 'Unknown',
+      email: data.user?.email || data.email || ''
     };
     
     // Initialize assignment arrays

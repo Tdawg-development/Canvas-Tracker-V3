@@ -33,6 +33,23 @@ class TimestampMixin:
         return Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
 
 
+class CanvasTimestampMixin:
+    """
+    Mixin for Canvas models that need to preserve Canvas API timestamps.
+    
+    Unlike TimestampMixin, this doesn't auto-set timestamps - they should be
+    explicitly set from Canvas API data.
+    """
+    
+    @declared_attr
+    def created_at(cls):
+        return Column(DateTime, nullable=False)
+    
+    @declared_attr  
+    def updated_at(cls):
+        return Column(DateTime, nullable=False)
+
+
 class SyncTrackingMixin:
     """
     Mixin to track when Canvas data was last synchronized.
@@ -221,12 +238,15 @@ class CanvasBaseModel(BaseModel, SyncTrackingMixin, CanvasObjectMixin):
         return self.last_synced.timestamp() > threshold
 
 
-class CanvasEntityModel(Base, TimestampMixin, SyncTrackingMixin, CanvasObjectMixin):
+class CanvasEntityModel(Base, CanvasTimestampMixin, SyncTrackingMixin, CanvasObjectMixin):
     """
     Base model for Canvas entities that use Canvas IDs as primary keys.
     
     Unlike CanvasBaseModel, this does NOT include an auto-incrementing id field.
     Canvas entities define their own primary key structure using Canvas IDs.
+    
+    Uses CanvasTimestampMixin to preserve Canvas API timestamps instead of
+    auto-setting database insertion timestamps.
     
     Provides:
     - Timestamp tracking (created_at, updated_at)
@@ -310,7 +330,7 @@ class CanvasEntityModel(Base, TimestampMixin, SyncTrackingMixin, CanvasObjectMix
         return self.last_synced.timestamp() > threshold
 
 
-class CanvasRelationshipModel(Base, TimestampMixin, SyncTrackingMixin):
+class CanvasRelationshipModel(Base, CanvasTimestampMixin, SyncTrackingMixin):
     """
     Base model for Canvas relationship models (like enrollments).
     
@@ -318,7 +338,7 @@ class CanvasRelationshipModel(Base, TimestampMixin, SyncTrackingMixin):
     Canvas object patterns, since relationships don't have names.
     
     Provides:
-    - Timestamp tracking (created_at, updated_at)
+    - Canvas timestamp tracking (created_at, updated_at from Canvas API)
     - Sync tracking (last_synced)
     - Utility methods for Canvas-specific operations
     

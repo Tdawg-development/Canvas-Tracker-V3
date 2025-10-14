@@ -552,18 +552,16 @@ class TestRelationshipManagerCore:
         """Test getting assignments for a course."""
         mock_assignments = [Mock(), Mock(), Mock()]
         
-        # Set up proper mock chain: query().filter().options().order_by().all()
+        # Set up proper mock chain: query().filter().order_by().all()
+        # Note: options() call removed due to forward dependency issue
         mock_final_query = Mock()
         mock_final_query.all.return_value = mock_assignments
         
         mock_ordered_query = Mock()
         mock_ordered_query.order_by.return_value = mock_final_query
         
-        mock_options_query = Mock()
-        mock_options_query.options.return_value = mock_ordered_query
-        
         mock_query = Mock()
-        mock_query.filter.return_value = mock_options_query
+        mock_query.filter.return_value = mock_ordered_query
         
         self.mock_session.query.return_value = mock_query
         
@@ -572,8 +570,8 @@ class TestRelationshipManagerCore:
         )
         
         assert result == mock_assignments
-        # Should use selectinload when include_scores=True
-        assert mock_options_query.options.called
+        # Note: assignment_scores relationship removed to prevent forward dependency
+        # Scores must be fetched separately via AssignmentScore queries
     
     # ==================== REFERENTIAL INTEGRITY TESTS ====================
     

@@ -9,7 +9,7 @@ This module handles:
 """
 
 import os
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 
@@ -34,7 +34,17 @@ class DatabaseConfig:
             environment (str, optional): Environment name ('dev', 'test', 'prod'). 
                                        Defaults to checking DATABASE_ENV env var or 'dev'.
         """
-        self.environment = environment or os.getenv('DATABASE_ENV', 'dev')
+        # Explicit environment detection with logging for clarity
+        if environment:
+            self.environment = environment
+        else:
+            self.environment = os.getenv('DATABASE_ENV', 'dev')
+            
+        # Log the detected environment for debugging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.debug(f"Database environment detected: {self.environment}")
+        
         self._config = self._load_config()
     
     def _load_config(self) -> Dict[str, Any]:
@@ -73,14 +83,24 @@ class DatabaseConfig:
         }
     
     def _get_test_config(self) -> Dict[str, Any]:
-        """Test environment configuration - uses in-memory SQLite."""
+        """Test environment configuration - uses single test database."""
+        # Use single standardized test database name
+        test_db_path = 'canvas_tracker_test.db'
+        
+        # Ensure we use an absolute path
+        if not os.path.isabs(test_db_path):
+            test_db_path = os.path.abspath(test_db_path)
+        
         return {
-            'database_url': "sqlite:///:memory:",
-            'echo': False,  # Don't spam test output with SQL
+            'database_url': f"sqlite:///{test_db_path}",
+            'echo': os.getenv('TEST_DATABASE_ECHO', 'false').lower() == 'true',  # Allow SQL logging for debugging
             'connect_args': {
-                'check_same_thread': False
-            }
-            # SQLite doesn't support pool_size, max_overflow, or pool_timeout
+                'check_same_thread': False,  # Allow SQLite usage across threads
+                'timeout': 30  # Longer timeout for file-based operations
+            },
+            'pool_size': 1,  # SQLite doesn't support connection pooling
+            'max_overflow': 0,
+            'pool_timeout': self.DEFAULT_POOL_TIMEOUT
         }
     
     def _get_production_config(self) -> Dict[str, Any]:
@@ -155,6 +175,25 @@ class DatabaseConfig:
     def is_in_memory(self) -> bool:
         """Check if current configuration uses in-memory database."""
         return self.database_url == "sqlite:///:memory:"
+    
+    def get_database_file_path(self) -> Optional[str]:
+        """
+        Get the absolute file path for SQLite databases.
+        
+        Returns:
+            str: Absolute path to database file, or None if not SQLite
+        """
+        if not self.is_sqlite():
+            return None
+        
+        if self.is_in_memory():
+            return ":memory:"
+            
+        # Extract and normalize the path
+        path = self.database_url.replace('sqlite:///', '')
+        if not os.path.isabs(path):
+            path = os.path.abspath(path)
+        return path
     
     def __repr__(self):
         """String representation of the configuration."""

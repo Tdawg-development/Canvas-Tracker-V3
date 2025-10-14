@@ -18,7 +18,7 @@ Key Characteristics:
 - Includes sync tracking (last_synced) but not object lifecycle
 """
 
-from sqlalchemy import Column, Integer, String, Boolean, Float, DateTime, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, Boolean, Float, DateTime, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from ..base import CanvasEntityModel, CanvasRelationshipModel, CommonColumns
@@ -143,7 +143,6 @@ class CanvasAssignment(CanvasEntityModel):
     
     # Assignment details (from CanvasAssignmentStaging)
     # name comes from CanvasAssignmentStaging.title via CanvasBaseModel
-    type = Column(String(20), nullable=True)              # from CanvasAssignmentStaging.type ("Assignment" | "Quiz")
     url = Column(String(500), nullable=True)              # from CanvasAssignmentStaging.url
     published = Column(Boolean, nullable=False, default=False)  # from CanvasAssignmentStaging.published
     
@@ -156,10 +155,8 @@ class CanvasAssignment(CanvasEntityModel):
     # Relationships
     course = relationship("CanvasCourse", back_populates="assignments")
     
-    # Relationship to historical assignment scores (Layer 2)
-    assignment_scores = relationship("AssignmentScore", 
-                                   primaryjoin="CanvasAssignment.id == foreign(AssignmentScore.assignment_id)",
-                                   viewonly=True)
+    # Note: Historical assignment scores relationship removed to prevent
+    # forward dependency to Layer 2. Access via AssignmentScore.assignment_id queries instead.
     
     def __repr__(self):
         """String representation showing assignment name and points."""
@@ -167,8 +164,8 @@ class CanvasAssignment(CanvasEntityModel):
         return f"<CanvasAssignment(id={self.id}, name='{self.name}', {points})>"
     
     def is_quiz(self):
-        """Check if this assignment is a quiz (from CanvasAssignmentStaging.type)."""
-        return self.type and self.type.lower() == 'quiz'
+        """Check if this assignment is a quiz (from CanvasAssignmentStaging.assignment_type)."""
+        return self.assignment_type and self.assignment_type.lower() == 'quiz'
     
     def is_published_and_graded(self):
         """Check if assignment is published and has points possible."""
@@ -181,17 +178,30 @@ class CanvasEnrollment(CanvasRelationshipModel):
     
     Represents student-course enrollment relationships.
     This bridges the relationship between CanvasStudentStaging and CanvasCourseStaging objects.
+    
+    Uses auto-incrementing ID as primary key for simplicity, with unique constraint on
+    student_id + course_id to prevent duplicate enrollments.
     """
     
     __tablename__ = 'canvas_enrollments'
     
-    # Composite primary key per database architecture
-    student_id = Column(Integer, ForeignKey('canvas_students.student_id'), primary_key=True)
-    course_id = Column(Integer, ForeignKey('canvas_courses.id'), primary_key=True)  
-    enrollment_date = Column(DateTime, primary_key=True)  # from CanvasStudentStaging.created_at
+    # Auto-incrementing primary key (explicit since CanvasRelationshipModel doesn't inherit from BaseModel)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    
+    # Foreign key relationships
+    student_id = Column(Integer, ForeignKey('canvas_students.student_id'), nullable=False)
+    course_id = Column(Integer, ForeignKey('canvas_courses.id'), nullable=False)
+    
+    # Enrollment metadata  
+    enrollment_date = Column(DateTime, nullable=True)  # from CanvasStudentStaging.created_at
     
     # Enrollment details
     enrollment_status = Column(String(50), nullable=True)  # 'active', 'inactive', etc.
+    
+    # Unique constraint to prevent duplicate enrollments
+    __table_args__ = (
+        UniqueConstraint('student_id', 'course_id', name='unique_student_course_enrollment'),
+    )
     
     # Relationships
     student = relationship("CanvasStudent", back_populates="enrollments", overlaps="courses,students")
