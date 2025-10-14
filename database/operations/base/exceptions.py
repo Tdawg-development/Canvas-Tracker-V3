@@ -3,12 +3,23 @@ Operations-specific exceptions for the Canvas Tracker database operations.
 
 This module defines custom exceptions that provide specific error handling
 for database operations, validation, and transaction management.
+
+These exceptions extend the base database exceptions from utils.exceptions
+to provide operation-layer specific context and handling.
 """
 
 from typing import Any, Dict, List, Optional, Union
+from database.utils.exceptions import (
+    CanvasTrackerDatabaseError, 
+    DataValidationError as BaseDataValidationError,
+    TransactionError as BaseTransactionError,
+    ConnectionError as BaseConnectionError,
+    SyncError as BaseSyncError,
+    ConfigurationError as BaseConfigurationError
+)
 
 
-class OperationError(Exception):
+class OperationError(CanvasTrackerDatabaseError):
     """
     Base exception for all operation-related errors.
     
@@ -48,7 +59,7 @@ class OperationError(Exception):
         return " | ".join(parts)
 
 
-class ValidationError(OperationError):
+class ValidationError(BaseDataValidationError):
     """
     Exception raised when data validation fails during operations.
     
@@ -74,13 +85,19 @@ class ValidationError(OperationError):
             expected_format: Description of expected format/value
             **kwargs: Additional arguments passed to OperationError
         """
-        super().__init__(message, **kwargs)
+        # Add operation-specific fields as attributes
+        self.field_name = field_name
+        self.invalid_value = invalid_value
+        self.expected_format = expected_format
+        
+        # Initialize base class - it handles field_name and invalid_value in details
+        super().__init__(message, field_name=field_name, invalid_value=invalid_value, **kwargs)
         self.field_name = field_name
         self.invalid_value = invalid_value
         self.expected_format = expected_format
 
 
-class TransactionError(OperationError):
+class TransactionError(BaseTransactionError):
     """
     Exception raised when database transaction operations fail.
     
@@ -108,7 +125,7 @@ class TransactionError(OperationError):
         self.affected_tables = affected_tables or []
 
 
-class DatabaseConnectionError(OperationError):
+class DatabaseConnectionError(BaseConnectionError):
     """
     Exception raised when database connection issues occur.
     
@@ -201,7 +218,7 @@ class DataIntegrityError(OperationError):
         self.conflicting_data = conflicting_data or {}
 
 
-class SyncOperationError(OperationError):
+class SyncOperationError(BaseSyncError):
     """
     Exception raised during Canvas synchronization operations.
     
@@ -233,7 +250,7 @@ class SyncOperationError(OperationError):
         self.sync_phase = sync_phase
 
 
-class ConfigurationError(OperationError):
+class ConfigurationError(BaseConfigurationError):
     """
     Exception raised when configuration issues prevent operations.
     
