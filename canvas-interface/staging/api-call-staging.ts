@@ -3,7 +3,10 @@
  * 
  * Organizes Canvas data by API endpoint calls rather than entity types.
  * This aligns better with database ingestion and enables modular rebuilding.
+ * Supports configuration-driven selective data collection.
  */
+
+import { SyncConfiguration, FULL_SYNC_PROFILE } from '../types/sync-configuration';
 
 // Base interfaces for API call results
 interface ApiCallMetadata {
@@ -138,9 +141,11 @@ interface StudentAnalyticsRecord {
 
 /**
  * Main data set class that holds all API call results for a course
+ * Supports configuration-driven selective data collection
  */
 export class CanvasCourseApiDataSet {
   courseId: number;
+  config: SyncConfiguration;
   
   // API call results
   courseInfo?: CourseInfoCall;
@@ -155,8 +160,9 @@ export class CanvasCourseApiDataSet {
   totalApiCalls: number = 0;
   totalProcessingTime: number = 0;
 
-  constructor(courseId: number) {
+  constructor(courseId: number, config?: SyncConfiguration) {
     this.courseId = courseId;
+    this.config = config || FULL_SYNC_PROFILE;
     this.studentAnalytics = new Map();
     this.constructionStartTime = new Date();
   }
@@ -417,6 +423,12 @@ export class CanvasCourseApiDataSet {
   }
 
   async rebuildEnrollments(dataConstructor: any): Promise<void> {
+    // Skip if student data collection is disabled
+    if (!this.config.students) {
+      console.log(`⏭️ Skipping enrollment rebuild (students disabled in config)`);
+      return;
+    }
+    
     console.log(`🔄 Rebuilding enrollments for course ${this.courseId}...`);
     const startTime = Date.now();
     
@@ -440,6 +452,12 @@ export class CanvasCourseApiDataSet {
   }
 
   async rebuildAssignments(dataConstructor: any): Promise<void> {
+    // Skip if both assignments and modules are disabled
+    if (!this.config.assignments && !this.config.modules) {
+      console.log(`⏭️ Skipping assignment rebuild (assignments/modules disabled in config)`);
+      return;
+    }
+    
     console.log(`🔄 Rebuilding assignments for course ${this.courseId}...`);
     const startTime = Date.now();
     

@@ -3,7 +3,10 @@
  * 
  * Supports both single-course operations and bulk multi-course operations.
  * Organizes Canvas data by API endpoint calls rather than entity types.
+ * Supports configuration-driven selective data collection.
  */
+
+import { SyncConfiguration, FULL_SYNC_PROFILE } from '../types/sync-configuration';
 
 import { 
   CanvasCourseApiDataSet,
@@ -32,8 +35,12 @@ interface CourseListCall {
  * 
  * This class manages API calls that retrieve data for ALL courses at once,
  * as opposed to the single-course focused CanvasCourseApiDataSet.
+ * Supports configuration-driven selective data collection.
  */
 export class CanvasBulkApiDataManager {
+  // Configuration
+  config: SyncConfiguration;
+  
   // Bulk API call results (for ALL courses)
   allCoursesList?: CourseListCall;  // GET /courses (all available courses)
   
@@ -46,7 +53,8 @@ export class CanvasBulkApiDataManager {
   totalApiCalls: number = 0;
   totalProcessingTime: number = 0;
 
-  constructor() {
+  constructor(config?: SyncConfiguration) {
+    this.config = config || FULL_SYNC_PROFILE;
     this.courseDataSets = new Map();
     this.constructionStartTime = new Date();
   }
@@ -78,11 +86,12 @@ export class CanvasBulkApiDataManager {
   initializeCourseDataSets(courseIds: number[]): void {
     courseIds.forEach(courseId => {
       if (!this.courseDataSets.has(courseId)) {
-        this.courseDataSets.set(courseId, new CanvasCourseApiDataSet(courseId));
+        // Pass configuration to each course data set
+        this.courseDataSets.set(courseId, new CanvasCourseApiDataSet(courseId, this.config));
       }
     });
     
-    console.log(`🏗️ Initialized ${courseIds.length} course data sets`);
+    console.log(`🏢️ Initialized ${courseIds.length} course data sets`);
   }
 
   /**
@@ -90,7 +99,8 @@ export class CanvasBulkApiDataManager {
    */
   getCourseDataSet(courseId: number): CanvasCourseApiDataSet {
     if (!this.courseDataSets.has(courseId)) {
-      this.courseDataSets.set(courseId, new CanvasCourseApiDataSet(courseId));
+      // Pass configuration to new course data set
+      this.courseDataSets.set(courseId, new CanvasCourseApiDataSet(courseId, this.config));
     }
     return this.courseDataSets.get(courseId)!;
   }

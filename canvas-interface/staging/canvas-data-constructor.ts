@@ -10,12 +10,17 @@ dotenv.config();
 
 import { CanvasCalls } from '../core/canvas-calls';
 import { CanvasCourseStaging, CanvasStudentStaging, CanvasModuleStaging, CanvasAssignmentStaging } from './canvas-staging-data';
+import { SyncConfiguration, FULL_SYNC_PROFILE } from '../types/sync-configuration';
 
 export class CanvasDataConstructor {
   private canvasCalls: CanvasCalls;
   private mockCanvasApi?: any;
+  private config: SyncConfiguration;
 
-  constructor(options?: { canvasApi?: any }) {
+  constructor(options?: { canvasApi?: any; config?: SyncConfiguration }) {
+    // Set configuration with default to full sync for backward compatibility
+    this.config = options?.config || FULL_SYNC_PROFILE;
+    
     if (options?.canvasApi) {
       // Use injected mock for testing
       this.mockCanvasApi = options.canvasApi;
@@ -47,22 +52,36 @@ export class CanvasDataConstructor {
     const startTime = Date.now();
     
     try {
-      // Step 1: Get course information
+      // Step 1: Get course information (always required)
       console.log('📋 Step 1: Getting course information...');
       const course = await this.getCourseData(courseId);
       
-      // Step 2: Get students with enrollment data
-      console.log('👥 Step 2: Getting student enrollment data...');
-      const studentsData = await this.getStudentsData(courseId);
+      // Step 2: Get students with enrollment data (conditional)
+      let studentsData: any[] = [];
+      if (this.config.students) {
+        console.log('👥 Step 2: Getting student enrollment data...');
+        studentsData = await this.getStudentsData(courseId);
+      } else {
+        console.log('👥 Step 2: Skipping student data (disabled in config)');
+      }
       
-      // Step 3: Get modules with assignments
-      console.log('📚 Step 3: Getting modules and assignments data...');
-      const modulesData = await this.getModulesData(courseId);
+      // Step 3: Get modules with assignments (conditional)
+      let modulesData: any[] = [];
+      if (this.config.assignments || this.config.modules) {
+        console.log('📚 Step 3: Getting modules and assignments data...');
+        modulesData = await this.getModulesData(courseId);
+      } else {
+        console.log('📚 Step 3: Skipping modules/assignments (disabled in config)');
+      }
       
       // Step 4: Construct the complete staging object
       console.log('🔨 Step 4: Constructing staging data objects...');
-      course.addStudents(studentsData, this);
-      course.addModules(modulesData);
+      if (studentsData.length > 0) {
+        course.addStudents(studentsData, this);
+      }
+      if (modulesData.length > 0) {
+        course.addModules(modulesData);
+      }
       
       const processingTime = Date.now() - startTime;
       const apiCalls = this.canvasCalls.getApiStatus().schedulerMetrics.totalRequests;
@@ -115,9 +134,16 @@ export class CanvasDataConstructor {
 
   /**
    * Get students enrollment data with grades using CanvasCalls
+   * Configuration-driven field filtering applied
    */
   private async getStudentsData(courseId: number): Promise<any[]> {
     try {
+      // Skip if student data collection is disabled
+      if (!this.config.students) {
+        console.log(`   ⏭️ Skipping student data collection (disabled in config)`);
+        return [];
+      }
+      
       // Get basic student info from CanvasCalls
       const courseData = await this.canvasCalls.getActiveStudentsAndAssignments(courseId);
       console.log(`   ✅ Found ${courseData.students.length} active students via CanvasCalls`);
@@ -126,7 +152,16 @@ export class CanvasDataConstructor {
       // But we can validate against the CanvasCalls student list
       const validStudentIds = courseData.students.map(s => s.id);
       
-      // Get detailed enrollment data with grades (still needed for staging)
+      // Build include parameters based on configuration
+      const includeParams = [];
+      if (this.config.studentFields.scores || this.config.grades) {
+        includeParams.push('grades');
+      }
+      if (this.config.studentFields.basicInfo) {
+        includeParams.push('user', 'email');
+      }
+      
+      // Get detailed enrollment data with conditional includes
       const gateway = (this.canvasCalls as any).gateway; // Access gateway through CanvasCalls
       const response = await gateway.getClient().requestWithFullResponse(
         `courses/${courseId}/enrollments`,
@@ -134,7 +169,7 @@ export class CanvasDataConstructor {
           params: {
             type: ['StudentEnrollment'],
             state: ['active'],
-            include: ['grades', 'user', 'email'],
+            include: includeParams,
             per_page: 100
           }
         }
@@ -147,15 +182,62 @@ export class CanvasDataConstructor {
         validStudentIds.includes(enrollment.user_id)
       );
       
-      console.log(`   ✅ Validated ${validEnrollments.length} student enrollments with grades`);
+      // Apply field-level filtering based on configuration
+      const filteredEnrollments = validEnrollments.map(enrollment => {
+        const filtered: any = {
+          // Always include core enrollment data
+          id: enrollment.id,
+          user_id: enrollment.user_id,
+          course_id: enrollment.course_id,
+          type: enrollment.type,
+          enrollment_state: enrollment.enrollment_state
+        };
+        
+        // Conditional field inclusion based on configuration
+        if (this.config.studentFields.basicInfo && enrollment.user) {
+          filtered.user = {
+            id: enrollment.user.id,
+            name: enrollment.user.name,
+            login_id: enrollment.user.login_id,
+            email: enrollment.user.email
+          };
+        }
+        
+        if (this.config.studentFields.scores && enrollment.grades) {
+          filtered.grades = {
+            current_score: enrollment.grades.current_score,
+            final_score: enrollment.grades.final_score,
+            current_grade: enrollment.grades.current_grade,
+            final_grade: enrollment.grades.final_grade
+          };
+        }
+        
+        if (this.config.studentFields.analytics) {
+          filtered.last_activity_at = enrollment.last_activity_at;
+          filtered.last_attended_at = enrollment.last_attended_at;
+        }
+        
+        if (this.config.studentFields.enrollmentDetails) {
+          filtered.created_at = enrollment.created_at;
+          filtered.updated_at = enrollment.updated_at;
+          filtered.course_section_id = enrollment.course_section_id;
+          filtered.limit_privileges_to_course_section = enrollment.limit_privileges_to_course_section;
+        }
+        
+        return filtered;
+      });
+      
+      console.log(`   ✅ Validated ${filteredEnrollments.length} student enrollments with grades`);
       
       // Show sample student data
-      if (validEnrollments.length > 0) {
-        const sampleStudent = validEnrollments[0];
-        console.log(`   📊 Sample: ${sampleStudent.user?.name} (Score: ${sampleStudent.grades?.current_score || 'Not set'})`);
+      if (filteredEnrollments.length > 0) {
+        const sampleStudent = filteredEnrollments[0];
+        const sampleName = sampleStudent.user?.name || 'Unknown';
+        const sampleScore = sampleStudent.grades?.current_score || 'Not set';
+        console.log(`   📈 Sample: ${sampleName} (Score: ${sampleScore})`);
       }
       
-      return validEnrollments;
+      return filteredEnrollments;
       
     } catch (error) {
       console.error(`   ❌ Failed to get students for course ${courseId}:`, error);
@@ -165,9 +247,16 @@ export class CanvasDataConstructor {
 
   /**
    * Get modules data with assignments using CanvasCalls gateway
+   * Configuration-driven collection and processing
    */
   private async getModulesData(courseId: number): Promise<any[]> {
     try {
+      // Skip if both assignments and modules are disabled
+      if (!this.config.assignments && !this.config.modules) {
+        console.log(`   ⏭️ Skipping modules/assignments data collection (disabled in config)`);
+        return [];
+      }
+      
       // Access the gateway through CanvasCalls for consistency
       const gateway = (this.canvasCalls as any).gateway;
       const response = await gateway.getClient().requestWithFullResponse(
@@ -183,77 +272,115 @@ export class CanvasDataConstructor {
       const modulesData = (response.data as any[]) || [];
       console.log(`   ✅ Found ${modulesData.length} modules`);
       
-      // Count assignments across all modules and collect assignment IDs
+      // Get assignment data from CanvasCalls (we already have this from getActiveStudentsAndAssignments)
+      const courseData = await this.canvasCalls.getActiveStudentsAndAssignments(courseId);
+      const allAssignments = courseData.assignments;
+      
+      // Create lookup maps for efficient assignment matching
+      const assignmentDataMap: { [id: number]: any } = {};
+      allAssignments.forEach(assignment => {
+        assignmentDataMap[assignment.id] = assignment;
+      });
+      
+      // Also get the full assignment data with more details if needed
+      let fullAssignmentData: any[] = [];
+      if (this.config.processing.enhanceWithTimestamps || this.config.assignmentFields.timestamps) {
+        console.log(`   🔄 Fetching detailed assignment data with timestamps...`);
+        const gateway = (this.canvasCalls as any).gateway;
+        const assignmentsResponse = await gateway.getClient().requestWithFullResponse(
+          `courses/${courseId}/assignments`,
+          {
+            params: {
+              per_page: 100
+            }
+          }
+        );
+        fullAssignmentData = (assignmentsResponse.data as any[]) || [];
+        
+        // Update the lookup map with full data
+        fullAssignmentData.forEach(assignment => {
+          assignmentDataMap[assignment.id] = assignment;
+          // Also map quiz assignments by quiz_id
+          if (assignment.quiz_id) {
+            assignmentDataMap[`quiz_${assignment.quiz_id}`] = assignment;
+          }
+        });
+      }
+      
+      // Process and enhance module items
       let totalAssignments = 0;
-      const allAssignmentIds: number[] = [];
+      let enhancedCount = 0;
+      let filteredCount = 0;
       
       modulesData.forEach(module => {
         if (module.items) {
-          const assignments = module.items.filter((item: any) => 
-            item.type === 'Assignment' || item.type === 'Quiz'
-          );
-          totalAssignments += assignments.length;
-          
-          // Extract assignment IDs for full data fetch
-          assignments.forEach((assignment: any) => {
-            // console.log(`     🔗 Assignment URL: ${assignment.url}`);
-            let assignmentId: number | null = null;
-            
-            if (assignment.type === 'Assignment') {
-              assignmentId = this.extractAssignmentIdFromUrl(assignment.url);
-            } else if (assignment.type === 'Quiz') {
-              // For quizzes, we need to check if they have corresponding assignments
-              // Ungraded quizzes without assignments should be excluded
-              // console.log(`     🧩 Quiz item detected - will check if it's a graded assignment`);
-              assignmentId = null; // Will be resolved later in enhancement phase
+          // Filter and enhance items
+          const originalItems = [...module.items];
+          module.items = module.items.filter((item: any) => {
+            if (item.type !== 'Assignment' && item.type !== 'Quiz') {
+              return false; // Remove non-assignment items
             }
             
-            // console.log(`     🏷️ Extracted ID: ${assignmentId}`);
-            if (assignmentId) {
-              allAssignmentIds.push(assignmentId);
-            } else if (assignment.type === 'Assignment') {
-              console.log(`     ⚠️ Failed to extract assignment ID from URL: ${assignment.url}`);
+            totalAssignments++;
+            
+            // Extract ID for lookup
+            let lookupKey: string | number | null = null;
+            if (item.type === 'Assignment') {
+              lookupKey = this.extractAssignmentIdFromUrl(item.url);
+            } else if (item.type === 'Quiz') {
+              const quizId = this.extractQuizIdFromUrl(item.url);
+              lookupKey = quizId ? `quiz_${quizId}` : null;
             }
+            
+            // Check if we have assignment data
+            const assignmentData = lookupKey ? assignmentDataMap[lookupKey] : null;
+            
+            // Filter ungraded quizzes if configured
+            if (item.type === 'Quiz' && this.config.processing.filterUngradedQuizzes) {
+              if (!assignmentData) {
+                console.log(`     🗑️ Filtered out ungraded quiz: ${item.title || 'Unknown'}`);
+                filteredCount++;
+                return false;
+              }
+            }
+            
+            // Enhance item with assignment data if available
+            if (assignmentData) {
+              // Apply field filtering based on configuration
+              if (this.config.assignmentFields.basicInfo) {
+                item.points_possible = assignmentData.points_possible;
+                item.due_at = assignmentData.due_at;
+                item.name = assignmentData.name;
+              }
+              
+              if (this.config.assignmentFields.timestamps) {
+                item.created_at = assignmentData.created_at;
+                item.updated_at = assignmentData.updated_at;
+                item.workflow_state = assignmentData.workflow_state;
+              }
+              
+              if (this.config.assignmentFields.submissions) {
+                item.submission_types = assignmentData.submission_types;
+                item.grading_type = assignmentData.grading_type;
+              }
+              
+              if (this.config.assignmentFields.urls) {
+                item.html_url = assignmentData.html_url;
+              }
+              
+              item.assignment_id = typeof lookupKey === 'number' ? lookupKey : assignmentData.id;
+              enhancedCount++;
+            }
+            
+            return true; // Keep this item
           });
         }
       });
       
-      console.log(`   📝 Total assignments/quizzes found: ${totalAssignments}`);
-      
-      // DEBUGGING: Show assignment IDs extraction
-      console.log(`   📈 Total assignment IDs collected: ${allAssignmentIds.length}`);
-      if (allAssignmentIds.length > 0) {
-        console.log(`   🏷️ First 5 assignment IDs: ${allAssignmentIds.slice(0, 5).join(', ')}`);
-      }
-      
-      // Enhance assignment data with full API details including timestamps
-      console.log(`   🔄 Enhancing assignment data with timestamps (including quiz resolution)...`);
-      
-      try {
-        await this.enhanceAssignmentDataWithTimestamps(modulesData, courseId, allAssignmentIds);
-        console.log(`   ✅ Assignment data enhanced with Canvas API timestamps`);
-        
-        // DEBUGGING: Check if first assignment now has timestamps
-        const firstModule = modulesData[0];
-        if (firstModule && firstModule.items) {
-          const firstAssignment = firstModule.items.find((item: any) => 
-            item.type === 'Assignment' || item.type === 'Quiz'
-          );
-          if (firstAssignment) {
-            console.log(`   📍 DEBUG: First assignment after enhancement:`);
-            console.log(`     Title: ${firstAssignment.title}`);
-            console.log(`     created_at: ${firstAssignment.created_at}`);
-            console.log(`     updated_at: ${firstAssignment.updated_at}`);
-            console.log(`     workflow_state: ${firstAssignment.workflow_state}`);
-          }
-        }
-        
-      } catch (error) {
-        console.error(`   ⚠️ Enhancement failed:`, error);
-        console.error(`   🔥 Error details:`, error.message);
-        console.error(`   📄 Stack trace:`, error.stack);
-        
-        // Continue without enhancement rather than failing completely
+      console.log(`   📏 Total assignments/quizzes found: ${totalAssignments}`);
+      console.log(`   🎆 Enhanced ${enhancedCount} items with assignment data`);
+      if (filteredCount > 0) {
+        console.log(`   🗑️ Filtered out ${filteredCount} ungraded quizzes`);
       }
       
       // Show sample module data
@@ -422,134 +549,6 @@ export class CanvasDataConstructor {
     }
   }
   
-  /**
-   * Enhance assignment data in modules with full Canvas API data including timestamps
-   * This method fetches ALL assignments for the course and matches them properly with module items
-   */
-  private async enhanceAssignmentDataWithTimestamps(
-    modulesData: any[], 
-    courseId: number, 
-    assignmentIds: number[]
-  ): Promise<void> {
-    try {
-      console.log(`     🔍 Starting comprehensive assignment enhancement...`);
-      
-      const gateway = (this.canvasCalls as any).gateway;
-      
-      // Fetch ALL assignments for the course (this includes quiz assignments with their assignment IDs)
-      console.log(`     📦 Fetching ALL assignments from Canvas API...`);
-      const assignmentsResponse = await gateway.getClient().requestWithFullResponse(
-        `courses/${courseId}/assignments`,
-        {
-          params: {
-            per_page: 100
-          }
-        }
-      );
-      
-      const allAssignments = (assignmentsResponse.data as any[]) || [];
-      console.log(`     📁 Received ${allAssignments.length} total assignments from API`);
-      
-      // Index assignments by both assignment ID and quiz ID for easy lookup
-      const assignmentData: { [key: number]: any } = {};
-      const quizAssignmentMap: { [quizId: number]: any } = {};
-      
-      allAssignments.forEach((assignment, index) => {
-        // Index by assignment ID
-        assignmentData[assignment.id] = assignment;
-        
-        // If this assignment is a quiz, also index by quiz_id
-        if (assignment.quiz_id) {
-          quizAssignmentMap[assignment.quiz_id] = assignment;
-          // console.log(`     🧩 Found quiz assignment: ${assignment.name} (Assignment ID: ${assignment.id}, Quiz ID: ${assignment.quiz_id})`);
-        }
-        
-        // Show sample timestamp data
-        if (index === 0) {
-          console.log(`     📅 Sample assignment timestamps:`);
-          console.log(`       ID: ${assignment.id}, Title: ${assignment.name}`);
-          console.log(`       created_at: ${assignment.created_at}`);
-          console.log(`       updated_at: ${assignment.updated_at}`);
-        }
-      });
-      
-      console.log(`     🔗 Found ${Object.keys(quizAssignmentMap).length} quiz assignments in total`);
-      
-      // Enhance module assignment data and filter out ungraded quizzes
-      let filteredItemsCount = 0;
-      let enhancedItemsCount = 0;
-      
-      modulesData.forEach(module => {
-        if (module.items) {
-          // Filter items to only include assignments and graded quizzes
-          const originalItems = [...module.items];
-          module.items = module.items.filter((item: any) => {
-            if (item.type === 'Assignment') {
-              return true; // Keep all regular assignments
-            } else if (item.type === 'Quiz') {
-              const quizId = this.extractQuizIdFromUrl(item.url);
-              const hasAssignment = quizId && quizAssignmentMap[quizId];
-              if (!hasAssignment) {
-                console.log(`     🗑️ Filtered out ungraded quiz: ${item.title || 'Unknown'} (Quiz ID: ${quizId})`);
-                filteredItemsCount++;
-                return false; // Remove ungraded quizzes
-              }
-              return true; // Keep graded quizzes
-            }
-            return false; // Remove other types
-          });
-          
-          // Enhance remaining items
-          module.items.forEach((item: any) => {
-            if (item.type === 'Assignment' || item.type === 'Quiz') {
-              let fullData: any = null;
-              
-              if (item.type === 'Assignment') {
-                const assignmentId = this.extractAssignmentIdFromUrl(item.url);
-                if (assignmentId && assignmentData[assignmentId]) {
-                  fullData = assignmentData[assignmentId];
-                  // console.log(`     ✅ Enhanced assignment: ${fullData.name} (ID: ${assignmentId})`);
-                }
-              } else if (item.type === 'Quiz') {
-                const quizId = this.extractQuizIdFromUrl(item.url);
-                if (quizId && quizAssignmentMap[quizId]) {
-                  fullData = quizAssignmentMap[quizId];
-                  // console.log(`     ✅ Enhanced quiz assignment: ${fullData.name} (Quiz ID: ${quizId}, Assignment ID: ${fullData.id})`);
-                }
-              }
-              
-              // Apply enhancement if we found matching data
-              if (fullData) {
-                item.created_at = fullData.created_at;
-                item.updated_at = fullData.updated_at;
-                item.due_at = fullData.due_at;
-                item.lock_at = fullData.lock_at;
-                item.unlock_at = fullData.unlock_at;
-                item.workflow_state = fullData.workflow_state;
-                item.assignment_id = fullData.id; // Always store the assignment ID
-                item.is_graded = true; // Mark as graded
-                
-                // Update points_possible if available
-                if (fullData.points_possible !== undefined) {
-                  if (!item.content_details) {
-                    item.content_details = {};
-                  }
-                  item.content_details.points_possible = fullData.points_possible;
-                }
-                enhancedItemsCount++;
-              }
-            }
-          });
-        }
-      });
-      
-      console.log(`     🎨 Enhancement complete: ${enhancedItemsCount} items enhanced, ${filteredItemsCount} ungraded quizzes filtered out`);
-      
-    } catch (error) {
-      console.error('   ❌ Failed to enhance assignment data with timestamps:', error);
-      // Don't throw error - continue with basic assignment data
-    }
-  }
   
   /**
    * Get API status for debugging - via CanvasCalls
