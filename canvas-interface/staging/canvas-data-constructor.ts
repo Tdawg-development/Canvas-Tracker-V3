@@ -26,6 +26,13 @@ export class CanvasDataConstructor {
   }
 
   /**
+   * Get course information (public method for staging)
+   */
+  async getCourseInfo(courseId: number) {
+    return await this.canvasCalls.getCourseInfo(courseId);
+  }
+
+  /**
    * Main constructor method - builds complete course staging data
    */
   async constructCourseData(courseId: number): Promise<CanvasCourseStaging> {
@@ -189,12 +196,22 @@ export class CanvasDataConstructor {
           
           // Extract assignment IDs for full data fetch
           assignments.forEach((assignment: any) => {
-            console.log(`     🔗 Assignment URL: ${assignment.url}`);
-            const assignmentId = this.extractAssignmentIdFromUrl(assignment.url);
-            console.log(`     🏷️ Extracted ID: ${assignmentId}`);
+            // console.log(`     🔗 Assignment URL: ${assignment.url}`);
+            let assignmentId: number | null = null;
+            
+            if (assignment.type === 'Assignment') {
+              assignmentId = this.extractAssignmentIdFromUrl(assignment.url);
+            } else if (assignment.type === 'Quiz') {
+              // For quizzes, we need to check if they have corresponding assignments
+              // Ungraded quizzes without assignments should be excluded
+              // console.log(`     🧩 Quiz item detected - will check if it's a graded assignment`);
+              assignmentId = null; // Will be resolved later in enhancement phase
+            }
+            
+            // console.log(`     🏷️ Extracted ID: ${assignmentId}`);
             if (assignmentId) {
               allAssignmentIds.push(assignmentId);
-            } else {
+            } else if (assignment.type === 'Assignment') {
               console.log(`     ⚠️ Failed to extract assignment ID from URL: ${assignment.url}`);
             }
           });
@@ -210,44 +227,33 @@ export class CanvasDataConstructor {
       }
       
       // Enhance assignment data with full API details including timestamps
-      if (allAssignmentIds.length > 0) {
-        console.log(`   🔄 Enhancing assignment data with timestamps for ${allAssignmentIds.length} assignments...`);
+      console.log(`   🔄 Enhancing assignment data with timestamps (including quiz resolution)...`);
+      
+      try {
+        await this.enhanceAssignmentDataWithTimestamps(modulesData, courseId, allAssignmentIds);
+        console.log(`   ✅ Assignment data enhanced with Canvas API timestamps`);
         
-        // Debug info already captured in console logs above
-        
-        try {
-          await this.enhanceAssignmentDataWithTimestamps(modulesData, courseId, allAssignmentIds);
-          console.log(`   ✅ Assignment data enhanced with Canvas API timestamps`);
-          
-          // Success info already captured in console log above
-          
-          // DEBUGGING: Check if first assignment now has timestamps
-          const firstModule = modulesData[0];
-          if (firstModule && firstModule.items) {
-            const firstAssignment = firstModule.items.find((item: any) => 
-              item.type === 'Assignment' || item.type === 'Quiz'
-            );
-            if (firstAssignment) {
-              console.log(`   📍 DEBUG: First assignment after enhancement:`);
-              console.log(`     Title: ${firstAssignment.title}`);
-              console.log(`     created_at: ${firstAssignment.created_at}`);
-              console.log(`     updated_at: ${firstAssignment.updated_at}`);
-              console.log(`     workflow_state: ${firstAssignment.workflow_state}`);
-            }
+        // DEBUGGING: Check if first assignment now has timestamps
+        const firstModule = modulesData[0];
+        if (firstModule && firstModule.items) {
+          const firstAssignment = firstModule.items.find((item: any) => 
+            item.type === 'Assignment' || item.type === 'Quiz'
+          );
+          if (firstAssignment) {
+            console.log(`   📍 DEBUG: First assignment after enhancement:`);
+            console.log(`     Title: ${firstAssignment.title}`);
+            console.log(`     created_at: ${firstAssignment.created_at}`);
+            console.log(`     updated_at: ${firstAssignment.updated_at}`);
+            console.log(`     workflow_state: ${firstAssignment.workflow_state}`);
           }
-          
-        } catch (error) {
-          console.error(`   ⚠️ Enhancement failed:`, error);
-          console.error(`   🔥 Error details:`, error.message);
-          console.error(`   📄 Stack trace:`, error.stack);
-          
-          // Error info already captured in console.error above
-          
-          // Continue without enhancement rather than failing completely
         }
-      } else {
-        console.log(`   📝 No assignment IDs found to enhance`);
-        console.log(`   🗑️ This means URL extraction failed - assignments won't have Canvas timestamps`);
+        
+      } catch (error) {
+        console.error(`   ⚠️ Enhancement failed:`, error);
+        console.error(`   🔥 Error details:`, error.message);
+        console.error(`   📄 Stack trace:`, error.stack);
+        
+        // Continue without enhancement rather than failing completely
       }
       
       // Show sample module data
@@ -418,6 +424,7 @@ export class CanvasDataConstructor {
   
   /**
    * Enhance assignment data in modules with full Canvas API data including timestamps
+   * This method fetches ALL assignments for the course and matches them properly with module items
    */
   private async enhanceAssignmentDataWithTimestamps(
     modulesData: any[], 
@@ -425,126 +432,118 @@ export class CanvasDataConstructor {
     assignmentIds: number[]
   ): Promise<void> {
     try {
-      console.log(`     🔍 Starting enhancement for ${assignmentIds.length} assignments...`);
-      
-      // Debug info available in console logs above and below
+      console.log(`     🔍 Starting comprehensive assignment enhancement...`);
       
       const gateway = (this.canvasCalls as any).gateway;
       
-      // Fetch all assignments in batches to avoid URL length limits
-      const batchSize = 50;
-      const assignmentData: { [key: number]: any } = {};
-      
-      console.log(`     📦 Processing assignments in batches of ${batchSize}...`);
-      
-      for (let i = 0; i < assignmentIds.length; i += batchSize) {
-        const batch = assignmentIds.slice(i, i + batchSize);
-        console.log(`     🔄 Fetching batch ${Math.floor(i/batchSize) + 1}: assignments ${batch.slice(0, 3).join(', ')}${batch.length > 3 ? '...' : ''}`);
-        
-        // Get assignments batch
-        const response = await gateway.getClient().requestWithFullResponse(
-          `courses/${courseId}/assignments`,
-          {
-            params: {
-              'assignment_ids[]': batch,
-              per_page: 100
-            }
-          }
-        );
-        
-        const assignments = (response.data as any[]) || [];
-        console.log(`     📁 Received ${assignments.length} assignments from API`);
-        
-        // API call success info already captured in console log above
-        
-        // Index assignments by ID and show sample timestamp data
-        assignments.forEach((assignment, index) => {
-          assignmentData[assignment.id] = assignment;
-          if (index === 0) {
-            console.log(`     📅 Sample assignment timestamps:`);
-            console.log(`       ID: ${assignment.id}, Title: ${assignment.name}`);
-            console.log(`       created_at: ${assignment.created_at}`);
-            console.log(`       updated_at: ${assignment.updated_at}`);
-            
-            // First assignment debug info already captured in console logs above
-          }
-        });
-      }
-      
-      // Also fetch quizzes as they might be separate
-      const response = await gateway.getClient().requestWithFullResponse(
-        `courses/${courseId}/quizzes`,
+      // Fetch ALL assignments for the course (this includes quiz assignments with their assignment IDs)
+      console.log(`     📦 Fetching ALL assignments from Canvas API...`);
+      const assignmentsResponse = await gateway.getClient().requestWithFullResponse(
+        `courses/${courseId}/assignments`,
         {
           params: {
-            per_page: 100,
-            'include[]': ['all_dates']  // Include all timestamp fields
+            per_page: 100
           }
         }
       );
       
-      const quizzes = (response.data as any[]) || [];
+      const allAssignments = (assignmentsResponse.data as any[]) || [];
+      console.log(`     📁 Received ${allAssignments.length} total assignments from API`);
       
-      // Index quizzes by ID
-      quizzes.forEach(quiz => {
-        // Quizzes need special handling as they have different structure
-        assignmentData[quiz.id] = {
-          id: quiz.id,
-          title: quiz.title,
-          created_at: quiz.created_at,
-          updated_at: quiz.updated_at,
-          due_at: quiz.due_at,
-          lock_at: quiz.lock_at,
-          unlock_at: quiz.unlock_at,
-          points_possible: quiz.points_possible,
-          assignment_type: 'quiz',
-          workflow_state: quiz.workflow_state
-        };
+      // Index assignments by both assignment ID and quiz ID for easy lookup
+      const assignmentData: { [key: number]: any } = {};
+      const quizAssignmentMap: { [quizId: number]: any } = {};
+      
+      allAssignments.forEach((assignment, index) => {
+        // Index by assignment ID
+        assignmentData[assignment.id] = assignment;
+        
+        // If this assignment is a quiz, also index by quiz_id
+        if (assignment.quiz_id) {
+          quizAssignmentMap[assignment.quiz_id] = assignment;
+          // console.log(`     🧩 Found quiz assignment: ${assignment.name} (Assignment ID: ${assignment.id}, Quiz ID: ${assignment.quiz_id})`);
+        }
+        
+        // Show sample timestamp data
+        if (index === 0) {
+          console.log(`     📅 Sample assignment timestamps:`);
+          console.log(`       ID: ${assignment.id}, Title: ${assignment.name}`);
+          console.log(`       created_at: ${assignment.created_at}`);
+          console.log(`       updated_at: ${assignment.updated_at}`);
+        }
       });
       
-      // Enhance module assignment data
+      console.log(`     🔗 Found ${Object.keys(quizAssignmentMap).length} quiz assignments in total`);
+      
+      // Enhance module assignment data and filter out ungraded quizzes
+      let filteredItemsCount = 0;
+      let enhancedItemsCount = 0;
+      
       modulesData.forEach(module => {
         if (module.items) {
+          // Filter items to only include assignments and graded quizzes
+          const originalItems = [...module.items];
+          module.items = module.items.filter((item: any) => {
+            if (item.type === 'Assignment') {
+              return true; // Keep all regular assignments
+            } else if (item.type === 'Quiz') {
+              const quizId = this.extractQuizIdFromUrl(item.url);
+              const hasAssignment = quizId && quizAssignmentMap[quizId];
+              if (!hasAssignment) {
+                console.log(`     🗑️ Filtered out ungraded quiz: ${item.title || 'Unknown'} (Quiz ID: ${quizId})`);
+                filteredItemsCount++;
+                return false; // Remove ungraded quizzes
+              }
+              return true; // Keep graded quizzes
+            }
+            return false; // Remove other types
+          });
+          
+          // Enhance remaining items
           module.items.forEach((item: any) => {
             if (item.type === 'Assignment' || item.type === 'Quiz') {
-              let itemId: number | null = null;
+              let fullData: any = null;
               
               if (item.type === 'Assignment') {
-                itemId = this.extractAssignmentIdFromUrl(item.url);
+                const assignmentId = this.extractAssignmentIdFromUrl(item.url);
+                if (assignmentId && assignmentData[assignmentId]) {
+                  fullData = assignmentData[assignmentId];
+                  // console.log(`     ✅ Enhanced assignment: ${fullData.name} (ID: ${assignmentId})`);
+                }
               } else if (item.type === 'Quiz') {
-                itemId = this.extractQuizIdFromUrl(item.url);
+                const quizId = this.extractQuizIdFromUrl(item.url);
+                if (quizId && quizAssignmentMap[quizId]) {
+                  fullData = quizAssignmentMap[quizId];
+                  // console.log(`     ✅ Enhanced quiz assignment: ${fullData.name} (Quiz ID: ${quizId}, Assignment ID: ${fullData.id})`);
+                }
               }
               
-              // Matching process can be debugged via console if needed
-              
-              if (itemId && assignmentData[itemId]) {
-                const fullData = assignmentData[itemId];
-                
-                // Match success can be tracked via console if needed
-                
-                // Enhance item with timestamp and additional data
+              // Apply enhancement if we found matching data
+              if (fullData) {
                 item.created_at = fullData.created_at;
                 item.updated_at = fullData.updated_at;
                 item.due_at = fullData.due_at;
                 item.lock_at = fullData.lock_at;
                 item.unlock_at = fullData.unlock_at;
                 item.workflow_state = fullData.workflow_state;
-                item.assignment_type = fullData.assignment_type;
+                item.assignment_id = fullData.id; // Always store the assignment ID
+                item.is_graded = true; // Mark as graded
                 
-                // Enhancement application tracked via existing console logs
-                
-                // Update points_possible if available from full data
-                if (fullData.points_possible !== undefined && 
-                    (!item.content_details || item.content_details.points_possible === undefined)) {
+                // Update points_possible if available
+                if (fullData.points_possible !== undefined) {
                   if (!item.content_details) {
                     item.content_details = {};
                   }
                   item.content_details.points_possible = fullData.points_possible;
                 }
+                enhancedItemsCount++;
               }
             }
           });
         }
       });
+      
+      console.log(`     🎨 Enhancement complete: ${enhancedItemsCount} items enhanced, ${filteredItemsCount} ungraded quizzes filtered out`);
       
     } catch (error) {
       console.error('   ❌ Failed to enhance assignment data with timestamps:', error);

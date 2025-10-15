@@ -4,7 +4,8 @@
  * Handles rate limiting, retries, and error responses
  */
 
-import fetch, { Response } from 'node-fetch';
+import fetch from 'node-fetch';
+import { Response } from 'node-fetch';
 import {
   CanvasApiConfig,
   CanvasApiRequestOptions,

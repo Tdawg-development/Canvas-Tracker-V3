@@ -1,26 +1,30 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>/src', '<rootDir>/tests'],
+  transform: {
+    '^.+\\.(ts|tsx)$': 'ts-jest',
+  },
+  roots: ['<rootDir>/src', '<rootDir>/tests', '<rootDir>/canvas-interface'],
   testMatch: [
     '**/__tests__/**/*.+(ts|tsx|js)',
     '**/*.(test|spec).+(ts|tsx|js)'
   ],
-  transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
-  },
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
+    'canvas-interface/**/*.{ts,tsx}',
     '!src/**/*.d.ts',
+    '!canvas-interface/**/*.d.ts',
     '!src/**/*.test.{ts,tsx}',
+    '!canvas-interface/**/*.test.{ts,tsx}',
     '!src/**/*.spec.{ts,tsx}',
+    '!canvas-interface/**/*.spec.{ts,tsx}',
     '!src/index.ts', // Entry point excluded from coverage
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
-  moduleNameMapping: {
+  moduleNameMapper: {
     // Add path mappings if needed for Clean Architecture layers
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@interface/(.*)$': '<rootDir>/src/interface/$1',
