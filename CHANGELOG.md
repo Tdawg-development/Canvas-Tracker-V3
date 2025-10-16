@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🧹 Removed - Legacy/Outdated Tests Cleanup (post v3.2.0)
+- Removed legacy tests and scripts that referenced deprecated bulk API staging modules
+  - ❌ `bulk_canvas_api_test.ts`
+  - ❌ `canvas-interface/tests/bulk-staging.test.ts`
+  - ❌ `canvas-interface/tests/api-staging-integration.test.ts`
+  - ❌ `real_canvas_api_test.ts`
+  - ❌ `run_bulk_canvas_test.bat`
+  - ❌ `run_canvas_api_test.bat`
+  - ❌ `test-canvas-staging.js`
+- Rationale: these referenced `CanvasBulkApiDataManager` and `api-call-staging` paths that are no longer part of the current pipeline implementation
+- Result: test suite now targets the production `CanvasDataConstructor` + `CanvasDataBridge` pipeline exclusively
+
+### ✅ Verified - Current Tests Still Passing
+- `test_canvas_sync_pipeline.py` passes end-to-end with 10 courses synced (students=104, assignments=216, enrollments=106)
+- Database tests and Canvas interface unit tests remain intact and relevant
+
 ### ✨ **POST v3.2.0 DEVELOPMENT WORK** - Enhanced Pipeline Architecture
 
 This development work continues building on the production-ready foundation established in v3.2.0, focusing on enhanced database operations, improved testing infrastructure, and advanced pipeline coordination.
