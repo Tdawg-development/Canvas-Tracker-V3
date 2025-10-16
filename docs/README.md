@@ -9,9 +9,10 @@ Welcome to the comprehensive documentation for Canvas Tracker V3 - a **modular C
 **Focus**: Working Canvas integration with proven efficiency gains
 
 ### Key Components
-- **Canvas Interface** (TypeScript) - 96%+ API call reduction, sub-2 second processing
-- **Database Layer** (Python) - 4-layer architecture with 95% test coverage  
-- **Infrastructure** (TypeScript) - HTTP clients and configuration
+- **Canvas Interface** (TypeScript) - Complete pipeline orchestration with 96%+ API call reduction
+- **Database Layer** (Python) - Production-ready sync pipeline with Canvas-Database integration
+- **Pipeline Orchestration** (TypeScript) - Full orchestration engine with Python integration
+- **Production Sync Scripts** (Python) - Callable sync functions for production use
 
 ## 🗂️ Documentation Categories
 
@@ -23,18 +24,18 @@ Welcome to the comprehensive documentation for Canvas Tracker V3 - a **modular C
 - Current system structure and capabilities
 
 ### 🔌 [API Documentation](./api/)
-**Canvas LMS integration and data structures**
-- Canvas Interface System (80% of Canvas interfacing)
-- Complete data object specifications  
+**Canvas LMS integration and pipeline orchestration**
+- Canvas Interface System with full orchestration capabilities
+- Pipeline Orchestrator for complete Canvas-to-Database processing
 - Performance optimization (typically 3-4 API calls per course, range 2-6)
-- Usage examples and integration patterns
+- Production-ready sync scripts and integration examples
 
 ### 🗄️ [Database](./database/)
-**Multi-layer database architecture** 
-- 4-layer database design (Lifecycle, Canvas, Historical, User)
-- Python SQLAlchemy models with comprehensive testing
-- Database operations and query patterns
-- Data synchronization and integrity management
+**Production Canvas sync and database integration** 
+- Canvas-Database bridge for seamless data flow
+- Production sync pipeline with callable functions
+- Modular data transformers for Canvas API responses
+- 4-layer database design with comprehensive Canvas operations
 
 ### 🧪 [Testing](./testing/)
 **Testing strategy and analysis**
@@ -49,6 +50,13 @@ Welcome to the comprehensive documentation for Canvas Tracker V3 - a **modular C
 - Component deep-dive analysis
 - Performance verification
 - Technical debt identification
+
+### 🛠️ [Development](./development/)
+**Development guides and implementation details**
+- Pipeline implementation guide with current status
+- Field management and database operations
+- Development workflows and best practices
+- Integration patterns and usage examples
 
 ### 📋 [Project](./project/)
 **Project management and change tracking**

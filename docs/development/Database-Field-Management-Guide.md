@@ -4,10 +4,10 @@
 
 ## Overview
 
-This guide covers field management in the modernized database-side pipeline with entity transformers and modular architecture. The database pipeline now follows this flow:
+This guide covers field management in the current Canvas Tracker V3 database pipeline. The database pipeline follows this flow:
 
 ```
-Field Mapper Output → Entity Transformers → Canvas Bridge → Sync Coordinator → Canvas Operations → Database Models → Database Tables
+Canvas API Data → Canvas Interface → Python Sync Pipeline → Entity Transformers → Database Models → Database Tables
 ```
 
 ### Key Architectural Changes

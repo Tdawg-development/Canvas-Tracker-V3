@@ -14,19 +14,36 @@ This directory contains our complete Canvas LMS integration system, organized fo
 - `canvas-staging-data.ts` - Core data classes that mirror Canvas API responses
 - `canvas-data-constructor.ts` - Orchestrates Canvas API calls to build complete staging data
 
+### `/config/`
+**API configuration and field mappings**
+- `api-field-mappings.ts` - Canvas API parameter configuration system
+
 ### `/demos/`
 **Interactive demos and testing tools**
 - `canvas-staging-demo.ts` - Main demo for Canvas staging system
-- `demo-all-students-enrollments.ts` - Enrollment data testing
-- `demo-grades-solution.ts` - Grade page recreation demo
-- `diagnose-submissions.ts` - Submission data analysis
-- `get-real-test-data.ts` - Real Canvas data extraction
-- `test-canvas-api.ts` - General API testing
+- `orchestrator-demo.ts` - Pipeline orchestrator demonstration
+- `test-canvas-api.ts` - General Canvas API testing
+- `test-get-curriculum-data.ts` - Curriculum data testing
+- `test-student-assignment-analytics.ts` - Student analytics testing
 
-### `/legacy/`
-**Archived code for reference**
-- `canvas-grades-tracker*.ts` - Previous grade tracking implementations
-- `canvas-data-constructor.ts` - Original constructor (superseded)
+### `/orchestration/`
+**Pipeline orchestration and configuration**
+- `configuration-manager.ts` - Sync configuration management
+- `pipeline-monitor.ts` - Pipeline monitoring and metrics
+- `pipeline-orchestrator.ts` - Main pipeline orchestration engine
+
+### `/types/`
+**TypeScript type definitions**
+- `canvas-api.ts` - Comprehensive Canvas API interfaces
+- `field-mappings.ts` - Field mapping configuration types
+- `sync-configuration.ts` - Sync configuration interfaces
+
+### `/utils/`
+**Professional utilities**
+- `api-param-builder.ts` - Canvas API parameter builder
+- `field-mapper.ts` - Professional field mapping engine
+- `logger.ts` - Structured logging system
+- `timestamp-parser.ts` - Canvas timestamp handling
 
 ## 🎯 Primary Canvas Interface (80% of usage)
 
@@ -52,23 +69,44 @@ const courseData = await constructor.constructCourseData(courseId);
 
 ## 🚀 Quick Start
 
-### Run the Interactive Demo
+### Run Interactive Demos
 ```bash
+# Main Canvas staging demo
 npx tsx canvas-interface/demos/canvas-staging-demo.ts
+
+# Pipeline orchestrator demo (complete pipeline)
+npx tsx canvas-interface/demos/orchestrator-demo.ts
+
+# Canvas API testing
+npx tsx canvas-interface/demos/test-canvas-api.ts
 ```
 
-### Use in Your Code
+### Use Canvas Interface in Your Code
 ```typescript
-import { CanvasDataConstructor } from './canvas-interface/staging/canvas-data-constructor';
+// Using the main Canvas interface entry point
+import { CanvasDataConstructor } from 'canvas-interface';
 
 const constructor = new CanvasDataConstructor();
-const courseData = await constructor.constructCourseData(7982015);
+const courseData = await constructor.constructCourseData(12972117);
 
 // Access structured data
 console.log(`Course: ${courseData.name}`);
 console.log(`Students: ${courseData.students.length}`);
 console.log(`Modules: ${courseData.modules.length}`);
 console.log(`Assignments: ${courseData.getAllAssignments().length}`);
+```
+
+### Use Pipeline Orchestrator for Full Processing
+```typescript
+import { PipelineOrchestrator } from 'canvas-interface/orchestration/pipeline-orchestrator';
+
+const orchestrator = new PipelineOrchestrator();
+const result = await orchestrator.processCourse(12972117);
+
+// Complete pipeline result
+console.log(`Success: ${result.success}`);
+console.log(`Processing time: ${result.metadata.processingTime}ms`);
+console.log(`API calls: ${result.metadata.apiCalls}`);
 ```
 
 ## 📊 Data Structure Overview

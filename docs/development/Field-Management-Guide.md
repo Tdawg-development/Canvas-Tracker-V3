@@ -4,17 +4,17 @@
 
 ## Overview
 
-This guide covers field management in Canvas Tracker V3's modernized, configuration-driven pipeline. The system has been redesigned with automatic field mapping, eliminating manual staging classes:
+This guide covers field management in Canvas Tracker V3's current implementation. The system includes comprehensive Canvas integration with data transformation:
 
 ```
-Canvas API → Field Mappings → API Parameters → Field Mapper → Entity Transformers → Database Models
+Canvas API → Canvas Interface → Pipeline Orchestrator → Entity Transformers → Database Models
 ```
 
-### Key Architectural Changes
-- **Configuration-driven API calls** using `ApiParameterBuilder` and field mappings
-- **Automatic field mapping** with `FieldMapper` utility and type interfaces
-- **Modular entity transformers** with `TransformerRegistry` for extensibility
-- **Interface-driven field definitions** replacing manual staging class construction
+### Current Architecture
+- **Canvas Interface** with staging data classes and API orchestration
+- **Pipeline Orchestrator** for complete Canvas-to-Database processing
+- **Production sync pipeline** with callable sync functions
+- **Modular entity transformers** for Canvas data processing
 
 ## Table of Contents
 
@@ -58,9 +58,11 @@ graph TD
 
 ## Adding New Fields
 
-### Modern Configuration-Driven Process
+### Current Field Addition Process
 
-The new architecture uses configuration-driven field mapping instead of manual staging classes. Here's the streamlined process:
+**Note**: Use the Pipeline Orchestrator (`canvas-interface/orchestration/pipeline-orchestrator.ts`) and production sync scripts (`call_canvas_sync.py`) to test field additions end-to-end.
+
+The current architecture provides a straightforward process for adding fields. Here's the current workflow:
 
 #### Step 1: Add Field to API Mapping Configuration
 

@@ -112,35 +112,49 @@ CANVAS_TOKEN=your_canvas_api_token
 ```
 Canvas-Tracker-V3/
 ├── canvas-interface/          # TypeScript Canvas API integration
+│   ├── config/               # API field mappings and configuration
 │   ├── core/                 # Canvas API calls and grade extraction
+│   ├── demos/                # Interactive testing and demo tools
+│   ├── orchestration/        # Pipeline orchestration and configuration
+│   │   ├── configuration-manager.ts   # Configuration management
+│   │   ├── pipeline-monitor.ts        # Pipeline monitoring
+│   │   └── pipeline-orchestrator.ts   # Main orchestration engine
 │   ├── staging/              # Data processing and models (80% of usage)
-│   ├── utils/                # Professional utilities (NEW)
+│   ├── types/                # TypeScript type definitions
+│   ├── utils/                # Professional utilities
+│   │   ├── field-mapper.ts   # Field mapping utilities
 │   │   ├── logger.ts         # Structured logging system
 │   │   └── timestamp-parser.ts # Canvas timestamp handling
-│   ├── types/                # TypeScript type definitions (NEW)
-│   │   └── canvas-api.ts     # Comprehensive Canvas API interfaces
-│   ├── demos/                # Interactive testing tools
-│   └── tests/                # Jest test suite
+│   └── index.ts              # Main Canvas interface entry point
 ├── database/                 # Python database layer
 │   ├── models/               # SQLAlchemy models (4-layer architecture)
-│   ├── operations/           # Database operations and queries
-│   │   ├── canvas_bridge.py  # Canvas-Database integration (NEW)
-│   │   ├── data_transformers.py # Data transformation layer (NEW)
-│   │   └── typescript_interface.py # Cross-language interface (NEW)
-│   └── tests/                # Comprehensive pytest suite
-├── src/infrastructure/       # Shared TypeScript utilities
-├── tools/                    # Development and governance tools (NEW)
+│   ├── operations/           # Database operations and integrations
+│   │   ├── canvas_bridge.py  # Canvas-Database integration
+│   │   ├── canvas_sync_pipeline.py # Production sync pipeline
+│   │   ├── layer1/           # Canvas data operations
+│   │   ├── transformers/     # Data transformation modules
+│   │   └── typescript_interface.py # Cross-language interface
+│   ├── tests/                # Comprehensive pytest suite
+│   ├── base.py               # Database base configuration
+│   ├── config.py             # Database configuration
+│   └── session.py            # Session management
+├── src/                      # Application layer (basic structure)
+│   └── index.ts              # Main application entry point
+├── tools/                    # Development and governance tools
 │   └── architectural-compliance-checker.py # Boundary enforcement
-├── test-environment/         # Test environment management (NEW)
+├── test-environment/         # Test environment management
 │   ├── init_database.py     # Database initialization
 │   ├── setup_test_database.py # Test database setup
 │   └── test_canvas_integration.py # Integration testing
+├── call_canvas_sync.py       # Production sync script
+├── call_single_course_sync.py # Single course sync script
 └── docs/                     # Comprehensive documentation
     ├── architecture/         # System design and component docs
     ├── api/                  # Canvas interface guides
     ├── database/             # Database architecture docs
-    ├── analysis/             # Architectural analysis reports (NEW)
-    └── project/              # Developer onboarding and guides
+    ├── analysis/             # Architectural analysis reports
+    ├── development/          # Development guides and procedures
+    └── project/              # Project management and tracking
 ```
 
 ## 🧪 Testing Philosophy
@@ -171,9 +185,9 @@ Canvas Tracker V3 supports **independent component development**:
 ### **Canvas Interface Development** (TypeScript)
 ```bash
 cd canvas-interface
-npm test                              # Run test suite
-npx tsx demos/canvas-staging-demo.ts  # Interactive demo
-npx tsx demos/test-canvas-api.ts      # API testing
+npx tsx demos/canvas-staging-demo.ts     # Main Canvas staging demo
+npx tsx demos/orchestrator-demo.ts       # Pipeline orchestrator demo
+npx tsx demos/test-canvas-api.ts         # Canvas API testing
 ```
 
 ### **Database Development** (Python)
@@ -184,7 +198,19 @@ pytest tests/test_layer1_models.py   # Canvas data models
 pytest tests/test_integration_layer_comprehensive.py # Integration tests
 ```
 
-### **Test Environment Management** (NEW)
+### **Production Canvas Sync** 
+```bash
+# Sync all Canvas courses to database
+python call_canvas_sync.py
+
+# Sync a specific course
+python call_canvas_sync.py --course 12972117
+
+# Single course sync script
+python call_single_course_sync.py 12972117
+```
+
+### **Test Environment Management**
 ```bash
 # Set up isolated test database
 python test-environment/setup_test_database.py --force

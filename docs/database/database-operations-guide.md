@@ -18,239 +18,145 @@ The Database Operations layer provides high-level, business-focused APIs that ab
 ```
 database/operations/
 ├── __init__.py
-├── base/
-│   ├── __init__.py
-│   ├── base_operations.py      # Abstract base classes for all operations
-│   ├── transaction_manager.py  # Transaction handling and rollback logic
-│   └── exceptions.py           # Operations-specific exceptions
-├── layer0/
-│   ├── __init__.py
-│   ├── lifecycle_ops.py        # Object lifecycle CRUD operations
-│   └── dependency_tracker.py   # Cross-layer dependency analysis
+├── canvas_bridge.py            # Canvas-Database integration orchestrator
+├── canvas_sync_pipeline.py     # Production Canvas sync pipeline
+├── typescript_interface.py     # Cross-language TypeScript-Python interface
 ├── layer1/
 │   ├── __init__.py
 │   ├── canvas_ops.py          # Canvas data CRUD operations
-│   ├── sync_coordinator.py    # Canvas sync orchestration
-│   └── relationship_manager.py # Canvas object relationship management
-├── layer2/
-│   ├── __init__.py
-│   └── history_ops.py         # Historical data CRUD operations
-├── layer3/
-│   ├── __init__.py
-│   ├── metadata_ops.py        # User metadata CRUD operations
-│   └── tag_manager.py         # Specialized tag management utilities
-├── composite/
-│   ├── __init__.py
-│   ├── sync_orchestrator.py   # Master cross-layer sync coordination
-│   ├── cleanup_manager.py     # Data cleanup and maintenance operations
-│   └── integrity_checker.py   # Cross-layer data consistency validation
-└── utilities/
+│   └── sync_coordinator.py    # Canvas sync coordination
+└── transformers/
     ├── __init__.py
-    ├── query_builder.py        # Simple, reusable SQL query construction
-    ├── analytics_builder.py    # Complex analytical computations and insights
-    ├── bulk_operations.py      # Batch processing utilities for large datasets
-    ├── migration_helper.py     # Data migration and transformation tools
-    └── performance_monitor.py  # Query performance tracking and optimization
+    ├── base.py                 # Base transformer classes
+    ├── assignment_transformer.py
+    ├── course_transformer.py
+    ├── enrollment_transformer.py
+    └── student_transformer.py
 ```
 
 ---
 
 ## Component Roles and Responsibilities
 
-### Base Components
+### Core Integration Components
 
-#### **base/base_operations.py**
-**Role**: Foundation classes for all database operations
+#### **canvas_bridge.py**
+**Role**: Canvas-Database integration orchestrator
 **Responsibilities**:
-- Abstract `BaseOperation` class with session management
-- Abstract `CRUDOperation` class for standard CRUD patterns
-- Common validation and error handling patterns
-- Transaction wrapper decorators
+- Coordinate Canvas API data collection with TypeScript interface
+- Transform Canvas staging data for database storage
+- Handle Canvas sync operations with transaction management
+- Provide comprehensive error handling and rollback capabilities
 
-**Key Classes**:
-```python
-class BaseOperation(ABC):
-    # Session management, logging, validation framework
-    
-class CRUDOperation(BaseOperation):
-    # Standard Create, Read, Update, Delete operations
-    # Bulk operation patterns
-```
+**Key Operations**:
+- `initialize_bulk_canvas_courses_sync()` - Complete bulk Canvas sync
+- `initialize_canvas_course_sync()` - Single course sync
+- `execute_canvas_data_transformation()` - Data transformation coordination
 
-#### **base/transaction_manager.py**
-**Role**: Transaction management and rollback coordination
+#### **canvas_sync_pipeline.py**
+**Role**: Production Canvas sync pipeline
 **Responsibilities**:
-- Nested transaction support
-- Rollback strategies for different operation types
-- Transaction monitoring and logging
-- Deadlock detection and retry logic
+- Provide callable production sync functions
+- Handle sync result reporting and validation
+- Manage Canvas sync configuration and defaults
+- Coordinate between Canvas interface and database layers
 
----
+**Key Functions**:
+- `run_bulk_canvas_sync()` - Synchronous bulk Canvas sync
+- `run_single_course_sync()` - Single course sync wrapper
+- `sync_all_canvas_courses()` - Async bulk Canvas sync
+- `sync_canvas_course()` - Async single course sync
+- `verify_canvas_data()` - Canvas data validation
+
+#### **typescript_interface.py**
+**Role**: Cross-language TypeScript-Python interface
+**Responsibilities**:
+- Execute TypeScript Canvas interface from Python
+- Handle subprocess execution and result parsing
+- Provide environment validation for Node.js/TypeScript
+- Support Windows PowerShell compatibility
+
+**Key Operations**:
+- `execute_typescript_canvas_interface()` - Main interface execution
+- `validate_typescript_environment()` - Environment checks
+- `parse_typescript_result()` - Result parsing and validation
 
 ### Layer-Specific Operations
-
-#### **layer0/lifecycle_ops.py**
-**Role**: Object lifecycle management operations
-**Responsibilities**:
-- Track new Canvas objects entering the system
-- Mark objects as missing during sync operations
-- Manage soft-delete workflows with user approval
-- Handle object reactivation when Canvas objects return
-
-**Key Operations**:
-- `track_new_object()` - Register new Canvas objects
-- `mark_objects_missing()` - Batch update missing status
-- `approve_pending_deletions()` - Execute user-approved deletions
-- `get_pending_deletions_summary()` - Deletion approval interface data
-
-#### **layer0/dependency_tracker.py**
-**Role**: Cross-layer dependency analysis
-**Responsibilities**:
-- Check for user metadata dependencies before deletion
-- Analyze historical data dependencies
-- Update dependency flags for lifecycle decisions
-- Generate dependency impact reports
-
-**Key Operations**:
-- `analyze_deletion_impact()` - Full dependency analysis
-- `update_dependency_flags()` - Sync dependency status
-- `get_dependency_graph()` - Visual dependency mapping
-
----
 
 #### **layer1/canvas_ops.py**
 **Role**: Canvas data CRUD operations
 **Responsibilities**:
-- Standard CRUD operations for all Canvas models
-- Sync-aware operations (replace vs update)
-- Relationship management between Canvas objects
-- Canvas data validation and normalization
+- Canvas-specific database operations and queries
+- Sync tracking and timestamp management
+- Canvas data validation and transformation
+- Handle Canvas model relationships
 
-**Key Operations**:
-- `sync_canvas_object()` - Single object sync with change detection
-- `batch_sync_objects()` - Efficient bulk sync operations
-- `rebuild_course_statistics()` - Recalculate derived data
-- `get_stale_canvas_data()` - Identify objects needing refresh
+**Key Features**:
+- Canvas timestamp handling and preservation
+- Sync status tracking for all Canvas objects
+- Efficient Canvas data queries and updates
+- Canvas-specific validation rules
 
 #### **layer1/sync_coordinator.py**
-**Role**: Canvas sync operation orchestration
+**Role**: Canvas sync operation coordination
 **Responsibilities**:
-- Coordinate full Canvas sync operations
-- Handle incremental sync scenarios
-- Manage sync conflicts and resolution
-- Provide sync session rollback capabilities
+- Define sync priority levels and strategies
+- Coordinate Canvas sync operations
+- Handle sync validation and error management
+- Provide sync result reporting
 
-**Key Operations**:
-- `execute_full_sync()` - Complete Canvas data replacement
-- `execute_incremental_sync()` - Process only changed objects
-- `handle_sync_conflicts()` - Conflict resolution strategies
-- `validate_sync_integrity()` - Post-sync validation
+**Key Components**:
+- `SyncPriority` enum for sync operation priorities
+- Sync validation and integrity checking
+- Canvas sync configuration management
 
-#### **layer1/relationship_manager.py**
-**Role**: Canvas object relationship management
+### Data Transformation Layer
+
+#### **transformers/** directory
+**Role**: Canvas data transformation for database storage
 **Responsibilities**:
-- Manage enrollment relationships (student-course)
-- Handle assignment-course relationships
-- Maintain referential integrity during sync
-- Optimize relationship queries for performance
+- Transform Canvas API responses to database format
+- Handle Canvas timestamp parsing and preservation
+- Validate and normalize Canvas data
+- Support modular transformation architecture
 
----
+**Key Transformers**:
+- `assignment_transformer.py` - Canvas assignment data transformation
+- `course_transformer.py` - Canvas course data transformation
+- `enrollment_transformer.py` - Canvas enrollment data transformation
+- `student_transformer.py` - Canvas student data transformation
+- `base.py` - Base transformer classes and utilities
 
-#### **layer2/history_ops.py**
-**Role**: Historical data CRUD operations
-**Responsibilities**:
-- Record grade changes and score updates
-- Create course performance snapshots
-- Manage historical data retention policies
-- Provide historical data access patterns
+## Production Usage Examples
 
-**Key Operations**:
-- `record_grade_change()` - Add grade history entry
-- `record_assignment_score()` - Track assignment submissions
-- `create_course_snapshot()` - Periodic course state capture
-- `archive_old_records()` - Retention policy enforcement
+### Canvas Sync Pipeline Usage
+```python
+from database.operations.canvas_sync_pipeline import run_bulk_canvas_sync, run_single_course_sync
 
----
+# Sync all Canvas courses
+result = run_bulk_canvas_sync()
+print(f"Synced {result.courses_synced} courses with {result.total_students} students")
 
-#### **layer3/metadata_ops.py**
-**Role**: User metadata CRUD operations
-**Responsibilities**:
-- Standard CRUD operations for all metadata models
-- Orphaned metadata detection and cleanup
-- Metadata validation and normalization
-- Bulk metadata operations for efficiency
+# Sync a specific course
+result = run_single_course_sync(course_id=12972117)
+print(f"Course sync completed: {result.success}")
+```
 
-**Key Operations**:
-- `create_student_metadata()` - New student customization
-- `update_assignment_metadata()` - Modify assignment annotations
-- `find_orphaned_metadata()` - Cleanup candidate identification
-- `bulk_metadata_operations()` - Batch processing for large datasets
+### Canvas Bridge Usage
+```python
+from database.operations.canvas_bridge import CanvasDataBridge
+from database.session import get_session
 
-#### **layer3/tag_manager.py**
-**Role**: Specialized tag management operations
-**Responsibilities**:
-- Tag normalization and deduplication
-- Tag usage analytics and suggestions
-- Tag merging and organization
-- Tag-based search and filtering
+session = get_session()
+bridge = CanvasDataBridge(
+    canvas_interface_path="./canvas-interface",
+    session=session
+)
 
-**Key Operations**:
-- `normalize_tags()` - Consistent tag formatting
-- `merge_duplicate_tags()` - Tag cleanup operations
-- `get_tag_suggestions()` - AI-powered tag recommendations
-- `analyze_tag_usage()` - Tag popularity and trends
-
----
-
-### Composite Operations
-
-#### **composite/sync_orchestrator.py**
-**Role**: Master orchestrator for cross-layer sync operations
-**Responsibilities**:
-- Coordinate sync operations across all 4 layers
-- Ensure proper order of operations during sync
-- Handle rollback scenarios for failed syncs
-- Provide comprehensive sync reporting
-
-**Key Operations**:
-- `execute_master_sync()` - Full 4-layer sync coordination
-- `execute_cleanup_cycle()` - Periodic maintenance operations
-- `rollback_sync_session()` - Complete sync rollback
-- `generate_sync_report()` - Comprehensive sync analysis
-
-#### **composite/cleanup_manager.py**
-**Role**: Data cleanup and maintenance operations
-**Responsibilities**:
-- Identify and process deletion candidates
-- Execute approved cleanup operations
-- Archive historical data based on retention policies
-- Optimize database performance through maintenance
-
-**Key Operations**:
-- `identify_cleanup_candidates()` - Find objects ready for cleanup
-- `execute_approved_cleanup()` - Process user-approved deletions
-- `optimize_database_performance()` - Index maintenance and optimization
-- `generate_cleanup_report()` - Cleanup operation summary
-
-#### **composite/integrity_checker.py**
-**Role**: Cross-layer data consistency validation
-**Responsibilities**:
-- Validate referential integrity across layers
-- Detect and report data inconsistencies
-- Suggest and execute data repair operations
-- Monitor data quality metrics over time
-
-**Key Operations**:
-- `check_cross_layer_integrity()` - Comprehensive consistency check
-- `find_orphaned_records()` - Identify broken references
-- `suggest_data_repairs()` - Automated fix recommendations
-- `generate_integrity_report()` - Data quality dashboard
-
----
-
-### Utility Components
-
-#### **utilities/query_builder.py** 🔧 **Core Component**
+# Execute Canvas sync
+result = await bridge.initialize_bulk_canvas_courses_sync()
+print(f"Sync result: {result.success}")
+```
 **Role**: Simple, reusable SQL query construction
 **Responsibilities**:
 - Build optimized queries for common data retrieval patterns

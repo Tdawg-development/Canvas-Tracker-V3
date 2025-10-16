@@ -59,11 +59,12 @@ cd canvas-interface
 # Install dependencies
 npm install
 
-# Run interactive demo (verify Canvas connection)
+# Run interactive demos (verify Canvas connection)
 npx tsx demos/canvas-staging-demo.ts
+npx tsx demos/orchestrator-demo.ts
 
-# Run tests
-npm test
+# Run Canvas API tests
+npx tsx demos/test-canvas-api.ts
 ```
 
 ### 4. Test Database Operations (Python)  
@@ -88,43 +89,45 @@ If both test suites pass, you're ready to develop! 🎉
 ### **Canvas Interface Development** (TypeScript)
 
 **Location**: `canvas-interface/`
-**Purpose**: All Canvas LMS integration and API calls
+**Purpose**: Canvas LMS integration, API calls, and pipeline orchestration
 
 ```bash
 cd canvas-interface
 
-# Development commands
-npm test                              # Run test suite
-npm run test:watch                    # Watch mode testing
-npx tsx demos/canvas-staging-demo.ts  # Interactive demo
-npx tsx demos/test-canvas-api.ts      # API testing
+# Development commands and demos
+npx tsx demos/canvas-staging-demo.ts     # Main Canvas staging demo
+npx tsx demos/orchestrator-demo.ts       # Pipeline orchestrator demo
+npx tsx demos/test-canvas-api.ts         # Canvas API testing
 
 # Key files to understand
-core/canvas-calls.ts                  # Main Canvas API processing
-staging/canvas-data-constructor.ts    # API orchestration  
-staging/canvas-staging-data.ts        # Data models
-tests/                               # Jest-based tests
+core/canvas-calls.ts                     # Main Canvas API processing
+orchestration/pipeline-orchestrator.ts  # Complete pipeline orchestration
+staging/canvas-data-constructor.ts       # API orchestration  
+staging/canvas-staging-data.ts           # Data models
 ```
 
 ### **Database Development** (Python)
 
 **Location**: `database/`
-**Purpose**: Data storage, queries, and operations
+**Purpose**: Data storage, queries, operations, and Canvas sync pipeline
 
 ```bash
 cd database
 
-# Development commands
+# Development and testing commands
 pytest tests/                         # Full test suite
 pytest tests/test_layer1_models.py    # Canvas data models
 pytest tests/test_layer0_models.py    # Lifecycle models
-pytest -v --tb=short                 # Verbose with short traceback
+
+# Production Canvas sync (from project root)
+python call_canvas_sync.py            # Sync all Canvas courses
+python call_canvas_sync.py --course 12345  # Sync specific course
 
 # Key files to understand  
-models/layer1_canvas.py              # Canvas data models
-models/layer0_lifecycle.py           # Object lifecycle
-operations/layer1/                   # Canvas operations
-tests/                              # Pytest-based comprehensive tests
+models/layer1_canvas.py               # Canvas data models
+operations/canvas_sync_pipeline.py    # Production sync pipeline
+operations/canvas_bridge.py           # Canvas-Database integration
+operations/transformers/               # Data transformation modules
 ```
 
 ### **Infrastructure Development** (TypeScript)
