@@ -33,7 +33,7 @@ from .base.exceptions import (
 from .layer1.canvas_ops import CanvasDataManager
 from .layer1.sync_coordinator import SyncCoordinator, SyncResult, SyncPriority
 from .typescript_interface import TypeScriptExecutor, TypeScriptExecutionError
-from .data_transformers import CanvasDataTransformer
+from .transformers import LegacyCanvasDataTransformer
 
 
 @dataclass
@@ -81,7 +81,8 @@ class CanvasDataBridge(BaseOperation):
         self, 
         canvas_interface_path: str, 
         session: Session,
-        auto_detect_path: bool = True
+        auto_detect_path: bool = True,
+        sync_configuration: Optional[Dict[str, Any]] = None
     ):
         """
         Initialize Canvas data bridge.
@@ -98,9 +99,12 @@ class CanvasDataBridge(BaseOperation):
         if auto_detect_path and not self.canvas_path.exists():
             self.canvas_path = self._detect_canvas_interface_path()
         
+        # Store sync configuration
+        self.sync_configuration = sync_configuration
+        
         # Initialize core components
         self.typescript_executor = TypeScriptExecutor(str(self.canvas_path))
-        self.data_transformer = CanvasDataTransformer()
+        self.data_transformer = LegacyCanvasDataTransformer(sync_configuration)
         self.canvas_manager = CanvasDataManager(session)
         self.sync_coordinator = SyncCoordinator(session)
         self.transaction_manager = TransactionManager(session)
@@ -192,8 +196,10 @@ class CanvasDataBridge(BaseOperation):
             bridge_result.typescript_execution_time = (ts_end - ts_start).total_seconds()
             self.logger.info(f"TypeScript execution completed in {bridge_result.typescript_execution_time:.2f}s")
 
-            # Step 3: Transform data formats
+            # Step 3: Transform data formats with configuration
             self.logger.info("Transforming TypeScript data to database format...")
+            if self.sync_configuration:
+                self.logger.info(f"Using sync configuration: {list(self.sync_configuration.get('entities', {}).keys())}")
             transform_start = datetime.now()
             
             db_data = self.data_transformer.transform_canvas_staging_data(canvas_data)
@@ -414,7 +420,8 @@ async def initialize_canvas_course(
     course_id: int,
     canvas_interface_path: Optional[str] = None,
     session: Optional[Session] = None,
-    priority: SyncPriority = SyncPriority.HIGH
+    priority: SyncPriority = SyncPriority.HIGH,
+    sync_configuration: Optional[Dict[str, Any]] = None
 ) -> CanvasBridgeResult:
     """
     Convenience function to initialize a Canvas course with default settings.
@@ -439,5 +446,5 @@ async def initialize_canvas_course(
         session = get_session()
         
     # Initialize and execute bridge
-    bridge = CanvasDataBridge(canvas_interface_path, session)
+    bridge = CanvasDataBridge(canvas_interface_path, session, sync_configuration=sync_configuration)
     return await bridge.initialize_canvas_course_sync(course_id, priority)

@@ -162,7 +162,8 @@ class CanvasCalls {
           course_code: course.course_code,
           workflow_state: course.workflow_state,
           start_at: course.start_at,
-          end_at: course.end_at
+          end_at: course.end_at,
+          created_at: course.created_at
         };
       }
       

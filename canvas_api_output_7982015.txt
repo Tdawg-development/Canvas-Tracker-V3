@@ -1,0 +1,1032 @@
+=== REAL CANVAS API INTEGRATION TEST ===
+Making REAL Canvas API calls for course 7982015...
+🏗️ Executing complete Canvas API workflow...
+🔄 Rebuilding course info for course 7982015...
+📋 Canvas Calls: Getting course info for 7982015
+✅ Course found: JDU 1st Section
+✅ Course info rebuilt in 346ms
+🔄 Rebuilding enrollments for course 7982015...
+👥📚 Canvas Calls: Getting active students and assignments for course 7982015
+✅ Found 33 active students
+✅ Found 30 active assignments (37 total)
+   ✅ Found 33 active students via CanvasCalls
+   ✅ Validated 33 student enrollments with grades
+   📈 Sample: Brad Allen (Score: 98.53)
+✅ Enrollments rebuilt: 33 records in 2906ms
+🔄 Rebuilding assignments for course 7982015...
+   ✅ Found 4 modules
+👥📚 Canvas Calls: Getting active students and assignments for course 7982015
+✅ Found 33 active students
+✅ Found 30 active assignments (37 total)
+   🔄 Fetching detailed assignment data with timestamps...
+     🗑️ Filtered out ungraded quiz: Survey
+   📏 Total assignments/quizzes found: 36
+   🎆 Enhanced 35 items with assignment data
+   🗑️ Filtered out 1 ungraded quizzes
+   📚 Sample: Module "Intro to Machining" with 23 assignments
+✅ Assignments rebuilt from 4 modules in 3790ms
+📊 REAL Canvas API Results:
+   API execution time: 7045ms
+   Course records: 1
+   Student records: 33
+   Assignment records: 35
+   Enrollment records: 33
+   Course name: "JDU 1st Section"
+   Sample student: "Brad Allen" (Score: 98.53)
+   Sample assignment: "Intro to CNC Machines 201" (5 pts)
+===CANVAS_API_RESULT_START===
+{
+  "success": true,
+  "course_id": 7982015,
+  "api_execution_time": 7045,
+  "course": {
+    "id": 7982015,
+    "name": "JDU 1st Section",
+    "course_code": "JDU 1st",
+    "workflow_state": "available",
+    "start_at": null,
+    "end_at": null,
+    "created_at": "2023-10-20T17:55:14Z",
+    "default_view": "modules",
+    "is_public": false,
+    "is_public_to_auth_users": false,
+    "public_syllabus": false,
+    "storage_quota_mb": 524288000,
+    "is_favorite": false,
+    "locale": "en",
+    "time_zone": "America/New_York",
+    "calendar": null
+  },
+  "students": [
+    {
+      "id": 111929282,
+      "user_id": 111929282,
+      "name": "Brad Allen",
+      "email": "brad.allen1990@gmail.com",
+      "current_score": 98.53,
+      "final_score": 98.53,
+      "user": {
+        "id": 111929282,
+        "name": "Brad Allen",
+        "email": "brad.allen1990@gmail.com",
+        "created_at": "2024-05-01T13:03:41Z"
+      },
+      "grades": {
+        "current_score": 98.53,
+        "final_score": 98.53,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 112054294,
+      "user_id": 112054294,
+      "name": "Joshua Bowden",
+      "email": "josh.bowden@jdmachine.com",
+      "current_score": 100,
+      "final_score": 100,
+      "user": {
+        "id": 112054294,
+        "name": "Joshua Bowden",
+        "email": "josh.bowden@jdmachine.com",
+        "created_at": "2024-05-13T23:30:41Z"
+      },
+      "grades": {
+        "current_score": 100,
+        "final_score": 100,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 112077315,
+      "user_id": 112077315,
+      "name": "Hayden Burton",
+      "email": "hayden.burton@jdmachine.com",
+      "current_score": 99.27,
+      "final_score": 99.27,
+      "user": {
+        "id": 112077315,
+        "name": "Hayden Burton",
+        "email": "hayden.burton@jdmachine.com",
+        "created_at": "2024-05-16T03:20:21Z"
+      },
+      "grades": {
+        "current_score": 99.27,
+        "final_score": 99.27,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 116714773,
+      "user_id": 116714773,
+      "name": "Tyler Chambers",
+      "email": "tyler.chambers@jdmachine.com",
+      "current_score": 96.34,
+      "final_score": 96.34,
+      "user": {
+        "id": 116714773,
+        "name": "Tyler Chambers",
+        "email": "tyler.chambers@jdmachine.com",
+        "created_at": "2025-05-08T21:12:33Z"
+      },
+      "grades": {
+        "current_score": 96.34,
+        "final_score": 96.34,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 111979660,
+      "user_id": 111979660,
+      "name": "Zachary Clark",
+      "email": "zach.clark@jdmachine.com",
+      "current_score": 99.27,
+      "final_score": 99.27,
+      "user": {
+        "id": 111979660,
+        "name": "Zachary Clark",
+        "email": "zach.clark@jdmachine.com",
+        "created_at": "2024-05-06T17:29:12Z"
+      },
+      "grades": {
+        "current_score": 99.27,
+        "final_score": 99.27,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 111992870,
+      "user_id": 111992870,
+      "name": "Tayson Copeland",
+      "email": "tayson.copeland@jdmachine.com",
+      "current_score": 99.27,
+      "final_score": 99.27,
+      "user": {
+        "id": 111992870,
+        "name": "Tayson Copeland",
+        "email": "tayson.copeland@jdmachine.com",
+        "created_at": "2024-05-07T19:01:37Z"
+      },
+      "grades": {
+        "current_score": 99.27,
+        "final_score": 99.27,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 111040631,
+      "user_id": 111040631,
+      "name": "Brian Cower",
+      "email": "brian.cower@jdmachine.com",
+      "current_score": 96.34,
+      "final_score": 96.34,
+      "user": {
+        "id": 111040631,
+        "name": "Brian Cower",
+        "email": "brian.cower@jdmachine.com",
+        "created_at": "2024-08-02T20:48:21Z"
+      },
+      "grades": {
+        "current_score": 96.34,
+        "final_score": 96.34,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 112052799,
+      "user_id": 112052799,
+      "name": "Caysen Cummings",
+      "email": "caysen.cummings@jdmachine.com",
+      "current_score": 100,
+      "final_score": 100,
+      "user": {
+        "id": 112052799,
+        "name": "Caysen Cummings",
+        "email": "caysen.cummings@jdmachine.com",
+        "created_at": "2024-05-13T20:22:41Z"
+      },
+      "grades": {
+        "current_score": 100,
+        "final_score": 100,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 112023176,
+      "user_id": 112023176,
+      "name": "Taj-Mahal Boyd Earl",
+      "email": "taj.earl@jdmachine.com",
+      "current_score": 100,
+      "final_score": 100,
+      "user": {
+        "id": 112023176,
+        "name": "Taj-Mahal Boyd Earl",
+        "email": "taj.earl@jdmachine.com",
+        "created_at": "2024-05-10T14:38:17Z"
+      },
+      "grades": {
+        "current_score": 100,
+        "final_score": 100,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 111980264,
+      "user_id": 111980264,
+      "name": "Dylan Folkman ",
+      "email": "dylan.folkman@jdmachine.com",
+      "current_score": 99.27,
+      "final_score": 99.27,
+      "user": {
+        "id": 111980264,
+        "name": "Dylan Folkman ",
+        "email": "dylan.folkman@jdmachine.com",
+        "created_at": "2024-05-06T18:51:28Z"
+      },
+      "grades": {
+        "current_score": 99.27,
+        "final_score": 99.27,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 112055091,
+      "user_id": 112055091,
+      "name": "Connor Frandsen",
+      "email": "connor.frandsen@jdmachine.com",
+      "current_score": 95.97,
+      "final_score": 95.97,
+      "user": {
+        "id": 112055091,
+        "name": "Connor Frandsen",
+        "email": "connor.frandsen@jdmachine.com",
+        "created_at": "2024-05-14T01:10:31Z"
+      },
+      "grades": {
+        "current_score": 95.97,
+        "final_score": 95.97,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 112298474,
+      "user_id": 112298474,
+      "name": "Braedon Gill",
+      "email": "braedon.gill@jdmachine.com",
+      "current_score": 98.17,
+      "final_score": 98.17,
+      "user": {
+        "id": 112298474,
+        "name": "Braedon Gill",
+        "email": "braedon.gill@jdmachine.com",
+        "created_at": "2024-06-05T17:36:49Z"
+      },
+      "grades": {
+        "current_score": 98.17,
+        "final_score": 98.17,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 115488817,
+      "user_id": 115488817,
+      "name": "Wyatt Hales",
+      "email": "wyatt.hales@yahoo.com",
+      "current_score": 94.74,
+      "final_score": 94.74,
+      "user": {
+        "id": 115488817,
+        "name": "Wyatt Hales",
+        "email": "wyatt.hales@yahoo.com",
+        "created_at": "2025-02-11T20:08:28Z"
+      },
+      "grades": {
+        "current_score": 94.74,
+        "final_score": 94.74,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 111680898,
+      "user_id": 111680898,
+      "name": "Jayce Hart",
+      "email": "jaycehart1@yahoo.com",
+      "current_score": 99.27,
+      "final_score": 99.27,
+      "user": {
+        "id": 111680898,
+        "name": "Jayce Hart",
+        "email": "jaycehart1@yahoo.com",
+        "created_at": "2024-04-08T14:39:21Z"
+      },
+      "grades": {
+        "current_score": 99.27,
+        "final_score": 99.27,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 115772355,
+      "user_id": 115772355,
+      "name": "Bridger Jacob Hoffman",
+      "email": "bridger.hoffman@jdmachine.com",
+      "current_score": 97.8,
+      "final_score": 97.8,
+      "user": {
+        "id": 115772355,
+        "name": "Bridger Jacob Hoffman",
+        "email": "bridger.hoffman@jdmachine.com",
+        "created_at": "2025-03-05T00:03:38Z"
+      },
+      "grades": {
+        "current_score": 97.8,
+        "final_score": 97.8,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 113099677,
+      "user_id": 113099677,
+      "name": "Jared hurd",
+      "email": "jh42539@gmail.com",
+      "current_score": 94.87,
+      "final_score": 94.87,
+      "user": {
+        "id": 113099677,
+        "name": "Jared hurd",
+        "email": "jh42539@gmail.com",
+        "created_at": "2024-08-15T23:27:40Z"
+      },
+      "grades": {
+        "current_score": 94.87,
+        "final_score": 94.87,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 114044240,
+      "user_id": 114044240,
+      "name": "bryson jensen",
+      "email": "bryson.jensen1030@gmail.com",
+      "current_score": 97.44,
+      "final_score": 97.44,
+      "user": {
+        "id": 114044240,
+        "name": "bryson jensen",
+        "email": "bryson.jensen1030@gmail.com",
+        "created_at": "2024-10-16T17:14:11Z"
+      },
+      "grades": {
+        "current_score": 97.44,
+        "final_score": 97.44,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 112884494,
+      "user_id": 112884494,
+      "name": "Landon",
+      "email": "landonisaacson90@gmail.com",
+      "current_score": 99.24,
+      "final_score": 95.6,
+      "user": {
+        "id": 112884494,
+        "name": "Landon",
+        "email": "landonisaacson90@gmail.com",
+        "created_at": "2024-08-01T15:25:43Z"
+      },
+      "grades": {
+        "current_score": 99.24,
+        "final_score": 95.6,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 112016789,
+      "user_id": 112016789,
+      "name": "Zachary Leeper",
+      "email": "zachary.leeper@jdmachine.com",
+      "current_score": 94.87,
+      "final_score": 94.87,
+      "user": {
+        "id": 112016789,
+        "name": "Zachary Leeper",
+        "email": "zachary.leeper@jdmachine.com",
+        "created_at": "2024-05-09T20:54:12Z"
+      },
+      "grades": {
+        "current_score": 94.87,
+        "final_score": 94.87,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 112147421,
+      "user_id": 112147421,
+      "name": "Jonathan Tyler Limburg",
+      "email": "jonathan.limburg@jdmachine.com",
+      "current_score": 98.73,
+      "final_score": 56.78,
+      "user": {
+        "id": 112147421,
+        "name": "Jonathan Tyler Limburg",
+        "email": "jonathan.limburg@jdmachine.com",
+        "created_at": "2024-05-22T14:48:18Z"
+      },
+      "grades": {
+        "current_score": 98.73,
+        "final_score": 56.78,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 110799212,
+      "user_id": 110799212,
+      "name": "Xander Nielsen",
+      "email": "xander.nielsen@jdmachine.com",
+      "current_score": 97.44,
+      "final_score": 97.44,
+      "user": {
+        "id": 110799212,
+        "name": "Xander Nielsen",
+        "email": "xander.nielsen@jdmachine.com",
+        "created_at": "2024-05-13T23:00:30Z"
+      },
+      "grades": {
+        "current_score": 97.44,
+        "final_score": 97.44,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 116197850,
+      "user_id": 116197850,
+      "name": "Drake Parker",
+      "email": "drakep2004@gmail.com",
+      "current_score": 99.22,
+      "final_score": 92.67,
+      "user": {
+        "id": 116197850,
+        "name": "Drake Parker",
+        "email": "drakep2004@gmail.com",
+        "created_at": "2025-04-02T20:35:47Z"
+      },
+      "grades": {
+        "current_score": 99.22,
+        "final_score": 92.67,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 111982921,
+      "user_id": 111982921,
+      "name": "Tyler Perkins",
+      "email": "tyler.perkins@jdmachine.com",
+      "current_score": 97.44,
+      "final_score": 97.44,
+      "user": {
+        "id": 111982921,
+        "name": "Tyler Perkins",
+        "email": "tyler.perkins@jdmachine.com",
+        "created_at": "2024-05-06T23:40:11Z"
+      },
+      "grades": {
+        "current_score": 97.44,
+        "final_score": 97.44,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 116713740,
+      "user_id": 116713740,
+      "name": "Tate Potokar",
+      "email": "tate.potokar@jdmachine.com",
+      "current_score": 100,
+      "final_score": 29.3,
+      "user": {
+        "id": 116713740,
+        "name": "Tate Potokar",
+        "email": "tate.potokar@jdmachine.com",
+        "created_at": "2025-05-08T19:57:43Z"
+      },
+      "grades": {
+        "current_score": 100,
+        "final_score": 29.3,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 113226714,
+      "user_id": 113226714,
+      "name": "Ben Rendon",
+      "email": "ben.rendon@jdmachine.com",
+      "current_score": 95.97,
+      "final_score": 95.97,
+      "user": {
+        "id": 113226714,
+        "name": "Ben Rendon",
+        "email": "ben.rendon@jdmachine.com",
+        "created_at": "2024-08-22T20:55:36Z"
+      },
+      "grades": {
+        "current_score": 95.97,
+        "final_score": 95.97,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 112053861,
+      "user_id": 112053861,
+      "name": "Tristen Riley",
+      "email": "tristen.riley@jdmachine.com",
+      "current_score": 97.8,
+      "final_score": 97.8,
+      "user": {
+        "id": 112053861,
+        "name": "Tristen Riley",
+        "email": "tristen.riley@jdmachine.com",
+        "created_at": "2024-05-13T22:20:54Z"
+      },
+      "grades": {
+        "current_score": 97.8,
+        "final_score": 97.8,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 113097745,
+      "user_id": 113097745,
+      "name": "Dirk Roberts ",
+      "email": "dirk.roberts@jdmachine.com",
+      "current_score": 100,
+      "final_score": 100,
+      "user": {
+        "id": 113097745,
+        "name": "Dirk Roberts ",
+        "email": "dirk.roberts@jdmachine.com",
+        "created_at": "2024-08-15T20:36:00Z"
+      },
+      "grades": {
+        "current_score": 100,
+        "final_score": 100,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 115171682,
+      "user_id": 115171682,
+      "name": "Chandler Roueche",
+      "email": "croueche10@gmail.com",
+      "current_score": 97.65,
+      "final_score": 91.21,
+      "user": {
+        "id": 115171682,
+        "name": "Chandler Roueche",
+        "email": "croueche10@gmail.com",
+        "created_at": "2025-01-22T21:58:45Z"
+      },
+      "grades": {
+        "current_score": 97.65,
+        "final_score": 91.21,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 118284019,
+      "user_id": 118284019,
+      "name": "Clayton Smith",
+      "email": "clayton.smith@jdmachine.com",
+      "current_score": 94.87,
+      "final_score": 27.11,
+      "user": {
+        "id": 118284019,
+        "name": "Clayton Smith",
+        "email": "clayton.smith@jdmachine.com",
+        "created_at": "2025-08-20T19:11:17Z"
+      },
+      "grades": {
+        "current_score": 94.87,
+        "final_score": 27.11,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 117791192,
+      "user_id": 117791192,
+      "name": "Alexandria Stephens",
+      "email": "allysocial225@gmail.com",
+      "current_score": 98.9,
+      "final_score": 98.9,
+      "user": {
+        "id": 117791192,
+        "name": "Alexandria Stephens",
+        "email": "allysocial225@gmail.com",
+        "created_at": "2025-07-15T16:51:04Z"
+      },
+      "grades": {
+        "current_score": 98.9,
+        "final_score": 98.9,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 117197169,
+      "user_id": 117197169,
+      "name": "Zachary Thomas Swallow",
+      "email": "zachary.swallow@jdmachine.com",
+      "current_score": 97.8,
+      "final_score": 97.8,
+      "user": {
+        "id": 117197169,
+        "name": "Zachary Thomas Swallow",
+        "email": "zachary.swallow@jdmachine.com",
+        "created_at": "2025-06-03T00:29:11Z"
+      },
+      "grades": {
+        "current_score": 97.8,
+        "final_score": 97.8,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 112449730,
+      "user_id": 112449730,
+      "name": "Jonathan Winfield",
+      "email": "jack.winfield@jdmachine.com",
+      "current_score": 98.17,
+      "final_score": 98.17,
+      "user": {
+        "id": 112449730,
+        "name": "Jonathan Winfield",
+        "email": "jack.winfield@jdmachine.com",
+        "created_at": "2024-06-21T22:20:38Z"
+      },
+      "grades": {
+        "current_score": 98.17,
+        "final_score": 98.17,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    },
+    {
+      "id": 110945747,
+      "user_id": 110945747,
+      "name": "Lindy Young",
+      "email": "lindy.young@jdmachine.com",
+      "current_score": 98.17,
+      "final_score": 98.17,
+      "user": {
+        "id": 110945747,
+        "name": "Lindy Young",
+        "email": "lindy.young@jdmachine.com",
+        "created_at": "2024-01-29T23:18:42Z"
+      },
+      "grades": {
+        "current_score": 98.17,
+        "final_score": 98.17,
+        "current_grade": "N/A",
+        "final_grade": "N/A"
+      }
+    }
+  ],
+  "modules": [
+    {
+      "id": 15543255,
+      "name": "Module for assignments (ID: 15543255)",
+      "position": 1,
+      "workflow_state": "active",
+      "published": true,
+      "items": [
+        {
+          "id": 41536834,
+          "title": "Intro to CNC Machines 201",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 41536963,
+          "title": "Cutting Processes 111",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 41536964,
+          "title": "Basic Cutting Theory 201",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 41537024,
+          "title": "NIMS Core Machining Skills 121",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 41536977,
+          "title": "Overview of Machine Tools 121",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 41536965,
+          "title": "Basics of CNC Lathe 211",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 16129135,
+          "title": "LATHE TOOLING: OD ROUGHER",
+          "type": "Assignment",
+          "points_possible": 2,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 16129137,
+          "title": "LATHE TOOLING: OD FINISHER",
+          "type": "Assignment",
+          "points_possible": 3,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 16129138,
+          "title": "LATHE TOOLING: OD GROOVERS",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 16129141,
+          "title": "LATHE TOOLING: FACE GROOVER",
+          "type": "Assignment",
+          "points_possible": 2,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 41536969,
+          "title": "Basics of the CNC Swiss-Type Lathe 215",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 16129142,
+          "title": "LATHE TOOLING: DRILLS & TAPS",
+          "type": "Assignment",
+          "points_possible": 2,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 16129144,
+          "title": "LATHE TOOLING: ID GROOVER",
+          "type": "Assignment",
+          "points_possible": 3,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 16129145,
+          "title": "LATHE TOOLING: ID BORING BAR",
+          "type": "Assignment",
+          "points_possible": 2,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 41537083,
+          "title": "NIMS Core CNC Turning Skills 142",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 41536972,
+          "title": "Basics of CNC Mill 212",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 16129124,
+          "title": "The types of CNC Machines Explained",
+          "type": "Assignment",
+          "points_possible": 2,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 16129126,
+          "title": "HOW TO SET WORK OFFSETS MANUALLY",
+          "type": "Assignment",
+          "points_possible": 3,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 41537077,
+          "title": "NIMS Core CNC Millings Skills 141",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 16128747,
+          "title": "HOW TO INSTALL A VISE",
+          "type": "Assignment",
+          "points_possible": 3,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 16129128,
+          "title": "MANUAL FLATNESS CHECK",
+          "type": "Assignment",
+          "points_possible": 3,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 17063369,
+          "title": "Tool Presetter Quiz",
+          "type": "Assignment",
+          "points_possible": 7.5,
+          "published": true,
+          "module_id": 15543255
+        },
+        {
+          "id": 17156253,
+          "title": "Tool Presetter Hands on Practice",
+          "type": "Assignment",
+          "points_possible": 9,
+          "published": true,
+          "module_id": 15543255
+        }
+      ]
+    },
+    {
+      "id": 15542132,
+      "name": "Module for assignments (ID: 15542132)",
+      "position": 2,
+      "workflow_state": "active",
+      "published": true,
+      "items": [
+        {
+          "id": 41536836,
+          "title": "Blueprint Reading 131",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 15542132
+        },
+        {
+          "id": 45681144,
+          "title": "Hole Standards and Inspection 141",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 15542132
+        },
+        {
+          "id": 41536844,
+          "title": "Basics of Tolerance 121",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 15542132
+        },
+        {
+          "id": 16129132,
+          "title": "DIGITAL CALIPER",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 15542132
+        },
+        {
+          "id": 16129133,
+          "title": "DIGITAL OD MICROMETER",
+          "type": "Assignment",
+          "points_possible": 2,
+          "published": true,
+          "module_id": 15542132
+        },
+        {
+          "id": 16129130,
+          "title": "CONVENTIONAL OD MICROMETER",
+          "type": "Assignment",
+          "points_possible": 3,
+          "published": true,
+          "module_id": 15542132
+        },
+        {
+          "id": 16443207,
+          "title": "Beginner Inspection Quiz",
+          "type": "Assignment",
+          "points_possible": 9,
+          "published": true,
+          "module_id": 15542132
+        },
+        {
+          "id": 17565259,
+          "title": "Hands on Beginner Inspection Quiz",
+          "type": "Assignment",
+          "points_possible": 10,
+          "published": true,
+          "module_id": 15542132
+        },
+        {
+          "id": 42226200,
+          "title": "High QA Academy - IM Explorer Training",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": false,
+          "module_id": 15542132
+        },
+        {
+          "id": 45680066,
+          "title": "Math: Fractions and Decimals 111",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 15542132
+        }
+      ]
+    },
+    {
+      "id": 14050352,
+      "name": "Module for assignments (ID: 14050352)",
+      "position": 3,
+      "workflow_state": "active",
+      "published": true,
+      "items": [
+        {
+          "id": 41536864,
+          "title": "5s Overview 151",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 14050352
+        },
+        {
+          "id": 41536958,
+          "title": "Lean Manufacturing 101",
+          "type": "Assignment",
+          "points_possible": 5,
+          "published": true,
+          "module_id": 14050352
+        }
+      ]
+    }
+  ]
+}
+===CANVAS_API_RESULT_END===

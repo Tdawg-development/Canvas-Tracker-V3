@@ -121,6 +121,7 @@ export class CanvasDataConstructor {
         workflow_state: courseInfo.workflow_state,
         start_at: courseInfo.start_at,
         end_at: courseInfo.end_at,
+        created_at: courseInfo.created_at,
         calendar: { ics: null } // Will be populated if needed
       };
       

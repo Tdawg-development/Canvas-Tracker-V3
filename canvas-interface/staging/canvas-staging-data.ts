@@ -296,6 +296,7 @@ export class CanvasCourseStaging {
   id: number;
   name: string;
   course_code: string;
+  created_at?: string;
   calendar: {
     ics: string;
   };
@@ -306,6 +307,7 @@ export class CanvasCourseStaging {
     this.id = data.id;
     this.name = data.name;
     this.course_code = data.course_code;
+    this.created_at = data.created_at;
     this.calendar = {
       ics: data.calendar?.ics || ''
     };

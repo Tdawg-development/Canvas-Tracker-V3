@@ -136,6 +136,7 @@ class CanvasDataTransformer:
                 'course_code': course_data.get('course_code', ''),
                 'calendar_ics': self._extract_calendar_ics(course_data),
                 'workflow_state': course_data.get('workflow_state', 'available'),
+                'created_at': self._parse_canvas_datetime(course_data.get('created_at')),
                 'start_at': self._parse_canvas_datetime(course_data.get('start_at')),
                 'end_at': self._parse_canvas_datetime(course_data.get('end_at')),
                 'last_synced': datetime.now(timezone.utc)
@@ -460,26 +461,26 @@ class CanvasDataTransformer:
             return calendar.get('ics', '')
         return ''
 
-    def _normalize_score(self, score: Any) -> int:
+    def _normalize_score(self, score: Any) -> float:
         """
-        Normalize Canvas scores to integer percentages.
+        Normalize Canvas scores to float percentages with 2 decimal precision.
         
         Args:
             score: Score value from Canvas (may be None, float, or string)
             
         Returns:
-            Integer score (0-100) or 0 if invalid
+            Float score (0.00-100.00) or 0.0 if invalid
         """
         if score is None:
-            return 0
+            return 0.0
         
         try:
-            # Convert to float first, then to int
+            # Convert to float and round to 2 decimal places
             float_score = float(score)
-            return int(round(float_score))
+            return round(float_score, 2)
         except (ValueError, TypeError):
-            self.logger.warning(f"Failed to normalize score '{score}', defaulting to 0")
-            return 0
+            self.logger.warning(f"Failed to normalize score '{score}', defaulting to 0.0")
+            return 0.0
 
     def _normalize_assignment_type(self, assignment_type: Optional[str]) -> str:
         """

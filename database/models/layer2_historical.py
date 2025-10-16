@@ -37,8 +37,8 @@ class GradeHistory(HistoricalBaseModel):
     assignment_id = Column(Integer, nullable=True, index=True)     # Canvas assignment ID (null for course grades)
     
     # Grade information at time of recording
-    current_score = Column(Integer, nullable=True)                 # Student's current score (percentage)
-    final_score = Column(Integer, nullable=True)                   # Student's potential final score (percentage)
+    current_score = Column(Float, nullable=True, default=0.0)      # Student's current score (percentage)
+    final_score = Column(Float, nullable=True, default=0.0)        # Student's potential final score (percentage)
     points_earned = Column(Float, nullable=True)                   # Actual points earned on assignment
     points_possible = Column(Float, nullable=True)                 # Total points possible for assignment
     
@@ -47,8 +47,8 @@ class GradeHistory(HistoricalBaseModel):
     submission_status = Column(String(50), nullable=True)          # 'submitted', 'missing', 'late', etc.
     
     # Change detection
-    previous_score = Column(Integer, nullable=True)                # Previous score for change detection
-    score_change = Column(Integer, nullable=True)                  # Change since last sync (positive/negative)
+    previous_score = Column(Float, nullable=True)                  # Previous score for change detection
+    score_change = Column(Float, nullable=True)                    # Change since last sync (positive/negative)
     
     def __repr__(self):
         """String representation showing student, assignment, and grade info."""
@@ -65,7 +65,7 @@ class GradeHistory(HistoricalBaseModel):
             previous_grade_record: Previous GradeHistory record for comparison
             
         Returns:
-            int: Score change (positive for improvement, negative for decline)
+            float: Score change (positive for improvement, negative for decline)
         """
         if not previous_grade_record or not previous_grade_record.current_score:
             return None
@@ -155,7 +155,7 @@ class AssignmentScore(HistoricalBaseModel):
     # Score details
     score = Column(Float, nullable=True)                            # Points earned on assignment  
     points_possible = Column(Float, nullable=True)                  # Total points possible
-    percentage = Column(Integer, nullable=True)                     # Score as percentage (0-100)
+    percentage = Column(Float, nullable=True)                       # Score as percentage (0-100)
     
     # Assignment submission details
     submitted_at = Column(DateTime, nullable=True)                  # When assignment was submitted
@@ -183,7 +183,7 @@ class AssignmentScore(HistoricalBaseModel):
         """Calculate percentage score if not already stored."""
         if self.score is None or self.points_possible is None or self.points_possible == 0:
             return None
-        return round((self.score / self.points_possible) * 100)
+        return round((self.score / self.points_possible) * 100, 2)
     
     def is_late_submission(self):
         """Check if assignment was submitted after due date."""

@@ -42,6 +42,9 @@ class CanvasCourse(CanvasEntityModel):
     course_code = Column(String(100), nullable=True)  # from CanvasCourseStaging.course_code
     calendar_ics = Column(Text, nullable=True)         # from CanvasCourseStaging.calendar.ics
     
+    # Canvas timestamps
+    created_at = Column(DateTime, nullable=True)       # from CanvasCourseStaging.created_at
+    
     # Course statistics (from CourseSummary - calculated during sync)
     total_students = Column(Float, nullable=True)        # from CourseSummary.students_count
     total_modules = Column(Float, nullable=True)         # from CourseSummary.modules_count
@@ -90,8 +93,8 @@ class CanvasStudent(CanvasEntityModel):
     email = Column(String(255), nullable=True)        # Not directly in Canvas data, but common
     
     # Current grade information (from CanvasStudentStaging)
-    current_score = Column(Integer, nullable=False, default=0)  # from CanvasStudentStaging.current_score (percentage)
-    final_score = Column(Integer, nullable=False, default=0)    # from CanvasStudentStaging.final_score (percentage)
+    current_score = Column(Float, nullable=False, default=0.0)  # from CanvasStudentStaging.current_score (percentage)
+    final_score = Column(Float, nullable=False, default=0.0)    # from CanvasStudentStaging.final_score (percentage)
     
     # Activity tracking (from CanvasStudentStaging)
     enrollment_date = Column(DateTime, nullable=True)    # from CanvasStudentStaging.created_at

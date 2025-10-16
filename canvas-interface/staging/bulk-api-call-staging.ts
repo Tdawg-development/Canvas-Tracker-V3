@@ -203,11 +203,11 @@ export class CanvasBulkApiDataManager {
         name: courseStaging.name,
         course_code: courseStaging.course_code,
         workflow_state: 'available', // From the staging filter
-        start_at: '',
-        end_at: '',
+        start_at: courseStaging.start_at || '',
+        end_at: courseStaging.end_at || '',
         calendar: { ics: courseStaging.calendar?.ics || '' },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        created_at: courseStaging.created_at || new Date().toISOString(),
+        updated_at: courseStaging.updated_at || new Date().toISOString()
       }));
       
       this.addAllCoursesList(courseRecords, metadata);
