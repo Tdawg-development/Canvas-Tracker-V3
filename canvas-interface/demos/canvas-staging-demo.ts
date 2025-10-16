@@ -3,6 +3,11 @@
  * 
  * Interactive demo that lets users input a course ID and see the complete
  * Canvas staging data structure built and displayed.
+ * 
+ * Recent Updates:
+ * - ✅ Email collection via dual Canvas API calls
+ * - ✅ Timestamp preservation from Canvas API
+ * - ✅ Enhanced sortable name handling
  */
 
 import * as readline from 'readline';

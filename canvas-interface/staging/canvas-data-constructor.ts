@@ -163,19 +163,57 @@ export class CanvasDataConstructor {
       
       // Get detailed enrollment data with conditional includes
       const gateway = (this.canvasCalls as any).gateway; // Access gateway through CanvasCalls
-      const response = await gateway.getClient().requestWithFullResponse(
+      
+      // Use the working approach: make separate calls to ensure email is captured
+      console.log(`   🔧 Making primary enrollments call for grades and basic info...`);
+      const primaryResponse = await gateway.getClient().requestWithFullResponse(
         `courses/${courseId}/enrollments`,
         {
           params: {
             type: ['StudentEnrollment'],
             state: ['active'],
-            include: includeParams,
+            include: ['user', 'grades'],
             per_page: 100
           }
         }
       );
       
-      const enrollmentData = (response.data as any[]) || [];
+      // Make a second call specifically for email addresses (this approach worked in debug)
+      console.log(`   📧 Making targeted call for email addresses...`);
+      const emailResponse = await gateway.getClient().requestWithFullResponse(
+        `courses/${courseId}/enrollments`,
+        {
+          params: {
+            type: ['StudentEnrollment'],
+            state: ['active'],
+            include: ['user', 'email'],
+            per_page: 100
+          }
+        }
+      );
+      
+      const primaryData = (primaryResponse.data as any[]) || [];
+      const emailData = (emailResponse.data as any[]) || [];
+      
+      // Create lookup map for email data by user_id
+      const emailMap = new Map<number, string>();
+      emailData.forEach(enrollment => {
+        if (enrollment.user?.email) {
+          emailMap.set(enrollment.user_id, enrollment.user.email);
+        }
+      });
+      
+      // Merge primary data with email information while preserving all user fields
+      const enrollmentData = primaryData.map(enrollment => {
+        const userEmail = emailMap.get(enrollment.user_id);
+        if (userEmail && enrollment.user) {
+          // Preserve all existing user fields including sortable_name, then add email
+          enrollment.user.email = userEmail;
+        }
+        return enrollment;
+      });
+      
+      console.log(`   📧 Email addresses captured for ${emailMap.size}/${enrollmentData.length} students`);
       
       // Filter to only students that CanvasCalls identified as active
       const validEnrollments = enrollmentData.filter(enrollment => 
@@ -197,8 +235,8 @@ export class CanvasDataConstructor {
           enrollment_state: mappedStudent.enrollment_state
         };
         
-        // Include optional fields based on configuration
-        if (this.config.studentFields.basicInfo && mappedStudent.user) {
+        // Always include user object to preserve essential data like sortable_name and email
+        if (mappedStudent.user) {
           filtered.user = mappedStudent.user;
         }
         
@@ -211,9 +249,11 @@ export class CanvasDataConstructor {
           if (mappedStudent.last_attended_at) filtered.last_attended_at = mappedStudent.last_attended_at;
         }
         
+        // Always preserve essential timestamp data regardless of configuration
+        if (mappedStudent.created_at) filtered.created_at = mappedStudent.created_at;
+        if (mappedStudent.updated_at) filtered.updated_at = mappedStudent.updated_at;
+        
         if (this.config.studentFields.enrollmentDetails) {
-          if (mappedStudent.created_at) filtered.created_at = mappedStudent.created_at;
-          if (mappedStudent.updated_at) filtered.updated_at = mappedStudent.updated_at;
           if (mappedStudent.course_section_id) filtered.course_section_id = mappedStudent.course_section_id;
           if (mappedStudent.limit_privileges_to_course_section !== undefined) {
             filtered.limit_privileges_to_course_section = mappedStudent.limit_privileges_to_course_section;
@@ -280,9 +320,9 @@ export class CanvasDataConstructor {
         assignmentDataMap[assignment.id] = assignment;
       });
       
-      // Also get the full assignment data with more details if needed
+      // Always get the full assignment data to preserve timestamps
       let fullAssignmentData: any[] = [];
-      if (this.config.processing.enhanceWithTimestamps || this.config.assignmentFields.timestamps) {
+      if (this.config.assignments) {
         console.log(`   🔄 Fetching detailed assignment data with timestamps...`);
         const gateway = (this.canvasCalls as any).gateway;
         const assignmentsResponse = await gateway.getClient().requestWithFullResponse(
@@ -351,10 +391,16 @@ export class CanvasDataConstructor {
                 item.name = assignmentData.name;
               }
               
+              // Always preserve timestamps when available, regardless of configuration
+              if (assignmentData.created_at) item.created_at = assignmentData.created_at;
+              if (assignmentData.updated_at) item.updated_at = assignmentData.updated_at;
+              if (assignmentData.workflow_state) item.workflow_state = assignmentData.workflow_state;
+              
               if (this.config.assignmentFields.timestamps) {
-                item.created_at = assignmentData.created_at;
-                item.updated_at = assignmentData.updated_at;
-                item.workflow_state = assignmentData.workflow_state;
+                // Additional timestamp fields if specifically requested
+                if (assignmentData.due_at) item.due_at = assignmentData.due_at;
+                if (assignmentData.lock_at) item.lock_at = assignmentData.lock_at;
+                if (assignmentData.unlock_at) item.unlock_at = assignmentData.unlock_at;
               }
               
               if (this.config.assignmentFields.submissions) {

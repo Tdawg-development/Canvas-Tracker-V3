@@ -206,8 +206,8 @@ export class CanvasBulkApiDataManager {
         start_at: courseStaging.start_at || '',
         end_at: courseStaging.end_at || '',
         calendar: { ics: courseStaging.calendar?.ics || '' },
-        created_at: courseStaging.created_at || new Date().toISOString(),
-        updated_at: courseStaging.updated_at || new Date().toISOString()
+        created_at: courseStaging.created_at || null, // Preserve Canvas timestamp, null if missing
+        updated_at: courseStaging.updated_at || null  // Preserve Canvas timestamp, null if missing
       }));
       
       this.addAllCoursesList(courseRecords, metadata);

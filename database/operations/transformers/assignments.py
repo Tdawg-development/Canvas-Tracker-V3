@@ -58,10 +58,10 @@ class AssignmentTransformer(EntityTransformer):
             assignment_type = entity_data.get('assignment_type') or entity_data.get('type', 'Assignment')
             normalized_type = self._normalize_assignment_type(assignment_type)
             
-            # Parse timestamps
+            # Parse timestamps - preserve original Canvas values, no fallbacks to current time
             current_time = datetime.now(timezone.utc)
-            created_at = self._parse_canvas_datetime(entity_data.get('created_at')) or current_time
-            updated_at = self._parse_canvas_datetime(entity_data.get('updated_at')) or created_at
+            created_at = self._parse_canvas_datetime(entity_data.get('created_at'))
+            updated_at = self._parse_canvas_datetime(entity_data.get('updated_at'))
             
             # Create transformed assignment
             transformed_assignment = {

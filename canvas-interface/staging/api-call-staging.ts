@@ -279,15 +279,16 @@ export class CanvasCourseApiDataSet {
     return this.enrollments.data.map(enrollment => ({
       student_id: enrollment.user_id,
       user_id: enrollment.user_id,
+      course_id: enrollment.course_id || this.courseId, // Add course_id for bulk import context
       name: enrollment.user.name,
       login_id: enrollment.user.login_id,
-      email: enrollment.user.email || '',
+      email: enrollment.user.email || enrollment.email || '', // Check both locations for email
       current_score: enrollment.grades?.current_score || 0,
       final_score: enrollment.grades?.final_score || 0,
       enrollment_date: enrollment.created_at,
       last_activity: enrollment.last_activity_at,
       created_at: enrollment.created_at,
-      updated_at: new Date().toISOString(),
+      updated_at: enrollment.updated_at, // Preserve original Canvas timestamp
       last_synced: new Date().toISOString()
     }));
   }
@@ -352,8 +353,8 @@ export class CanvasCourseApiDataSet {
                   published: item.published,
                   url: item.url,
                   module_position: item.position,
-                  created_at: new Date().toISOString(), // Fallback
-                  updated_at: new Date().toISOString(),
+                  created_at: item.created_at || null, // Preserve Canvas timestamp, null if missing
+                  updated_at: item.updated_at || null, // Preserve Canvas timestamp, null if missing
                   last_synced: new Date().toISOString()
                 });
               }
@@ -380,7 +381,7 @@ export class CanvasCourseApiDataSet {
       enrollment_date: enrollment.created_at,
       enrollment_status: enrollment.enrollment_state,
       created_at: enrollment.created_at,
-      updated_at: new Date().toISOString(),
+      updated_at: enrollment.updated_at, // Preserve original Canvas timestamp
       last_synced: new Date().toISOString()
     }));
   }

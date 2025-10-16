@@ -62,6 +62,7 @@ class StudentTransformer(EntityTransformer):
             'enrollment_date', 
             'created_at',
             'updated_at',
+            'course_id',  # Course context for bulk imports
             'course_section_id',
             'type',
             'role',
@@ -113,6 +114,12 @@ class StudentTransformer(EntityTransformer):
                 'last_synced': datetime.now(timezone.utc)
             }
             
+            # Add course_id if available (important for bulk imports)
+            if entity_data.get('course_id'):
+                transformed_student['course_id'] = int(entity_data['course_id'])
+            elif context.course_id:
+                transformed_student['course_id'] = int(context.course_id)
+            
             # Apply configuration-based field inclusion
             config = context.configuration or {}
             student_fields = config.get('fields', {}).get('students', {})
@@ -134,7 +141,7 @@ class StudentTransformer(EntityTransformer):
                     'name': 'Unknown',
                     'login_id': 'unknown', 
                     'email': '',
-                    'sortable_name': 'Unknown'
+                    'sortable_name': user_info.get('sortable_name', '')
                 })
             
             # Score fields (controlled by configuration)  
@@ -189,7 +196,7 @@ class StudentTransformer(EntityTransformer):
                     'enrollment_date': self._parse_canvas_datetime(entity_data.get('created_at')),
                     'enrollment_status': entity_data.get('enrollment_state', 'active'),
                     'created_at': self._parse_canvas_datetime(entity_data.get('created_at')),
-                    'updated_at': datetime.now(timezone.utc)
+                    'updated_at': self._parse_canvas_datetime(entity_data.get('updated_at'))
                 })
                 
                 # Additional enrollment fields
@@ -202,7 +209,7 @@ class StudentTransformer(EntityTransformer):
                 # Always include minimal enrollment info
                 transformed_student['enrollment_date'] = self._parse_canvas_datetime(entity_data.get('created_at'))
                 transformed_student['created_at'] = self._parse_canvas_datetime(entity_data.get('created_at'))
-                transformed_student['updated_at'] = datetime.now(timezone.utc)
+                transformed_student['updated_at'] = self._parse_canvas_datetime(entity_data.get('updated_at'))
             
             return transformed_student
             

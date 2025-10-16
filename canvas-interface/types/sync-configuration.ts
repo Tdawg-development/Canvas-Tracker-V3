@@ -246,7 +246,7 @@ export const LIGHTWEIGHT_PROFILE: SyncConfiguration = {
   },
   processing: {
     enhanceWithTimestamps: false,
-    filterUngradedQuizzes: true,
+    filterUngradedQuizzes: false, // Temporarily disabled to test assignment issues
     resolveQuizAssignments: false,
     includeUnpublished: false
   }

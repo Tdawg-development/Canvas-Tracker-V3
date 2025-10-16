@@ -54,17 +54,14 @@ class EnrollmentTransformer(EntityTransformer):
                 'active'
             )
             
-            # Parse timestamps
+            # Parse timestamps - preserve original Canvas values
             current_time = datetime.now(timezone.utc)
             created_at = self._parse_canvas_datetime(entity_data.get('created_at'))
             updated_at = self._parse_canvas_datetime(entity_data.get('updated_at'))
             
-            # Use created_at as enrollment_date, or current time as fallback
+            # Use created_at as enrollment_date, fallback to current time only for enrollment_date
             enrollment_date = created_at or current_time
-            if not created_at:
-                created_at = current_time
-            if not updated_at:
-                updated_at = current_time
+            # DO NOT modify created_at/updated_at - preserve original Canvas timestamps
             
             # Extract optional enrollment details
             course_section_id = entity_data.get('course_section_id')

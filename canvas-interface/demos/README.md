@@ -29,6 +29,19 @@ npm run demo test-canvas-api
 
 ## Current Active Demos
 
+### 🏗️ **`orchestrator-demo.ts`** ⭐ **PRIMARY DEMO**
+**Purpose**: Complete end-to-end pipeline demonstration with all recent fixes  
+**Usage**: `npm run demo orchestrator-demo`  
+**Features**:
+- ✅ **Full Pipeline Testing** - Complete orchestrator workflow
+- ✅ **Email Collection Fix** - Dual Canvas API calls for student emails
+- ✅ **Timestamp Preservation** - Maintains original Canvas timestamps
+- ✅ **Bulk Processing** - Multi-course batch processing
+- ✅ **Database-Ready Output** - JSON files ready for database insertion
+- ✅ **Performance Metrics** - Comprehensive timing and statistics
+- ✅ **Error Handling** - Robust error recovery and reporting
+- ✅ **Rate Limiting** - Canvas API rate limit compliance
+
 ### 🎯 **`test-get-curriculum-data.ts`**
 **Purpose**: Unit test for the core `getCurriculumData()` function  
 **Usage**: `npm run demo test-get-curriculum-data`  
@@ -44,6 +57,7 @@ npm run demo test-canvas-api
 **Usage**: `npm run demo test-canvas-api`  
 **Features**:
 - Tests all major Canvas endpoints
+- **NEW**: Dual API call approach for email collection
 - API discovery and exploration
 - Rate limit monitoring
 - Performance benchmarking
@@ -56,7 +70,8 @@ npm run demo test-canvas-api
 **Usage**: `npm run demo canvas-staging-demo`  
 **Features**:
 - Interactive course ID input
-- Complete staging data display
+- Complete staging data display with recent fixes
+- **NEW**: Email collection and timestamp preservation
 - Large dataset warnings
 - Summary statistics
 - Course validation
@@ -106,10 +121,15 @@ Features tested:
 - ✅ Multi-course data retrieval
 - ✅ Performance metrics and monitoring
 - ✅ Real API response analysis
+- ✅ **NEW**: Email collection via dual API calls
+- ✅ **NEW**: Timestamp preservation from Canvas API
+- ✅ **NEW**: End-to-end pipeline orchestration
 
 ## Archived Demos
 
-Obsolete and legacy demos have been moved to `./archive/` directory. See `./archive/README.md` for details.
+**CLEANUP COMPLETED**: Legacy demo scripts have been removed from `./archive/` directory to eliminate confusion and reduce maintenance overhead. The current active demos provide complete functionality replacement with improved error handling, email collection fixes, and timestamp preservation.
+
+Historical context is preserved in `./archive/README.md` for reference.
 
 ## Contributing
 
