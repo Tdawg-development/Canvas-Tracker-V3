@@ -576,7 +576,6 @@ interface DatabaseEnrollmentRecord {
 }
 
 export {
-  CanvasCourseApiDataSet,
   CourseInfoCall,
   EnrollmentsCall,
   AssignmentsCall,

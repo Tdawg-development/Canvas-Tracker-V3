@@ -21,15 +21,18 @@ Key Characteristics:
 from sqlalchemy import Column, Integer, String, Boolean, Float, DateTime, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
 
-from ..base import CanvasEntityModel, CanvasRelationshipModel, CommonColumns
+from ..base import CanvasEntityModel, CanvasRelationshipModel, CanvasCourseModel
 
 
-class CanvasCourse(CanvasEntityModel):
+class CanvasCourse(CanvasCourseModel):
     """
     Canvas course data model.
     
     Maps from CanvasCourseStaging object to database table.
-    Contains core course information and calculated statistics.
+    Contains core course information from Canvas API.
+    
+    Note: Statistical data (student counts, assignment counts, etc.) are 
+    calculated dynamically from relationships rather than stored.
     """
     
     __tablename__ = 'canvas_courses'
@@ -42,15 +45,8 @@ class CanvasCourse(CanvasEntityModel):
     course_code = Column(String(100), nullable=True)  # from CanvasCourseStaging.course_code
     calendar_ics = Column(Text, nullable=True)         # from CanvasCourseStaging.calendar.ics
     
-    # Canvas timestamps
-    created_at = Column(DateTime, nullable=True)       # from CanvasCourseStaging.created_at
-    
-    # Course statistics (from CourseSummary - calculated during sync)
-    total_students = Column(Float, nullable=True)        # from CourseSummary.students_count
-    total_modules = Column(Float, nullable=True)         # from CourseSummary.modules_count
-    total_assignments = Column(Float, nullable=True)     # from CourseSummary.total_assignments
-    published_assignments = Column(Float, nullable=True) # from CourseSummary.published_assignments
-    total_points = Column(Integer, nullable=False, default=0)  # from CourseSummary.total_possible_points
+    # Canvas timestamps (created_at provided by CanvasCourseModel)
+    # Note: Canvas courses API doesn't provide updated_at field
     
     # Relationships to other Canvas models
     assignments = relationship("CanvasAssignment", back_populates="course")

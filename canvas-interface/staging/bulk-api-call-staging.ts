@@ -436,7 +436,6 @@ interface CourseListRecord {
 }
 
 export {
-  CanvasBulkApiDataManager,
   BulkWorkflowResult,
   CourseListRecord
 };

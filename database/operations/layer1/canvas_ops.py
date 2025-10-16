@@ -96,7 +96,7 @@ class CanvasDataManager(BaseOperation):
                 # Check if update is needed (change detection)
                 if self._course_needs_update(existing, canvas_data):
                     self._update_course_fields(existing, canvas_data)
-                    existing.updated_at = datetime.now(timezone.utc)
+                    # Note: courses don't have updated_at from Canvas API
                 
                 self.session.flush()
                 return existing
@@ -158,7 +158,7 @@ class CanvasDataManager(BaseOperation):
                         
                         if self._course_needs_update(existing, course_data):
                             self._update_course_fields(existing, course_data)
-                            existing.updated_at = datetime.now(timezone.utc)
+                            # Note: courses don't have updated_at from Canvas API
                         
                         result['updated'].append(existing)
                     else:
@@ -493,8 +493,11 @@ class CanvasDataManager(BaseOperation):
     def _course_needs_update(self, existing: CanvasCourse, canvas_data: Dict[str, Any]) -> bool:
         """Check if course data has changed and needs update."""
         # Compare key fields that might change
+        # Handle both direct calendar_ics field and nested calendar.ics structure
         calendar_ics = ''
-        if canvas_data.get('calendar') and canvas_data['calendar'].get('ics'):
+        if 'calendar_ics' in canvas_data:
+            calendar_ics = canvas_data['calendar_ics'] or ''
+        elif canvas_data.get('calendar') and canvas_data['calendar'].get('ics'):
             calendar_ics = canvas_data['calendar']['ics']
             
         return (
@@ -563,9 +566,8 @@ class CanvasDataManager(BaseOperation):
     
     def _create_course_from_data(self, canvas_data: Dict[str, Any]) -> CanvasCourse:
         """Create new CanvasCourse from Canvas API data."""
-        # Parse Canvas timestamps
+        # Parse Canvas created_at timestamp
         created_at = datetime.now(timezone.utc)
-        updated_at = datetime.now(timezone.utc)
         
         if canvas_data.get('created_at'):
             try:
@@ -576,26 +578,20 @@ class CanvasDataManager(BaseOperation):
                     created_at = datetime.fromisoformat(created_at_value.replace('Z', '+00:00'))
             except (ValueError, AttributeError):
                 pass  # Use default
-                
-        if canvas_data.get('updated_at'):
-            try:
-                updated_at_value = canvas_data['updated_at']
-                if isinstance(updated_at_value, datetime):
-                    updated_at = updated_at_value
-                else:
-                    updated_at = datetime.fromisoformat(updated_at_value.replace('Z', '+00:00'))
-            except (ValueError, AttributeError):
-                updated_at = created_at  # Fallback to created_at
-        else:
-            updated_at = created_at
+        
+        # Handle both direct calendar_ics field and nested calendar.ics structure
+        calendar_ics = ''
+        if 'calendar_ics' in canvas_data:
+            calendar_ics = canvas_data['calendar_ics'] or ''
+        elif canvas_data.get('calendar') and isinstance(canvas_data['calendar'], dict):
+            calendar_ics = canvas_data['calendar'].get('ics', '')
         
         return CanvasCourse(
             id=canvas_data['id'],
             name=canvas_data.get('name', ''),
             course_code=canvas_data.get('course_code', ''),
-            calendar_ics=canvas_data.get('calendar', {}).get('ics', '') if canvas_data.get('calendar') else '',
+            calendar_ics=calendar_ics,
             created_at=created_at,
-            updated_at=updated_at,
             last_synced=canvas_data.get('last_synced') or datetime.now(timezone.utc)
         )
     
@@ -787,19 +783,17 @@ class CanvasDataManager(BaseOperation):
             course.name = canvas_data['name']
         if 'course_code' in canvas_data:
             course.course_code = canvas_data['course_code']
-        if 'calendar' in canvas_data and canvas_data['calendar']:
+            
+        # Handle both direct calendar_ics field and nested calendar.ics structure
+        if 'calendar_ics' in canvas_data:
+            course.calendar_ics = canvas_data['calendar_ics'] or ''
+        elif 'calendar' in canvas_data and canvas_data['calendar'] and isinstance(canvas_data['calendar'], dict):
             course.calendar_ics = canvas_data['calendar'].get('ics', '')
         
-        # Update timestamp from Canvas data
-        if 'updated_at' in canvas_data:
-            try:
-                updated_at_value = canvas_data['updated_at']
-                if isinstance(updated_at_value, datetime):
-                    course.updated_at = updated_at_value
-                else:
-                    course.updated_at = datetime.fromisoformat(updated_at_value.replace('Z', '+00:00'))
-            except (ValueError, AttributeError):
-                course.updated_at = datetime.now(timezone.utc)
+        # Update created_at from Canvas data (already parsed by transformer)
+        if 'created_at' in canvas_data and isinstance(canvas_data['created_at'], datetime):
+            course.created_at = canvas_data['created_at']
+        # Note: Canvas courses API doesn't provide updated_at field
         
         # Always update last_synced on sync
         course.last_synced = datetime.now(timezone.utc)
@@ -879,16 +873,11 @@ class CanvasDataManager(BaseOperation):
         if 'position' in canvas_data:
             assignment.module_position = canvas_data['position']
         
-        # Update timestamp from Canvas data
-        if 'updated_at' in canvas_data:
-            try:
-                updated_at_value = canvas_data['updated_at']
-                if isinstance(updated_at_value, datetime):
-                    assignment.updated_at = updated_at_value
-                else:
-                    assignment.updated_at = datetime.fromisoformat(updated_at_value.replace('Z', '+00:00'))
-            except (ValueError, AttributeError):
-                assignment.updated_at = datetime.now(timezone.utc)
+        # Update timestamps from Canvas data (already parsed by transformer)
+        if 'created_at' in canvas_data and isinstance(canvas_data['created_at'], datetime):
+            assignment.created_at = canvas_data['created_at']
+        if 'updated_at' in canvas_data and isinstance(canvas_data['updated_at'], datetime):
+            assignment.updated_at = canvas_data['updated_at']
     
     def _update_enrollment_fields(self, enrollment: CanvasEnrollment, canvas_data: Dict[str, Any]) -> None:
         """Update existing enrollment with new data."""

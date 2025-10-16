@@ -203,12 +203,13 @@ class TypeScriptExecutor:
         
         return validation_result
 
-    async def execute_course_data_constructor(self, course_id: int) -> Dict[str, Any]:
+    async def execute_course_data_constructor(self, course_id: int, sync_configuration: Dict[str, Any] = None) -> Dict[str, Any]:
         """
         Execute TypeScript CanvasDataConstructor and return JSON results.
         
         Args:
             course_id: Canvas course ID to process
+            sync_configuration: Optional sync configuration to pass to constructor
             
         Returns:
             Dictionary with Canvas course data from TypeScript execution
@@ -219,7 +220,7 @@ class TypeScriptExecutor:
         self.logger.info(f"Executing TypeScript CanvasDataConstructor for course {course_id}")
         
         # Create temporary execution script
-        temp_script = self._create_course_execution_script(course_id)
+        temp_script = self._create_course_execution_script(course_id, sync_configuration)
         
         try:
             # Execute TypeScript via subprocess
@@ -241,25 +242,130 @@ class TypeScriptExecutor:
             # Always cleanup temporary files
             self._cleanup_temp_files()
 
-    def execute_data_constructor_sync(self, course_id: int) -> Dict[str, Any]:
+    def execute_data_constructor_sync(self, course_id: int, sync_configuration: Dict[str, Any] = None) -> Dict[str, Any]:
         """
         Synchronous version of execute_course_data_constructor.
         
         Args:
             course_id: Canvas course ID to process
+            sync_configuration: Optional sync configuration to pass to constructor
             
         Returns:
             Dictionary with Canvas course data from TypeScript execution
         """
         import asyncio
-        return asyncio.run(self.execute_course_data_constructor(course_id))
+        return asyncio.run(self.execute_course_data_constructor(course_id, sync_configuration))
 
-    def _create_course_execution_script(self, course_id: int) -> Path:
+    async def execute_bulk_course_sync(self, sync_configuration: Dict[str, Any] = None) -> Dict[str, Any]:
+        """
+        Execute bulk synchronization of all available courses.
+        
+        Args:
+            sync_configuration: Optional sync configuration to pass to constructor
+            
+        Returns:
+            Dictionary with all courses data from TypeScript execution
+            
+        Raises:
+            TypeScriptExecutionError: If execution fails
+        """
+        self.logger.info("Executing TypeScript bulk course synchronization")
+        
+        # Create temporary execution script for bulk sync
+        temp_script = self._create_bulk_sync_execution_script(sync_configuration)
+        
+        try:
+            # Execute TypeScript via subprocess with longer timeout for bulk operations
+            result = await self._execute_typescript_script(temp_script, timeout=600)  # 10-minute timeout
+            
+            if not result.success:
+                raise TypeScriptExecutionError(
+                    "TypeScript bulk sync execution failed",
+                    command=result.command,
+                    exit_code=result.exit_code,
+                    stdout=result.stdout,
+                    stderr=result.stderr
+                )
+            
+            self.logger.info(f"TypeScript bulk sync execution completed in {result.execution_time:.2f}s")
+            return result.data
+            
+        finally:
+            # Always cleanup temporary files
+            self._cleanup_temp_files()
+
+    def execute_bulk_course_sync_sync(self, sync_configuration: Dict[str, Any] = None) -> Dict[str, Any]:
+        """
+        Synchronous version of execute_bulk_course_sync.
+        
+        Args:
+            sync_configuration: Optional sync configuration to pass to constructor
+            
+        Returns:
+            Dictionary with all courses data from TypeScript execution
+        """
+        import asyncio
+        return asyncio.run(self.execute_bulk_course_sync(sync_configuration))
+    
+    async def execute_get_available_courses(self, sync_configuration: Dict[str, Any] = None) -> List[Dict[str, Any]]:
+        """
+        Get list of all available Canvas courses.
+        
+        Args:
+            sync_configuration: Optional sync configuration to pass to constructor
+            
+        Returns:
+            List of dictionaries with basic course information (id, name, course_code)
+            
+        Raises:
+            TypeScriptExecutionError: If execution fails
+        """
+        self.logger.info("Getting list of available Canvas courses")
+        
+        # Create temporary execution script for course list
+        temp_script = self._create_course_list_execution_script(sync_configuration)
+        
+        try:
+            # Execute TypeScript via subprocess
+            result = await self._execute_typescript_script(temp_script, timeout=60)  # 1-minute timeout
+            
+            if not result.success:
+                raise TypeScriptExecutionError(
+                    "TypeScript course list execution failed",
+                    command=result.command,
+                    exit_code=result.exit_code,
+                    stdout=result.stdout,
+                    stderr=result.stderr
+                )
+            
+            courses = result.data.get('courses', [])
+            self.logger.info(f"Found {len(courses)} available courses")
+            return courses
+            
+        finally:
+            # Always cleanup temporary files
+            self._cleanup_temp_files()
+    
+    def execute_get_available_courses_sync(self, sync_configuration: Dict[str, Any] = None) -> List[Dict[str, Any]]:
+        """
+        Synchronous version of execute_get_available_courses.
+        
+        Args:
+            sync_configuration: Optional sync configuration to pass to constructor
+            
+        Returns:
+            List of dictionaries with basic course information
+        """
+        import asyncio
+        return asyncio.run(self.execute_get_available_courses(sync_configuration))
+
+    def _create_course_execution_script(self, course_id: int, sync_configuration: Dict[str, Any] = None) -> Path:
         """
         Create temporary TypeScript execution script for course data constructor.
         
         Args:
             course_id: Canvas course ID to process
+            sync_configuration: Optional sync configuration to pass to constructor
             
         Returns:
             Path to temporary script file
@@ -267,6 +373,13 @@ class TypeScriptExecutor:
         # Create temporary file with .ts extension inside canvas-interface directory
         # This ensures relative imports work correctly
         temp_script = self.canvas_path / f"temp_execute_course_{course_id}.ts"
+        
+        # Prepare sync configuration for TypeScript
+        config_js = "undefined"
+        if sync_configuration:
+            import json
+            # Convert Python dict to JavaScript object
+            config_js = json.dumps(sync_configuration)
         
         # Generate execution script content
         script_content = f'''
@@ -281,7 +394,9 @@ async function executeCanvasDataConstructor() {{
     try {{
         console.log('🚀 Starting Canvas Data Constructor execution...');
         
-        const constructor = new CanvasDataConstructor();
+        // Create constructor with optional configuration
+        const config = {config_js};
+        const constructor = new CanvasDataConstructor(config ? {{ config }} : undefined);
         const courseData = await constructor.constructCourseData({course_id});
         
         // Convert to JSON-serializable format for Python consumption
@@ -382,6 +497,262 @@ executeCanvasDataConstructor();
         self.logger.debug(f"Created temporary execution script: {temp_script}")
         return temp_script
 
+    def _create_bulk_sync_execution_script(self, sync_configuration: Dict[str, Any] = None) -> Path:
+        """
+        Create temporary TypeScript execution script for bulk course synchronization.
+        
+        Args:
+            sync_configuration: Optional sync configuration to pass to constructor
+            
+        Returns:
+            Path to temporary script file
+        """
+        # Create temporary file with .ts extension inside canvas-interface directory
+        temp_script = self.canvas_path / f"temp_bulk_sync_{int(datetime.now().timestamp())}.ts"
+        
+        # Prepare sync configuration for TypeScript
+        config_js = "undefined"
+        if sync_configuration:
+            import json
+            # Convert Python dict to JavaScript object
+            config_js = json.dumps(sync_configuration)
+        
+        # Create script content using string concatenation to avoid f-string escaping issues
+        script_parts = [
+            "/**\n",
+            " * Temporary execution script for Bulk Canvas Course Synchronization\n",
+            " * Generated by TypeScript Executor for all available courses\n",
+            " */\n\n",
+            "import { CanvasDataConstructor } from './staging/canvas-data-constructor';\n\n",
+            "async function executeBulkCanvasCourseSync() {\n",
+            "    try {\n",
+            "        console.log('🚀 Starting Bulk Canvas Course Synchronization...');\n",
+            "        \n",
+            "        const config = " + str(config_js) + ";\n",
+            "        const constructor = new CanvasDataConstructor(config ? { config } : undefined);\n",
+            "        \n",
+            "        console.log('📋 Fetching all available courses...');\n",
+            "        const allCourses = await constructor.getAllActiveCoursesStaging();\n",
+            "        console.log('✅ Found ' + allCourses.length + ' available courses to sync');\n",
+            "        \n",
+            "        const coursesData = [];\n",
+            "        let successCount = 0;\n",
+            "        let errorCount = 0;\n",
+            "        const errors = [];\n",
+            "        \n",
+            "        // Process all available courses\n",
+            "        const coursesToProcess = allCourses.length;\n",
+            "        \n",
+            "        for (let i = 0; i < coursesToProcess; i++) {\n",
+            "            const courseStaging = allCourses[i];\n",
+            "            const courseId = courseStaging.id;\n",
+            "            \n",
+            "            try {\n",
+            "                console.log('🔄 Processing course ' + (i + 1) + '/' + coursesToProcess + ': ' + courseStaging.name + ' (ID: ' + courseId + ')');\n",
+            "                \n",
+            "                const fullCourseData = await constructor.constructCourseData(courseId);\n",
+            "                \n",
+            "                const courseResult = {\n",
+            "                    course_id: courseId,\n",
+            "                    course: {\n",
+            "                        id: fullCourseData.id,\n",
+            "                        name: fullCourseData.name,\n",
+            "                        course_code: fullCourseData.course_code,\n",
+            "                        workflow_state: fullCourseData.workflow_state,\n",
+            "                        start_at: fullCourseData.start_at,\n",
+            "                        end_at: fullCourseData.end_at,\n",
+            "                        created_at: fullCourseData.created_at,\n",
+            "                        updated_at: fullCourseData.updated_at,\n",
+            "                        calendar: fullCourseData.calendar\n",
+            "                    },\n",
+            "                    students: fullCourseData.students.map(student => ({\n",
+            "                        id: student.id,\n",
+            "                        user_id: student.user_id,\n",
+            "                        course_id: courseId,\n",
+            "                        created_at: student.created_at,\n",
+            "                        last_activity_at: student.last_activity_at,\n",
+            "                        current_score: student.current_score,\n",
+            "                        final_score: student.final_score,\n",
+            "                        enrollment_state: student.enrollment_state,\n",
+            "                        type: student.type,\n",
+            "                        grades: student.grades,\n",
+            "                        user: student.user\n",
+            "                    })),\n",
+            "                    modules: fullCourseData.modules.map(module => ({\n",
+            "                        id: module.id,\n",
+            "                        name: module.name,\n",
+            "                        position: module.position,\n",
+            "                        published: module.published,\n",
+            "                        course_id: courseId,\n",
+            "                        items: module.assignments.map(assignment => ({\n",
+            "                            id: assignment.id,\n",
+            "                            title: assignment.title,\n",
+            "                            type: assignment.type,\n",
+            "                            module_id: module.id,\n",
+            "                            course_id: courseId,\n",
+            "                            points_possible: assignment.points_possible\n",
+            "                        }))\n",
+            "                    }))\n",
+            "                };\n",
+            "                \n",
+            "                coursesData.push(courseResult);\n",
+            "                successCount++;\n",
+            "                console.log('✅ Course ' + courseStaging.name + ' synced successfully');\n",
+            "                \n",
+            "            } catch (courseError) {\n",
+            "                errorCount++;\n",
+            "                const errorMsg = 'Failed to sync course ' + courseStaging.name + ' (ID: ' + courseId + '): ' + courseError.message;\n",
+            "                errors.push(errorMsg);\n",
+            "                console.error('❌ ' + errorMsg);\n",
+            "                continue;\n",
+            "            }\n",
+            "        }\n",
+            "        \n",
+            "        const result = {\n",
+            "            success: true,\n",
+            "            bulk_sync: true,\n",
+            "            total_courses_found: allCourses.length,\n",
+            "            courses_synced: successCount,\n",
+            "            courses_failed: errorCount,\n",
+            "            courses_data: coursesData,\n",
+            "            errors: errors\n",
+            "        };\n",
+            "        \n",
+            "        console.log('🎉 BULK SYNCHRONIZATION COMPLETED!');\n",
+            "        console.log('Total courses found: ' + allCourses.length);\n",
+            "        console.log('Successfully synced: ' + successCount);\n",
+            "        console.log('Failed: ' + errorCount);\n",
+            "        \n",
+            "        console.log('\\n===CANVAS_BRIDGE_RESULT_START===');\n",
+            "        console.log(JSON.stringify(result, null, 2));\n",
+            "        console.log('===CANVAS_BRIDGE_RESULT_END===');\n",
+            "        \n",
+            "    } catch (error) {\n",
+            "        console.error('💥 Bulk Canvas synchronization failed:', error);\n",
+            "        \n",
+            "        const errorResult = {\n",
+            "            success: false,\n",
+            "            bulk_sync: true,\n",
+            "            error: {\n",
+            "                message: error.message || 'Unknown error',\n",
+            "                name: error.name || 'Error'\n",
+            "            }\n",
+            "        };\n",
+            "        \n",
+            "        console.log('\\n===CANVAS_BRIDGE_RESULT_START===');\n",
+            "        console.log(JSON.stringify(errorResult, null, 2));\n",
+            "        console.log('===CANVAS_BRIDGE_RESULT_END===');\n",
+            "        process.exit(1);\n",
+            "    }\n",
+            "}\n\n",
+            "executeBulkCanvasCourseSync();\n"
+        ]
+        
+        script_content = ''.join(script_parts)
+        
+        # Write script to temporary file
+        with open(temp_script, 'w', encoding='utf-8') as f:
+            f.write(script_content)
+        
+        # Track temporary file for cleanup
+        self._temp_files.append(temp_script)
+        
+        self.logger.debug(f"Created temporary bulk sync execution script: {temp_script}")
+        return temp_script
+    
+    def _create_course_list_execution_script(self, sync_configuration: Dict[str, Any] = None) -> Path:
+        """
+        Create temporary TypeScript execution script to get available courses list.
+        
+        Args:
+            sync_configuration: Optional sync configuration to pass to constructor
+            
+        Returns:
+            Path to temporary script file
+        """
+        # Create temporary file with .ts extension inside canvas-interface directory
+        temp_script = self.canvas_path / f"temp_course_list_{int(datetime.now().timestamp())}.ts"
+        
+        # Prepare sync configuration for TypeScript
+        config_js = "undefined"
+        if sync_configuration:
+            import json
+            config_js = json.dumps(sync_configuration)
+        
+        # Create simple script to get course list
+        script_content = f'''
+/**
+ * Temporary execution script to get available Canvas courses
+ * Generated by TypeScript Executor
+ */
+
+import {{ CanvasDataConstructor }} from './staging/canvas-data-constructor';
+
+async function getAvailableCourses() {{
+    try {{
+        console.log('🔍 Getting available Canvas courses...');
+        
+        const config = {config_js};
+        const constructor = new CanvasDataConstructor(config ? {{ config }} : undefined);
+        
+        console.log('📋 Fetching all active courses...');
+        const allCourses = await constructor.getAllActiveCoursesStaging();
+        console.log('✅ Found ' + allCourses.length + ' available courses');
+        
+        // Extract basic course information
+        const coursesList = allCourses.map(course => ({{
+            id: course.id,
+            name: course.name,
+            course_code: course.course_code,
+            workflow_state: course.workflow_state
+        }}));
+        
+        const result = {{
+            success: true,
+            courses: coursesList,
+            total_count: coursesList.length,
+            execution_timestamp: new Date().toISOString()
+        }};
+        
+        console.log('\\n===CANVAS_BRIDGE_RESULT_START===');
+        console.log(JSON.stringify(result, null, 2));
+        console.log('===CANVAS_BRIDGE_RESULT_END===');
+        
+    }} catch (error) {{
+        console.error('💥 Failed to get available courses:', error);
+        
+        const errorResult = {{
+            success: false,
+            error: {{
+                message: error.message || 'Unknown error',
+                name: error.name || 'Error'
+            }},
+            courses: [],
+            execution_timestamp: new Date().toISOString()
+        }};
+        
+        console.log('\\n===CANVAS_BRIDGE_RESULT_START===');
+        console.log(JSON.stringify(errorResult, null, 2));
+        console.log('===CANVAS_BRIDGE_RESULT_END===');
+        
+        process.exit(1);
+    }}
+}}
+
+// Execute the function
+getAvailableCourses();
+'''        
+        
+        # Write script to temporary file
+        with open(temp_script, 'w', encoding='utf-8') as f:
+            f.write(script_content)
+        
+        # Track temporary file for cleanup
+        self._temp_files.append(temp_script)
+        
+        self.logger.debug(f"Created temporary course list execution script: {temp_script}")
+        return temp_script
+
     async def _execute_typescript_script(
         self, 
         script_path: Path, 
@@ -420,7 +791,17 @@ executeCanvasDataConstructor();
             # Parse result from stdout
             parsed_data = None
             if process.returncode == 0:
-                parsed_data = self._parse_canvas_result(process.stdout)
+                try:
+                    parsed_data = self._parse_canvas_result(process.stdout)
+                except Exception as parse_error:
+                    self.logger.error(f"Failed to parse TypeScript result: {parse_error}")
+                    self.logger.error(f"Raw stdout: {process.stdout[:2000]}...")
+                    raise
+            else:
+                # Log failed execution details
+                self.logger.error(f"TypeScript execution failed with exit code {process.returncode}")
+                self.logger.error(f"STDOUT: {process.stdout[:1000]}...")
+                self.logger.error(f"STDERR: {process.stderr[:1000]}...")
             
             return ExecutionResult(
                 success=process.returncode == 0,

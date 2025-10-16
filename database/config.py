@@ -84,12 +84,12 @@ class DatabaseConfig:
     
     def _get_test_config(self) -> Dict[str, Any]:
         """Test environment configuration - uses single test database."""
-        # Use single standardized test database name
-        test_db_path = 'canvas_tracker_test.db'
+        # Place test database in test-environment directory
+        test_env_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'test-environment')
+        test_db_path = os.path.join(test_env_dir, 'canvas_tracker_test.db')
         
-        # Ensure we use an absolute path
-        if not os.path.isabs(test_db_path):
-            test_db_path = os.path.abspath(test_db_path)
+        # Create test-environment directory if it doesn't exist
+        os.makedirs(test_env_dir, exist_ok=True)
         
         return {
             'database_url': f"sqlite:///{test_db_path}",

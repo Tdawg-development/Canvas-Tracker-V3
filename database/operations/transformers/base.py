@@ -180,10 +180,24 @@ class EntityTransformer(ABC):
             if field in entity_data:
                 filtered_data[field] = entity_data[field]
         
-        # Include optional fields based on configuration
-        for field, include in entity_config.items():
-            if include and field in entity_data:
-                filtered_data[field] = entity_data[field]
+        # Check if configuration has explicit field-level settings
+        has_explicit_field_config = any(
+            field_name in self.optional_fields or field_name in self.required_fields
+            for field_name in entity_config.keys()
+        )
+        
+        if has_explicit_field_config:
+            # Use explicit field configuration - only include fields that are explicitly enabled
+            for field, include in entity_config.items():
+                if include and field in entity_data:
+                    filtered_data[field] = entity_data[field]
+        else:
+            # No explicit field configuration found - this appears to be group-level config
+            # (like 'basicInfo': True, 'timestamps': True)
+            # In this case, be permissive and include all optional fields
+            for field in self.optional_fields:
+                if field in entity_data:
+                    filtered_data[field] = entity_data[field]
         
         return filtered_data
     

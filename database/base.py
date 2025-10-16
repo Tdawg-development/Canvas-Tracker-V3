@@ -50,6 +50,18 @@ class CanvasTimestampMixin:
         return Column(DateTime, nullable=False)
 
 
+class CourseTimestampMixin:
+    """
+    Mixin for Canvas course models that only have created_at timestamp.
+    
+    Canvas courses API doesn't provide updated_at field, only created_at.
+    """
+    
+    @declared_attr
+    def created_at(cls):
+        return Column(DateTime, nullable=False)
+
+
 class SyncTrackingMixin:
     """
     Mixin to track when Canvas data was last synchronized.
@@ -295,6 +307,94 @@ class CanvasEntityModel(Base, CanvasTimestampMixin, SyncTrackingMixin, CanvasObj
             
         Returns:
             CanvasEntityModel: New instance of the model
+        """
+        # Filter out keys that don't correspond to table columns
+        valid_keys = {column.name for column in cls.__table__.columns}
+        filtered_data = {k: v for k, v in data.items() if k in valid_keys}
+        return cls(**filtered_data)
+    
+    def mark_synced(self, sync_time=None):
+        """
+        Mark this object as synchronized.
+        
+        Args:
+            sync_time (datetime, optional): Sync timestamp. Defaults to now.
+        """
+        if sync_time is None:
+            sync_time = datetime.now(timezone.utc)
+        self.last_synced = sync_time
+    
+    def is_recently_synced(self, threshold_minutes=60):
+        """
+        Check if object was synced recently.
+        
+        Args:
+            threshold_minutes (int): Minutes threshold for "recent"
+            
+        Returns:
+            bool: True if synced within threshold, False otherwise
+        """
+        if not self.last_synced:
+            return False
+        
+        now = datetime.now(timezone.utc)
+        threshold = now.timestamp() - (threshold_minutes * 60)
+        return self.last_synced.timestamp() > threshold
+
+
+class CanvasCourseModel(Base, CourseTimestampMixin, SyncTrackingMixin, CanvasObjectMixin):
+    """
+    Base model for Canvas courses that only have created_at timestamp.
+    
+    Canvas courses API doesn't provide updated_at field, unlike other Canvas entities.
+    
+    Provides:
+    - Course timestamp tracking (created_at only)
+    - Sync tracking (last_synced)
+    - Canvas object patterns (name field)
+    - Utility methods for Canvas-specific operations
+    
+    Use this specifically for CanvasCourse model.
+    """
+    
+    __abstract__ = True
+    
+    def __repr__(self):
+        """String representation showing class, Canvas name, and sync status."""
+        sync_status = "synced" if self.last_synced else "never synced"
+        # Try to get the primary key value for display
+        pk_columns = [col for col in self.__table__.columns if col.primary_key]
+        if pk_columns:
+            pk_value = getattr(self, pk_columns[0].name, 'unknown')
+            return f"<{self.__class__.__name__}({pk_columns[0].name}={pk_value}, name='{self.name}', {sync_status})>"
+        return f"<{self.__class__.__name__}(name='{self.name}', {sync_status})>"
+    
+    def to_dict(self):
+        """
+        Convert model instance to dictionary.
+        
+        Returns:
+            dict: Dictionary representation of the model
+        """
+        result = {}
+        for column in self.__table__.columns:
+            value = getattr(self, column.name)
+            # Convert datetime objects to ISO strings for JSON serialization
+            if isinstance(value, datetime):
+                value = value.isoformat()
+            result[column.name] = value
+        return result
+    
+    @classmethod
+    def from_dict(cls, data):
+        """
+        Create model instance from dictionary.
+        
+        Args:
+            data (dict): Dictionary with model field values
+            
+        Returns:
+            CanvasCourseModel: New instance of the model
         """
         # Filter out keys that don't correspond to table columns
         valid_keys = {column.name for column in cls.__table__.columns}

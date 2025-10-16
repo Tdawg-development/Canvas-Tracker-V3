@@ -13,8 +13,12 @@ This directory contains all the files needed to manage and control the Canvas Tr
 ### Integration Testing  
 - **`test_canvas_integration.py`** - Full Canvas-to-Database integration test
   - Tests complete Canvas API → TypeScript → Python → Database pipeline
-  - Supports single course or multi-course sync testing
+  - Supports single course sync testing
   - Includes comprehensive error handling and reporting
+- **`test_bulk_canvas_integration.py`** - Bulk Canvas-to-Database integration test
+  - Tests complete Canvas API → TypeScript → Python → Database pipeline for ALL courses
+  - Syncs all available Canvas courses to database
+  - Includes performance metrics and detailed reporting
 
 ### Test Utilities
 - **`test_helpers.py`** - Shared utilities for test database operations
@@ -31,9 +35,14 @@ This directory contains all the files needed to manage and control the Canvas Tr
 python test-environment/setup_test_database.py --force
 ```
 
-### Run full integration test:
+### Run full integration test (single course):
 ```bash
 python test-environment/test_canvas_integration.py
+```
+
+### Run bulk integration test (all courses):
+```bash
+python test-environment/test_bulk_canvas_integration.py
 ```
 
 ### Initialize database schema only:

@@ -43,7 +43,7 @@ class CourseTransformer(EntityTransformer):
             'end_at', 
             'calendar',
             'created_at',
-            'updated_at',
+            # Note: Canvas courses API doesn't provide updated_at field
             'enrollment_term_id',
             'default_view',
             'is_public',
@@ -77,6 +77,11 @@ class CourseTransformer(EntityTransformer):
             Transformed course dict ready for database insertion
         """
         try:
+            # Debug: Log available fields in course entity_data
+            self.logger.info(f"Course {entity_data.get('id')}: Available fields: {list(entity_data.keys())}")
+            if 'created_at' in entity_data:
+                self.logger.info(f"Course {entity_data.get('id')}: created_at = '{entity_data['created_at']}'")
+            
             # Build base transformed course
             transformed_course = {
                 'id': int(entity_data['id']),
@@ -90,19 +95,19 @@ class CourseTransformer(EntityTransformer):
             self._add_optional_field(entity_data, transformed_course, 'start_at', self._parse_canvas_datetime)
             self._add_optional_field(entity_data, transformed_course, 'end_at', self._parse_canvas_datetime)
             self._add_optional_field(entity_data, transformed_course, 'created_at', self._parse_canvas_datetime)
-            self._add_optional_field(entity_data, transformed_course, 'updated_at', self._parse_canvas_datetime)
+            # Note: Canvas courses API doesn't provide updated_at field
             
             # Handle calendar ICS extraction
             calendar_ics = self._extract_calendar_ics(entity_data)
+            self.logger.debug(f"Course {entity_data.get('id')}: calendar_ics extracted = '{calendar_ics}'")
             if calendar_ics:
                 transformed_course['calendar_ics'] = calendar_ics
+                self.logger.info(f"Course {entity_data.get('id')}: Added calendar_ics field: {calendar_ics[:50]}...")
+            else:
+                self.logger.warning(f"Course {entity_data.get('id')}: No calendar_ics found in entity_data keys: {list(entity_data.keys())}")
             
-            # Add metadata if available
-            if 'metadata' in entity_data:
-                metadata = entity_data['metadata']
-                self._add_optional_field(metadata, transformed_course, 'total_students')
-                self._add_optional_field(metadata, transformed_course, 'total_modules') 
-                self._add_optional_field(metadata, transformed_course, 'total_assignments')
+            # Metadata fields are no longer stored in the course model
+            # Statistical data can be calculated dynamically from relationships
             
             # Add configuration-specific fields
             if context.configuration:
@@ -232,9 +237,19 @@ class CourseTransformer(EntityTransformer):
         Returns:
             Calendar ICS URL or empty string
         """
+        # Handle both potential structures:
+        # 1. Direct field: {"calendar_ics": "url"}
+        # 2. Nested field: {"calendar": {"ics": "url"}}
+        
+        # Check for direct calendar_ics field first
+        if 'calendar_ics' in course_data and course_data['calendar_ics']:
+            return course_data['calendar_ics']
+        
+        # Check for nested calendar.ics structure
         calendar = course_data.get('calendar')
         if isinstance(calendar, dict):
             return calendar.get('ics', '')
+            
         return ''
     
     def validate_configuration(self, field_config: Dict[str, bool]) -> List[ValidationIssue]:

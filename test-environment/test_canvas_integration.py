@@ -48,7 +48,7 @@ async def test_canvas_bridge_status():
     try:
         with get_test_session() as session:
             # Initialize Canvas bridge
-            canvas_interface_path = str(Path(__file__).parent / "canvas-interface")
+            canvas_interface_path = str(Path(__file__).parent.parent / "canvas-interface")
             bridge = CanvasDataBridge(canvas_interface_path, session)
             
             # Get bridge status
@@ -91,7 +91,7 @@ async def test_full_canvas_integration(course_id: int):
             print("Initializing Canvas Data Bridge...")
             
             # Initialize Canvas bridge
-            canvas_interface_path = str(Path(__file__).parent / "canvas-interface")
+            canvas_interface_path = str(Path(__file__).parent.parent / "canvas-interface")
             bridge = CanvasDataBridge(canvas_interface_path, session)
             
             print("Starting Canvas course sync...")

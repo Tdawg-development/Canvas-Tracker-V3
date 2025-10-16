@@ -393,7 +393,9 @@ export class PipelineOrchestrator {
         workflow_state: stagingData.fieldData?.workflow_state || stagingData.workflow_state || 'available',
         start_at: stagingData.fieldData?.start_at || stagingData.start_at,
         end_at: stagingData.fieldData?.end_at || stagingData.end_at,
-        created_at: stagingData.fieldData?.created_at || stagingData.created_at
+        created_at: stagingData.fieldData?.created_at || stagingData.created_at,
+        // Add calendar data from Canvas API
+        calendar: stagingData.fieldData?.calendar || stagingData.calendar
       },
       // Fix: Flatten student fieldData structure and clean up bloat
       students: (stagingData.students || []).map(student => {

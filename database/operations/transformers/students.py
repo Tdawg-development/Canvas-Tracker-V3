@@ -122,7 +122,10 @@ class StudentTransformer(EntityTransformer):
             
             # Apply configuration-based field inclusion
             config = context.configuration or {}
+            # Handle both legacy 'studentFields' and new 'fields.students' configuration paths
             student_fields = config.get('fields', {}).get('students', {})
+            if not student_fields and 'studentFields' in config:
+                student_fields = config.get('studentFields', {})
             
             # Basic info fields (controlled by configuration)
             if student_fields.get('basicInfo', True):  # Default to True for backward compatibility
@@ -177,7 +180,10 @@ class StudentTransformer(EntityTransformer):
             
             # Analytics fields (controlled by configuration)
             if student_fields.get('analytics', False):  # Default to False for performance
-                self._add_optional_field(entity_data, transformed_student, 'last_activity_at', self._parse_canvas_datetime)
+                # Map last_activity_at from Canvas to last_activity for database
+                if 'last_activity_at' in entity_data and entity_data['last_activity_at'] is not None:
+                    transformed_student['last_activity'] = self._parse_canvas_datetime(entity_data['last_activity_at'])
+                
                 self._add_optional_field(entity_data, transformed_student, 'last_attended_at', self._parse_canvas_datetime)
                 
                 # Assignment analytics

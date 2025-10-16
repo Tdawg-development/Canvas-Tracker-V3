@@ -163,7 +163,8 @@ class CanvasCalls {
           workflow_state: course.workflow_state,
           start_at: course.start_at,
           end_at: course.end_at,
-          created_at: course.created_at
+          created_at: course.created_at,
+          calendar: course.calendar // Include calendar data from Canvas API
         };
       }
       
