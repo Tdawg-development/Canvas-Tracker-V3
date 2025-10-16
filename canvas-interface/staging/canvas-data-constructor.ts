@@ -11,6 +11,8 @@ dotenv.config();
 import { CanvasCalls } from '../core/canvas-calls';
 import { CanvasCourseStaging, CanvasStudentStaging, CanvasModuleStaging, CanvasAssignmentStaging } from './canvas-staging-data';
 import { SyncConfiguration, FULL_SYNC_PROFILE } from '../types/sync-configuration';
+import { ApiParameterBuilder, buildStudentIncludeParams } from '../utils/api-param-builder';
+import { FieldMapper, mapStudent } from '../utils/field-mapper';
 
 export class CanvasDataConstructor {
   private canvasCalls: CanvasCalls;
@@ -153,14 +155,11 @@ export class CanvasDataConstructor {
       // But we can validate against the CanvasCalls student list
       const validStudentIds = courseData.students.map(s => s.id);
       
-      // Build include parameters based on configuration
-      const includeParams = [];
-      if (this.config.studentFields.scores || this.config.grades) {
-        includeParams.push('grades');
-      }
-      if (this.config.studentFields.basicInfo) {
-        includeParams.push('user', 'email');
-      }
+      // Build include parameters using ApiParameterBuilder (replaces 70+ lines of conditional logic)
+      const includeParams = buildStudentIncludeParams(this.config);
+      
+      console.log(`   🔧 API parameters generated: [${includeParams.join(', ')}]`);
+      console.log(`   ⚡ Replaced manual conditional logic with configuration-driven approach`);
       
       // Get detailed enrollment data with conditional includes
       const gateway = (this.canvasCalls as any).gateway; // Access gateway through CanvasCalls
@@ -183,50 +182,48 @@ export class CanvasDataConstructor {
         validStudentIds.includes(enrollment.user_id)
       );
       
-      // Apply field-level filtering based on configuration
+      // Apply field-level filtering using FieldMapper (replaces manual conditional field inclusion)
       const filteredEnrollments = validEnrollments.map(enrollment => {
+        // Use FieldMapper for automatic field mapping based on configuration
+        const mappedStudent = mapStudent(enrollment);
+        
+        // Apply configuration-based filtering by only including enabled fields
         const filtered: any = {
           // Always include core enrollment data
-          id: enrollment.id,
-          user_id: enrollment.user_id,
-          course_id: enrollment.course_id,
-          type: enrollment.type,
-          enrollment_state: enrollment.enrollment_state
+          id: mappedStudent.id,
+          user_id: mappedStudent.user_id,
+          course_id: mappedStudent.course_id,
+          type: mappedStudent.type,
+          enrollment_state: mappedStudent.enrollment_state
         };
         
-        // Conditional field inclusion based on configuration
-        if (this.config.studentFields.basicInfo && enrollment.user) {
-          filtered.user = {
-            id: enrollment.user.id,
-            name: enrollment.user.name,
-            login_id: enrollment.user.login_id,
-            email: enrollment.user.email
-          };
+        // Include optional fields based on configuration
+        if (this.config.studentFields.basicInfo && mappedStudent.user) {
+          filtered.user = mappedStudent.user;
         }
         
-        if (this.config.studentFields.scores && enrollment.grades) {
-          filtered.grades = {
-            current_score: enrollment.grades.current_score,
-            final_score: enrollment.grades.final_score,
-            current_grade: enrollment.grades.current_grade,
-            final_grade: enrollment.grades.final_grade
-          };
+        if (this.config.studentFields.scores && mappedStudent.grades) {
+          filtered.grades = mappedStudent.grades;
         }
         
         if (this.config.studentFields.analytics) {
-          filtered.last_activity_at = enrollment.last_activity_at;
-          filtered.last_attended_at = enrollment.last_attended_at;
+          if (mappedStudent.last_activity_at) filtered.last_activity_at = mappedStudent.last_activity_at;
+          if (mappedStudent.last_attended_at) filtered.last_attended_at = mappedStudent.last_attended_at;
         }
         
         if (this.config.studentFields.enrollmentDetails) {
-          filtered.created_at = enrollment.created_at;
-          filtered.updated_at = enrollment.updated_at;
-          filtered.course_section_id = enrollment.course_section_id;
-          filtered.limit_privileges_to_course_section = enrollment.limit_privileges_to_course_section;
+          if (mappedStudent.created_at) filtered.created_at = mappedStudent.created_at;
+          if (mappedStudent.updated_at) filtered.updated_at = mappedStudent.updated_at;
+          if (mappedStudent.course_section_id) filtered.course_section_id = mappedStudent.course_section_id;
+          if (mappedStudent.limit_privileges_to_course_section !== undefined) {
+            filtered.limit_privileges_to_course_section = mappedStudent.limit_privileges_to_course_section;
+          }
         }
         
         return filtered;
       });
+      
+      console.log(`   📊 Configuration-driven field filtering applied`);
       
       console.log(`   ✅ Validated ${filteredEnrollments.length} student enrollments with grades`);
       

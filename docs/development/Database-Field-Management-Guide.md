@@ -4,11 +4,17 @@
 
 ## Overview
 
-This guide covers field management in the database-side pipeline, from transformer output through to database storage. The database pipeline follows this flow:
+This guide covers field management in the modernized database-side pipeline with entity transformers and modular architecture. The database pipeline now follows this flow:
 
 ```
-Transformer Output → Canvas Bridge → Sync Coordinator → Canvas Operations → Database Models → Database Tables
+Field Mapper Output → Entity Transformers → Canvas Bridge → Sync Coordinator → Canvas Operations → Database Models → Database Tables
 ```
+
+### Key Architectural Changes
+- **Entity-specific transformers** in `database/operations/transformers/` for modular field handling
+- **TransformerRegistry** system for automatic discovery and extensibility  
+- **Configuration-driven transformation** with `TransformationContext`
+- **Validation and error handling** built into base transformer classes
 
 ## Table of Contents
 
@@ -27,22 +33,27 @@ Transformer Output → Canvas Bridge → Sync Coordinator → Canvas Operations 
 
 ```mermaid
 graph TD
-    A[Transformer Output] --> B[Canvas Data Bridge]
-    B --> C[Sync Coordinator]
-    C --> D[Canvas Operations]
-    D --> E[Database Models]
-    E --> F[Database Tables]
+    A[Field Mapper Output] --> B[Entity Transformers]
+    B --> C[Transformer Registry]
+    C --> D[Canvas Data Bridge]
+    D --> E[Sync Coordinator]
+    E --> F[Canvas Operations]
+    F --> G[Database Models]
+    G --> H[Database Tables]
     
-    G[Migration Scripts] --> F
-    H[Validation Logic] --> D
-    I[Transaction Manager] --> C
+    I[Migration Scripts] --> H
+    J[Transformation Context] --> B
+    K[Validation Logic] --> B
+    L[Transaction Manager] --> E
 ```
 
 ### Key Components by Stage
 
 | Stage | Files | Purpose |
 |-------|-------|---------|
-| **Canvas Bridge** | `database/operations/canvas_bridge.py` | Orchestrates TypeScript → Database sync |
+| **Entity Transformers** | `database/operations/transformers/*.py` | Modular transformation by entity type |
+| **Transformer Registry** | `database/operations/transformers/base.py` | Discovery and management of transformers |
+| **Canvas Bridge** | `database/operations/canvas_bridge.py` | Orchestrates field mapping → Database sync |
 | **Sync Coordinator** | `database/operations/layer1/sync_coordinator.py` | Manages full sync operations with conflict resolution |
 | **Canvas Operations** | `database/operations/layer1/canvas_ops.py` | CRUD operations with change detection |
 | **Database Models** | `database/models/layer1_canvas.py` | SQLAlchemy model definitions |
@@ -58,11 +69,40 @@ graph TD
 
 ## Adding New Fields
 
-### Step-by-Step Process
+### Modern Entity Transformer Process
 
-When adding a field that's already been added to the transformer output, follow these steps:
+With the new entity transformer architecture, adding fields is streamlined and modular:
 
-#### Step 1: Update Database Model
+#### Step 1: Update Entity Transformer
+
+**File:** `database/operations/transformers/courses.py` (or appropriate entity transformer)
+
+Add the field to the transformer's optional fields and transformation logic:
+
+```python
+class CourseTransformer(EntityTransformer):
+    @property
+    def optional_fields(self) -> Set[str]:
+        return {
+            'workflow_state',
+            'start_at',
+            'end_at',
+            'calendar',
+            # ADD NEW FIELD HERE
+            'created_at',
+            # ... other optional fields
+        }
+    
+    def transform_entity(self, entity_data: Dict[str, Any], context: TransformationContext) -> Optional[Dict[str, Any]]:
+        # ... existing transformation logic ...
+        
+        # ADD FIELD TRANSFORMATION
+        self._add_optional_field(entity_data, transformed_course, 'created_at', self._parse_canvas_datetime)
+        
+        return transformed_course
+```
+
+#### Step 2: Update Database Model
 
 **File:** `database/models/layer1_canvas.py`
 
@@ -77,105 +117,13 @@ class CanvasCourse(CanvasEntityModel):
     name = Column(String(255), nullable=False, default='')
     course_code = Column(String(100), nullable=True)
     
-    # ADD NEW FIELD HERE
+    # Canvas timestamps - ADD NEW FIELD HERE
     created_at = Column(DateTime, nullable=True)
-    
-    # Canvas timestamps
     start_at = Column(DateTime, nullable=True)
     end_at = Column(DateTime, nullable=True)
 ```
 
-#### Step 2: Update Canvas Operations (Create Method)
-
-**File:** `database/operations/layer1/canvas_ops.py`
-
-Update the `_create_course_from_data` method to handle the new field:
-
-```python
-def _create_course_from_data(self, canvas_data: Dict[str, Any]) -> CanvasCourse:
-    """Create new CanvasCourse from Canvas API data."""
-    # Parse Canvas timestamps
-    created_at = datetime.now(timezone.utc)
-    
-    # ADD FIELD HANDLING HERE
-    if canvas_data.get('created_at'):
-        try:
-            created_at_value = canvas_data['created_at']
-            if isinstance(created_at_value, datetime):
-                created_at = created_at_value
-            else:
-                created_at = datetime.fromisoformat(created_at_value.replace('Z', '+00:00'))
-        except (ValueError, AttributeError):
-            pass  # Use default
-    
-    return CanvasCourse(
-        id=canvas_data['id'],
-        name=canvas_data.get('name', ''),
-        course_code=canvas_data.get('course_code', ''),
-        # ADD FIELD ASSIGNMENT HERE
-        created_at=created_at,
-        calendar_ics=canvas_data.get('calendar_ics', ''),
-        last_synced=datetime.now(timezone.utc)
-    )
-```
-
-#### Step 3: Update Canvas Operations (Change Detection)
-
-Update the `_course_needs_update` method to detect changes in the new field:
-
-```python
-def _course_needs_update(self, existing: CanvasCourse, canvas_data: Dict[str, Any]) -> bool:
-    """Check if course data has changed and needs update."""
-    
-    # Parse new field value for comparison
-    canvas_created_at = None
-    if canvas_data.get('created_at'):
-        try:
-            created_at_value = canvas_data['created_at']
-            if isinstance(created_at_value, datetime):
-                canvas_created_at = created_at_value
-            else:
-                canvas_created_at = datetime.fromisoformat(created_at_value.replace('Z', '+00:00'))
-        except (ValueError, AttributeError):
-            canvas_created_at = None
-    
-    return (
-        existing.name != canvas_data.get('name', existing.name) or
-        existing.course_code != canvas_data.get('course_code', existing.course_code) or
-        existing.calendar_ics != calendar_ics or
-        # ADD FIELD COMPARISON HERE
-        existing.created_at != canvas_created_at
-    )
-```
-
-#### Step 4: Update Canvas Operations (Update Method)
-
-Update the `_update_course_fields` method to handle field updates:
-
-```python
-def _update_course_fields(self, course: CanvasCourse, canvas_data: Dict[str, Any]) -> None:
-    """Update existing course with new data."""
-    if 'name' in canvas_data:
-        course.name = canvas_data['name']
-    if 'course_code' in canvas_data:
-        course.course_code = canvas_data['course_code']
-    
-    # ADD FIELD UPDATE LOGIC HERE
-    if 'created_at' in canvas_data:
-        try:
-            created_at_value = canvas_data['created_at']
-            if isinstance(created_at_value, datetime):
-                course.created_at = created_at_value
-            else:
-                course.created_at = datetime.fromisoformat(created_at_value.replace('Z', '+00:00'))
-        except (ValueError, AttributeError):
-            pass  # Keep existing value
-    
-    # Always update last_synced on sync
-    course.last_synced = datetime.now(timezone.utc)
-```
-
-#### Step 5: Create Database Migration
+#### Step 3: Create Database Migration
 
 ```bash
 # From database/ directory
@@ -183,11 +131,56 @@ alembic revision --autogenerate -m "Add created_at field to canvas_courses"
 alembic upgrade head
 ```
 
+### Benefits of the New Entity Transformer Architecture
+
+- **Modular transformation**: Each entity type has its own transformer
+- **Built-in validation**: Field type validation and error handling
+- **Configuration-driven**: Field filtering based on sync configuration
+- **Extensible**: Easy to add new entity types or field transformations
+- **Automatic handling**: Canvas Operations layer handles CRUD operations automatically
+- **Less manual code**: No need to manually update create/update methods
+
 ## Concrete Example: Adding Course `created_at`
 
 Let's walk through the complete process for adding `created_at` to course tracking:
 
-### 1. Database Model Update
+### 1. Update Course Entity Transformer
+
+```python
+# database/operations/transformers/courses.py
+class CourseTransformer(EntityTransformer):
+    @property
+    def optional_fields(self) -> Set[str]:
+        return {
+            'workflow_state',
+            'start_at',
+            'end_at',
+            'calendar',
+            'created_at',  # ADD NEW FIELD HERE
+            'updated_at',
+            # ... other optional fields
+        }
+    
+    def transform_entity(self, entity_data: Dict[str, Any], context: TransformationContext):
+        # Build base transformed course
+        transformed_course = {
+            'id': int(entity_data['id']),
+            'name': entity_data.get('name', ''),
+            'course_code': entity_data.get('course_code', ''),
+            'workflow_state': entity_data.get('workflow_state', 'available'),
+            'last_synced': datetime.now(timezone.utc)
+        }
+        
+        # Add optional fields with transformation
+        self._add_optional_field(entity_data, transformed_course, 'start_at', self._parse_canvas_datetime)
+        self._add_optional_field(entity_data, transformed_course, 'end_at', self._parse_canvas_datetime)
+        # ADD NEW FIELD TRANSFORMATION
+        self._add_optional_field(entity_data, transformed_course, 'created_at', self._parse_canvas_datetime)
+        
+        return transformed_course
+```
+
+### 2. Update Database Model
 
 ```python
 # database/models/layer1_canvas.py
@@ -201,7 +194,7 @@ class CanvasCourse(CanvasEntityModel):
     course_code = Column(String(100), nullable=True)
     calendar_ics = Column(Text, nullable=True)
     
-    # Canvas timestamps - NEW FIELD ADDED
+    # Canvas timestamps - ADD NEW FIELD HERE
     created_at = Column(DateTime, nullable=True)     # NEW FIELD
     start_at = Column(DateTime, nullable=True)       # Existing
     end_at = Column(DateTime, nullable=True)         # Existing
@@ -211,121 +204,7 @@ class CanvasCourse(CanvasEntityModel):
     # ... other fields
 ```
 
-### 2. Canvas Operations - Create Method
-
-```python
-# database/operations/layer1/canvas_ops.py
-def _create_course_from_data(self, canvas_data: Dict[str, Any]) -> CanvasCourse:
-    """Create new CanvasCourse from Canvas API data."""
-    # Parse Canvas timestamps
-    created_at = datetime.now(timezone.utc)      # Default fallback
-    updated_at = datetime.now(timezone.utc)
-    
-    # Handle created_at field from transformer output
-    if canvas_data.get('created_at'):
-        try:
-            created_at_value = canvas_data['created_at']
-            if isinstance(created_at_value, datetime):
-                created_at = created_at_value
-            else:
-                created_at = datetime.fromisoformat(created_at_value.replace('Z', '+00:00'))
-        except (ValueError, AttributeError):
-            pass  # Use default fallback
-            
-    # Handle updated_at similarly
-    if canvas_data.get('updated_at'):
-        try:
-            updated_at_value = canvas_data['updated_at']
-            if isinstance(updated_at_value, datetime):
-                updated_at = updated_at_value
-            else:
-                updated_at = datetime.fromisoformat(updated_at_value.replace('Z', '+00:00'))
-        except (ValueError, AttributeError):
-            updated_at = created_at  # Fallback to created_at
-    
-    return CanvasCourse(
-        id=canvas_data['id'],
-        name=canvas_data.get('name', ''),
-        course_code=canvas_data.get('course_code', ''),
-        calendar_ics=canvas_data.get('calendar_ics', ''),
-        created_at=created_at,          # NEW FIELD
-        start_at=self._parse_datetime(canvas_data.get('start_at')),
-        end_at=self._parse_datetime(canvas_data.get('end_at')),
-        updated_at=updated_at,
-        last_synced=datetime.now(timezone.utc)
-    )
-```
-
-### 3. Canvas Operations - Change Detection
-
-```python
-def _course_needs_update(self, existing: CanvasCourse, canvas_data: Dict[str, Any]) -> bool:
-    """Check if course data has changed and needs update."""
-    
-    # Parse created_at for comparison
-    canvas_created_at = None
-    if canvas_data.get('created_at'):
-        try:
-            created_at_value = canvas_data['created_at']
-            if isinstance(created_at_value, datetime):
-                canvas_created_at = created_at_value
-            else:
-                canvas_created_at = datetime.fromisoformat(created_at_value.replace('Z', '+00:00'))
-        except (ValueError, AttributeError):
-            canvas_created_at = None
-
-    # Extract calendar ICS for comparison
-    calendar_ics = ''
-    if canvas_data.get('calendar_ics'):
-        calendar_ics = canvas_data['calendar_ics']
-        
-    return (
-        existing.name != canvas_data.get('name', existing.name) or
-        existing.course_code != canvas_data.get('course_code', existing.course_code) or
-        existing.calendar_ics != calendar_ics or
-        existing.created_at != canvas_created_at  # NEW COMPARISON
-    )
-```
-
-### 4. Canvas Operations - Update Method
-
-```python
-def _update_course_fields(self, course: CanvasCourse, canvas_data: Dict[str, Any]) -> None:
-    """Update existing course with new data."""
-    if 'name' in canvas_data:
-        course.name = canvas_data['name']
-    if 'course_code' in canvas_data:
-        course.course_code = canvas_data['course_code']
-    if 'calendar_ics' in canvas_data:
-        course.calendar_ics = canvas_data['calendar_ics']
-    
-    # Handle created_at field updates (usually shouldn't change)
-    if 'created_at' in canvas_data:
-        try:
-            created_at_value = canvas_data['created_at']
-            if isinstance(created_at_value, datetime):
-                course.created_at = created_at_value
-            else:
-                course.created_at = datetime.fromisoformat(created_at_value.replace('Z', '+00:00'))
-        except (ValueError, AttributeError):
-            pass  # Keep existing value
-    
-    # Update timestamp from Canvas data
-    if 'updated_at' in canvas_data:
-        try:
-            updated_at_value = canvas_data['updated_at']
-            if isinstance(updated_at_value, datetime):
-                course.updated_at = updated_at_value
-            else:
-                course.updated_at = datetime.fromisoformat(updated_at_value.replace('Z', '+00:00'))
-        except (ValueError, AttributeError):
-            course.updated_at = datetime.now(timezone.utc)
-    
-    # Always update last_synced on sync
-    course.last_synced = datetime.now(timezone.utc)
-```
-
-### 5. Database Migration
+### 3. Create Database Migration
 
 ```bash
 # Generate migration
@@ -349,39 +228,31 @@ def downgrade():
 
 ## Removing Fields
 
-### Step-by-Step Process
+### Modern Step-by-Step Process
 
-#### Step 1: Remove from Canvas Operations
+#### Step 1: Remove from Entity Transformer
 
-**File:** `database/operations/layer1/canvas_ops.py`
+**File:** `database/operations/transformers/courses.py` (or appropriate transformer)
 
-Remove field handling from create, update, and change detection methods:
+Remove field from optional_fields and transformation logic:
 
 ```python
-def _create_course_from_data(self, canvas_data: Dict[str, Any]) -> CanvasCourse:
-    return CanvasCourse(
-        id=canvas_data['id'],
-        name=canvas_data.get('name', ''),
-        course_code=canvas_data.get('course_code', ''),
-        # REMOVE THIS LINE
-        # deprecated_field=canvas_data.get('deprecated_field'),
-        last_synced=datetime.now(timezone.utc)
-    )
-
-def _course_needs_update(self, existing: CanvasCourse, canvas_data: Dict[str, Any]) -> bool:
-    return (
-        existing.name != canvas_data.get('name', existing.name) or
-        existing.course_code != canvas_data.get('course_code', existing.course_code)
-        # REMOVE THIS LINE
-        # or existing.deprecated_field != canvas_data.get('deprecated_field')
-    )
-
-def _update_course_fields(self, course: CanvasCourse, canvas_data: Dict[str, Any]) -> None:
-    if 'name' in canvas_data:
-        course.name = canvas_data['name']
-    # REMOVE THIS BLOCK
-    # if 'deprecated_field' in canvas_data:
-    #     course.deprecated_field = canvas_data['deprecated_field']
+class CourseTransformer(EntityTransformer):
+    @property
+    def optional_fields(self) -> Set[str]:
+        return {
+            'workflow_state',
+            'start_at',
+            'end_at',
+            # REMOVE THIS FIELD
+            # 'deprecated_field',
+        }
+    
+    def transform_entity(self, entity_data, context):
+        # ... existing transformation logic ...
+        
+        # REMOVE ANY TRANSFORMATION CALLS
+        # self._add_optional_field(entity_data, transformed_course, 'deprecated_field')
 ```
 
 #### Step 2: Remove from Database Model

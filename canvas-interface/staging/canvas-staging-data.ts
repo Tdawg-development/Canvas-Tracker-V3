@@ -3,7 +3,13 @@
  * 
  * Raw data structures that mirror Canvas API responses exactly.
  * No transformation or processing - just clean staging of Canvas data.
+ * 
+ * UPDATED: Now uses FieldMapper for automatic field mapping while maintaining
+ * backward compatibility through getter methods.
  */
+
+import { FieldMapper, mapCourse, mapStudent } from '../utils/field-mapper';
+import { CanvasCourseFields, CanvasStudentFields } from '../types/field-mappings';
 
 // Assignment Object (from Modules API and Assignments API)
 export class CanvasAssignmentStaging {
@@ -93,19 +99,7 @@ export class CanvasModuleStaging {
 
 // Student Object
 export class CanvasStudentStaging {
-  id: number;
-  user_id: number;
-  created_at: string;
-  last_activity_at: string | null;
-  current_score: number | null;
-  final_score: number | null;
-  user: {
-    id: number;
-    name: string;
-    sortable_name: string;
-    login_id: string;
-    email?: string;
-  };
+  private fieldData: CanvasStudentFields;
   
   // Assignment analytics data
   submitted_assignments: any[];
@@ -114,19 +108,8 @@ export class CanvasStudentStaging {
   private dataConstructor?: any;
 
   constructor(data: any, courseId?: number, dataConstructor?: any) {
-    this.id = data.id;
-    this.user_id = data.user_id;
-    this.created_at = data.created_at;
-    this.last_activity_at = data.last_activity_at;
-    this.current_score = data.grades?.current_score || null;
-    this.final_score = data.grades?.final_score || null;
-    this.user = {
-      id: data.user?.id || data.user_id,
-      name: data.user?.name || 'Unknown',
-      sortable_name: data.user?.sortable_name || 'Unknown',
-      login_id: data.user?.login_id || 'Unknown',
-      email: data.user?.email || data.email || ''
-    };
+    // Use FieldMapper for automatic field mapping
+    this.fieldData = mapStudent(data);
     
     // Initialize assignment arrays
     this.submitted_assignments = [];
@@ -138,6 +121,79 @@ export class CanvasStudentStaging {
     
     // Note: Assignment analytics will be loaded separately via loadAssignmentAnalytics()
     // This cannot be done automatically in constructor due to async nature
+  }
+  
+  // ========================================================================
+  // Backward Compatibility Getters
+  // ========================================================================
+  
+  /** Enrollment ID - backward compatibility getter */
+  get id(): number { return this.fieldData.id; }
+  
+  /** User ID - backward compatibility getter */
+  get user_id(): number { return this.fieldData.user_id; }
+  
+  /** Creation timestamp - backward compatibility getter */
+  get created_at(): string { return this.fieldData.created_at || ''; }
+  
+  /** Last activity timestamp - backward compatibility getter */
+  get last_activity_at(): string | null { return this.fieldData.last_activity_at || null; }
+  
+  /** Current score - backward compatibility getter */
+  get current_score(): number | null { 
+    return this.fieldData.current_score ?? this.fieldData.grades?.current_score ?? null;
+  }
+  
+  /** Final score - backward compatibility getter */
+  get final_score(): number | null { 
+    return this.fieldData.final_score ?? this.fieldData.grades?.final_score ?? null;
+  }
+  
+  /** User information - backward compatibility getter */
+  get user(): {
+    id: number;
+    name: string;
+    sortable_name: string;
+    login_id: string;
+    email?: string;
+  } {
+    return {
+      id: this.fieldData.user?.id || this.fieldData.user_id,
+      name: this.fieldData.user?.name || 'Unknown',
+      sortable_name: this.fieldData.user?.sortable_name || 'Unknown',
+      login_id: this.fieldData.user?.login_id || 'Unknown',
+      email: this.fieldData.user?.email || ''
+    };
+  }
+  
+  // ========================================================================
+  // New Field Access Methods
+  // ========================================================================
+  
+  /**
+   * Get all mapped fields as interface object
+   * @returns Complete field data mapped from Canvas API
+   */
+  getFields(): CanvasStudentFields {
+    return this.fieldData;
+  }
+  
+  /**
+   * Get specific field value with type safety
+   * @param fieldName Name of field to retrieve
+   * @returns Field value or undefined
+   */
+  getField<K extends keyof CanvasStudentFields>(fieldName: K): CanvasStudentFields[K] {
+    return this.fieldData[fieldName];
+  }
+  
+  /**
+   * Check if a specific field has a value
+   * @param fieldName Name of field to check
+   * @returns True if field exists and is not undefined
+   */
+  hasField<K extends keyof CanvasStudentFields>(fieldName: K): boolean {
+    return this.fieldData[fieldName] !== undefined;
   }
   
   /**
@@ -293,24 +349,13 @@ export class CanvasStudentStaging {
 
 // Course Object
 export class CanvasCourseStaging {
-  id: number;
-  name: string;
-  course_code: string;
-  created_at?: string;
-  calendar: {
-    ics: string;
-  };
+  private fieldData: CanvasCourseFields;
   students: CanvasStudentStaging[];
   modules: CanvasModuleStaging[];
 
   constructor(data: any) {
-    this.id = data.id;
-    this.name = data.name;
-    this.course_code = data.course_code;
-    this.created_at = data.created_at;
-    this.calendar = {
-      ics: data.calendar?.ics || ''
-    };
+    // Use FieldMapper for automatic field mapping
+    this.fieldData = mapCourse(data);
     this.students = [];
     this.modules = [];
     
@@ -323,6 +368,68 @@ export class CanvasCourseStaging {
     if (data.students && Array.isArray(data.students)) {
       this.addStudents(data.students);
     }
+  }
+  
+  // ========================================================================
+  // Backward Compatibility Getters
+  // ========================================================================
+  
+  /** Course ID - backward compatibility getter */
+  get id(): number { return this.fieldData.id; }
+  
+  /** Course name - backward compatibility getter */
+  get name(): string { return this.fieldData.name || ''; }
+  
+  /** Course code - backward compatibility getter */
+  get course_code(): string { return this.fieldData.course_code || ''; }
+  
+  /** Creation timestamp - backward compatibility getter */
+  get created_at(): string | undefined { return this.fieldData.created_at; }
+  
+  /** Start date - backward compatibility getter */
+  get start_at(): string | undefined { return this.fieldData.start_at; }
+  
+  /** End date - backward compatibility getter */
+  get end_at(): string | undefined { return this.fieldData.end_at; }
+  
+  /** Workflow state - backward compatibility getter */
+  get workflow_state(): string | undefined { return this.fieldData.workflow_state; }
+  
+  /** Calendar information - backward compatibility getter */
+  get calendar(): { ics: string } { 
+    return {
+      ics: this.fieldData.calendar?.ics || ''
+    };
+  }
+  
+  // ========================================================================
+  // New Field Access Methods
+  // ========================================================================
+  
+  /**
+   * Get all mapped fields as interface object
+   * @returns Complete field data mapped from Canvas API
+   */
+  getFields(): CanvasCourseFields {
+    return this.fieldData;
+  }
+  
+  /**
+   * Get specific field value with type safety
+   * @param fieldName Name of field to retrieve
+   * @returns Field value or undefined
+   */
+  getField<K extends keyof CanvasCourseFields>(fieldName: K): CanvasCourseFields[K] {
+    return this.fieldData[fieldName];
+  }
+  
+  /**
+   * Check if a specific field has a value
+   * @param fieldName Name of field to check
+   * @returns True if field exists and is not undefined
+   */
+  hasField<K extends keyof CanvasCourseFields>(fieldName: K): boolean {
+    return this.fieldData[fieldName] !== undefined;
   }
 
   addStudents(studentsData: any[], dataConstructor?: any): void {

@@ -33,7 +33,7 @@ from .base.exceptions import (
 from .layer1.canvas_ops import CanvasDataManager
 from .layer1.sync_coordinator import SyncCoordinator, SyncResult, SyncPriority
 from .typescript_interface import TypeScriptExecutor, TypeScriptExecutionError
-from .transformers import LegacyCanvasDataTransformer
+from .transformers import get_global_registry
 
 
 @dataclass
@@ -104,7 +104,7 @@ class CanvasDataBridge(BaseOperation):
         
         # Initialize core components
         self.typescript_executor = TypeScriptExecutor(str(self.canvas_path))
-        self.data_transformer = LegacyCanvasDataTransformer(sync_configuration)
+        self.transformer_registry = get_global_registry()
         self.canvas_manager = CanvasDataManager(session)
         self.sync_coordinator = SyncCoordinator(session)
         self.transaction_manager = TransactionManager(session)
@@ -202,7 +202,18 @@ class CanvasDataBridge(BaseOperation):
                 self.logger.info(f"Using sync configuration: {list(self.sync_configuration.get('entities', {}).keys())}")
             transform_start = datetime.now()
             
-            db_data = self.data_transformer.transform_canvas_staging_data(canvas_data)
+            # Convert TypeScript canvas data to registry format
+            registry_format_data = self._convert_to_registry_format(canvas_data)
+            
+            # Use new transformer registry
+            transformation_results = self.transformer_registry.transform_entities(
+                canvas_data=registry_format_data,
+                configuration=self.sync_configuration,
+                course_id=course_id
+            )
+            
+            # Convert results to legacy format for sync coordinator compatibility
+            db_data = self._convert_transformation_results(transformation_results)
             
             transform_end = datetime.now()
             bridge_result.data_transformation_time = (transform_end - transform_start).total_seconds()
@@ -402,7 +413,7 @@ class CanvasDataBridge(BaseOperation):
                 'typescript_environment': ts_validation,
                 'components': {
                     'typescript_executor': type(self.typescript_executor).__name__,
-                    'data_transformer': type(self.data_transformer).__name__,
+                    'transformer_registry': type(self.transformer_registry).__name__,
                     'canvas_manager': type(self.canvas_manager).__name__,
                     'sync_coordinator': type(self.sync_coordinator).__name__
                 }
@@ -413,6 +424,70 @@ class CanvasDataBridge(BaseOperation):
                 'canvas_interface_path': str(self.canvas_path),
                 'path_exists': self.canvas_path.exists() if hasattr(self, 'canvas_path') else False
             }
+    
+    def _convert_to_registry_format(self, canvas_data: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
+        """Convert TypeScript canvas data to transformer registry format."""
+        registry_format = {}
+        
+        # Convert singular 'course' to plural 'courses' list
+        if 'course' in canvas_data and canvas_data['course']:
+            registry_format['courses'] = [canvas_data['course']]
+        
+        # Copy other entities as-is (they're already plural)
+        for entity_key in ['students', 'modules', 'enrollments']:
+            if entity_key in canvas_data:
+                registry_format[entity_key] = canvas_data[entity_key]
+        
+        # Extract assignments from modules
+        if 'modules' in canvas_data:
+            assignments = []
+            for module_data in canvas_data['modules']:
+                module_id = module_data.get('id')
+                # Handle both 'assignments' and 'items' keys (Canvas API uses 'items')
+                items = module_data.get('assignments', [])
+                if not items:
+                    items = module_data.get('items', [])
+                
+                for item in items:
+                    if item.get('type') in ['Assignment', 'Quiz']:
+                        # Add module context to assignment
+                        item_with_context = item.copy()
+                        item_with_context['course_id'] = canvas_data.get('course', {}).get('id')
+                        item_with_context['module_id'] = item.get('module_id') or module_id
+                        assignments.append(item_with_context)
+            
+            registry_format['assignments'] = assignments
+        
+        # Extract enrollments from students if needed
+        if 'students' in canvas_data and 'enrollments' not in registry_format:
+            enrollments = []
+            for student_data in canvas_data['students']:
+                # Add course context to student for enrollment creation
+                enrollment_data = student_data.copy()
+                enrollment_data['course_id'] = canvas_data.get('course', {}).get('id')
+                enrollments.append(enrollment_data)
+            registry_format['enrollments'] = enrollments
+        
+        return registry_format
+    
+    def _convert_transformation_results(self, transformation_results: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
+        """Convert new transformer results to legacy format for sync coordinator."""
+        legacy_result = {}
+        
+        for entity_type, result in transformation_results.items():
+            if result.success:
+                legacy_result[entity_type] = result.transformed_data
+            else:
+                # Log errors but don't fail entirely (legacy behavior)
+                self.logger.error(f"Failed to transform {entity_type}: {result.errors}")
+                legacy_result[entity_type] = []
+        
+        # Ensure all expected entity types are present (legacy compatibility)
+        for entity_type in ['courses', 'students', 'assignments', 'enrollments']:
+            if entity_type not in legacy_result:
+                legacy_result[entity_type] = []
+        
+        return legacy_result
 
 
 # Convenience function for quick course initialization

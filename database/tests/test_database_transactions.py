@@ -36,7 +36,7 @@ from database.models.layer2_historical import AssignmentScore, GradeHistory, Cou
 from database.operations.layer1.canvas_ops import CanvasDataManager
 from database.operations.layer1.relationship_manager import RelationshipManager
 from database.operations.layer1.sync_coordinator import SyncCoordinator
-from database.operations.data_transformers import CanvasDataTransformer
+# Legacy data_transformers.py has been removed and replaced with modular system
 from database.operations.base.exceptions import (
     OperationError, ValidationError, TransactionError,
     DatabaseConnectionError, BulkOperationError

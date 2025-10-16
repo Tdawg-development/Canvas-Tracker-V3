@@ -2,6 +2,18 @@
 
 > **Complete guide for implementing data pipeline orchestration from Canvas API to database storage**
 
+## 🆕 **UPDATED**: Recent Optimizations Applied
+
+**This guide has been updated to reflect the new optimized Canvas Tracker V3 architecture:**
+
+- **✨ NEW**: Modular transformer system replaces legacy `data_transformers.py`
+- **✨ NEW**: TypeScript `FieldMapper` for automatic interface-driven field mapping
+- **✨ NEW**: Configuration-driven `ApiParameterBuilder` for optimized API calls
+- **✨ ENHANCED**: Auto-mapping staging classes with backward compatibility
+- **📝 DEPRECATED**: Legacy `CanvasDataTransformer` (removed, use `get_global_registry()`)
+
+---
+
 ## Overview
 
 This guide demonstrates how to orchestrate the Canvas Tracker V3 data pipeline by examining how our test suite connects the independent modules. The tests reveal the proper way to route data from Canvas API → TypeScript → Transformers → Database.
@@ -26,26 +38,35 @@ graph TD
     A[Canvas API] --> B[Canvas Calls Layer]
     B --> C[Data Constructor]
     C --> D[Staging Data Objects]
-    D --> E[Python Transformers]
+    D --> E[🆕 Modular Transformers]
     E --> F[Database Models]
     F --> G[Database Storage]
     
     H[Bulk API Manager] --> D
     I[Configuration System] --> C
     I --> E
+    I --> K[🆕 ApiParameterBuilder]
+    K --> B
+    L[🆕 FieldMapper] --> D
     J[Error Handler] --> B
     J --> E
+    
+    style E fill:#e1f5fe
+    style K fill:#f3e5f5
+    style L fill:#f3e5f5
 ```
 
 ### Pipeline Stages
 
 | Stage | Technology | Module | Responsibility |
-|-------|------------|--------|----------------|
+|-------|------------|--------|-----------------|
 | **API Calls** | TypeScript | `canvas-calls.ts` | Canvas API communication, rate limiting |
-| **Data Construction** | TypeScript | `canvas-data-constructor.ts` | API orchestration, data gathering |
-| **Data Staging** | TypeScript | `canvas-staging-data.ts` | Clean data structures |
+| **🆕 API Parameter Building** | TypeScript | `api-param-builder.ts` | Configuration-driven API parameters |
+| **Data Construction** | TypeScript | `canvas-data-constructor.ts` | API orchestration with optimized parameters |
+| **🆕 Field Mapping** | TypeScript | `field-mapper.ts` | Automatic interface-driven field mapping |
+| **Data Staging** | TypeScript | `canvas-staging-data.ts` | Clean data structures with auto-mapping |
 | **Bulk Processing** | TypeScript | `bulk-api-call-staging.ts` | Multi-course orchestration |
-| **Data Transformation** | Python | `data_transformers.py` | Format conversion, validation |
+| **🆕 Data Transformation** | Python | `transformers/` | **NEW**: Modular transformer registry |
 | **Database Operations** | Python | `layer1_canvas.py` | Data persistence |
 
 ## Current Module Status
@@ -57,20 +78,24 @@ graph TD
    - Rate limiting and error handling
    - Authentication management
 
-2. **Data Construction Layer** (`canvas-interface/staging/`)
-   - `CanvasDataConstructor` - API orchestration
-   - `CanvasCourseStaging`, `CanvasStudentStaging` - Data models
-   - Configuration-driven field filtering
+2. **🆕 ENHANCED Data Construction Layer** (`canvas-interface/staging/` + `utils/`)
+   - **`ApiParameterBuilder`** - Configuration-driven API parameter generation
+   - **`FieldMapper`** - Automatic interface-to-object field mapping
+   - **`CanvasDataConstructor`** - API orchestration with optimized calls
+   - **`CanvasCourseStaging`, `CanvasStudentStaging`** - Auto-mapped data models
+   - **Enhanced configuration system** - Entity and field-level control
 
 3. **Bulk Processing Layer** (`canvas-interface/staging/`)
    - `CanvasBulkApiDataManager` - Multi-course processing
    - Batch processing with rate limit respect
    - Data reconstruction utilities
 
-4. **Data Transformation Layer** (`database/operations/`)
-   - `CanvasDataTransformer` - Format conversion
-   - Canvas datetime parsing
-   - Data validation and normalization
+4. **🆕 OPTIMIZED Data Transformation Layer** (`database/operations/transformers/`)
+   - **Modular Transformer Registry** - Centralized transformation management
+   - **Entity-specific Transformers** - Courses, Students, Assignments, Enrollments
+   - **Legacy Bridge** - Backward compatibility (`LegacyCanvasDataTransformer`)
+   - **Enhanced datetime parsing** - Canvas timezone handling
+   - **Per-entity validation** - Specialized validation rules
 
 5. **Database Models** (`database/models/`)
    - Layer 1 Canvas models
@@ -96,12 +121,11 @@ Our tests reveal **three distinct orchestration patterns**:
 # 1. Execute Canvas API via TypeScript
 canvas_data = self._execute_canvas_typescript(course_id)
 
-# 2. Transform data via Python transformers
-registry = get_global_registry()
+# 2. 🆕 Transform data via NEW modular Python transformers
+registry = get_global_registry()  # New modular transformer registry
 results = registry.transform_entities(
     canvas_data=canvas_data,
-    configuration=config,
-    course_id=course_id
+    configuration=config  # Enhanced configuration support
 )
 
 # 3. Results ready for database storage
@@ -225,6 +249,11 @@ Create a new `PipelineOrchestrator` class that coordinates existing modules:
 │   ├── pipeline-orchestrator.ts      🆕 Main orchestrator class
 │   ├── configuration-manager.ts      🆕 Configuration validation/management
 │   └── pipeline-monitor.ts           🆕 Status and monitoring
+├── 📁 utils/                         🆕 OPTIMIZATION UTILITIES
+│   ├── api-param-builder.ts          🆕 Configuration-driven API parameters
+│   └── field-mapper.ts               🆕 Automatic interface field mapping
+└── 📁 types/                         
+    └── field-mappings.ts             🆕 Canvas API field interfaces
 ```
 
 ### Implementation Steps
@@ -235,17 +264,27 @@ Create a new `PipelineOrchestrator` class that coordinates existing modules:
 // canvas-interface/orchestration/pipeline-orchestrator.ts
 import { CanvasDataConstructor } from '../staging/canvas-data-constructor';
 import { CanvasBulkApiDataManager } from '../staging/bulk-api-call-staging';
+import { ApiParameterBuilder } from '../utils/api-param-builder';  // 🆕 NEW
+import { FieldMapper } from '../utils/field-mapper';  // 🆕 NEW
 import { SyncConfiguration } from '../types/sync-configuration';
 
 export class PipelineOrchestrator {
     private dataConstructor: CanvasDataConstructor;
     private bulkManager: CanvasBulkApiDataManager;
     private configManager: ConfigurationManager;
+    private apiParamBuilder: ApiParameterBuilder;  // 🆕 NEW: Optimized API calls
+    private fieldMapper: FieldMapper;  // 🆕 NEW: Automatic field mapping
     
     constructor(config?: SyncConfiguration) {
         this.configManager = new ConfigurationManager(config);
+        
+        // 🆕 Initialize NEW optimized API and mapping systems
+        this.apiParamBuilder = new ApiParameterBuilder();
+        this.fieldMapper = new FieldMapper();
+        
         this.dataConstructor = new CanvasDataConstructor({
-            config: this.configManager.getConfig()
+            config: this.configManager.getConfig(),
+            apiParamBuilder: this.apiParamBuilder  // Enhanced with optimized params
         });
         this.bulkManager = new CanvasBulkApiDataManager(
             this.configManager.getConfig()
@@ -641,21 +680,20 @@ console.log(`Average processing time: ${status.averageProcessingTime}ms`);
 ### Example 4: Integration with Database Layer
 
 ```python
-# Python integration script: database/scripts/pipeline_integration.py
+# 🆕 UPDATED Python integration script: database/scripts/pipeline_integration.py
 import json
 import sys
-from database.operations.transformers import get_global_registry
+from database.operations.transformers import get_global_registry  # NEW modular system
 from database.operations.layer1.canvas_ops import CanvasOperations
 
 def process_pipeline_data(input_data: dict, config: dict) -> dict:
-    """Process data from TypeScript pipeline through Python transformers."""
+    """🆕 UPDATED: Process data from TypeScript pipeline through NEW modular transformers."""
     
-    # Transform data using registry
+    # Transform data using NEW modular transformer registry
     registry = get_global_registry()
     transformed_data = registry.transform_entities(
         canvas_data=input_data,
-        configuration=config,
-        course_id=input_data.get('course', {}).get('id')
+        configuration=config  # Enhanced configuration system
     )
     
     # Optionally store in database
@@ -726,7 +764,11 @@ The Canvas Tracker V3 pipeline orchestrator should:
 ✅ **Include monitoring and error handling** capabilities  
 ✅ **Integrate with both TypeScript and Python** components  
 
-**Next Steps**: Implement the `PipelineOrchestrator` class following the patterns demonstrated in your comprehensive test suite.
+**Next Steps**: 
+1. **Implement the `PipelineOrchestrator` class** following test-demonstrated patterns
+2. **Leverage NEW optimizations**: Use `ApiParameterBuilder` and `FieldMapper` utilities
+3. **Integrate modular transformers**: Replace legacy `CanvasDataTransformer` with `get_global_registry()`
+4. **Test with optimized pipeline**: Validate enhanced performance and maintainability
 
 ---
 

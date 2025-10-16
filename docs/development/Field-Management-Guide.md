@@ -1,14 +1,20 @@
 # Canvas Tracker V3: Field Management Guide
 
-> **Complete guide for adding and removing fields throughout the Canvas API to database pipeline**
+> **Complete guide for adding and removing fields in the configuration-driven Canvas API pipeline**
 
 ## Overview
 
-This guide provides comprehensive instructions for adding and removing data fields in Canvas Tracker V3's data pipeline. The system follows a 5-stage flow:
+This guide covers field management in Canvas Tracker V3's modernized, configuration-driven pipeline. The system has been redesigned with automatic field mapping, eliminating manual staging classes:
 
 ```
-Canvas API → TypeScript Staging → Data Constructor → Python Transformer → Database Models
+Canvas API → Field Mappings → API Parameters → Field Mapper → Entity Transformers → Database Models
 ```
+
+### Key Architectural Changes
+- **Configuration-driven API calls** using `ApiParameterBuilder` and field mappings
+- **Automatic field mapping** with `FieldMapper` utility and type interfaces
+- **Modular entity transformers** with `TransformerRegistry` for extensibility
+- **Interface-driven field definitions** replacing manual staging class construction
 
 ## Table of Contents
 
@@ -20,41 +26,70 @@ Canvas API → TypeScript Staging → Data Constructor → Python Transformer �
 6. [Common Gotchas](#common-gotchas)
 7. [Troubleshooting](#troubleshooting)
 
-## Pipeline Architecture
+## Modern Pipeline Architecture
 
 ### Data Flow Overview
 
 ```mermaid
 graph TD
-    A[Canvas API] --> B[TypeScript Staging Classes]
-    B --> C[Data Constructor Processing]
-    C --> D[Python Data Transformers]
-    D --> E[Database Models]
-    E --> F[Database Tables]
+    A[Canvas API] --> B[API Field Mappings]
+    B --> C[API Parameter Builder]
+    C --> D[Canvas API Calls]
+    D --> E[Field Mapper]
+    E --> F[Entity Transformers]
+    F --> G[Database Models]
+    G --> H[Database Tables]
+    
+    I[Sync Configuration] --> B
+    I --> E
+    I --> F
 ```
 
-### Key Files by Stage
+### Key Components by Stage
 
 | Stage | Files | Purpose |
 |-------|-------|---------|
-| **TypeScript Staging** | `canvas-interface/staging/canvas-staging-data.ts` | Raw Canvas API data structures |
-| **Data Constructor** | `canvas-interface/staging/canvas-data-constructor.ts` | API calls and field filtering |
-| **Python Transformer** | `database/operations/data_transformers.py` | Format conversion and validation |
+| **API Field Mappings** | `canvas-interface/config/api-field-mappings.ts` | Configuration-to-parameter mappings |
+| **API Parameter Builder** | `canvas-interface/utils/api-param-builder.ts` | Dynamic API parameter generation |
+| **Field Mapper** | `canvas-interface/utils/field-mapper.ts` | Automatic type-safe field mapping |
+| **Field Interfaces** | `canvas-interface/types/field-mappings.ts` | TypeScript interface definitions |
+| **Entity Transformers** | `database/operations/transformers/*.py` | Modular transformation by entity type |
 | **Database Models** | `database/models/layer1_canvas.py` | SQLAlchemy table definitions |
 
 ## Adding New Fields
 
-### Step-by-Step Process
+### Modern Configuration-Driven Process
 
-#### Step 1: Update TypeScript Staging Classes
+The new architecture uses configuration-driven field mapping instead of manual staging classes. Here's the streamlined process:
 
-**File:** `canvas-interface/staging/canvas-staging-data.ts`
+#### Step 1: Add Field to API Mapping Configuration
 
-Add the new field to the appropriate staging class:
+**File:** `canvas-interface/config/api-field-mappings.ts`
+
+Add a mapping entry to request the field from Canvas API:
 
 ```typescript
-export class CanvasCourseStaging {
-  // Existing fields...
+export const COURSE_API_MAPPINGS: ApiFieldMapping[] = [
+  // ... existing mappings ...
+  
+  // ADD NEW FIELD MAPPING
+  {
+    apiParam: 'created_at',
+    configPath: 'courseFields.timestamps',
+    description: 'Include course creation timestamp'
+  }
+];
+```
+
+#### Step 2: Add Field to TypeScript Interface
+
+**File:** `canvas-interface/types/field-mappings.ts`
+
+Add the field to the appropriate interface:
+
+```typescript
+export interface CanvasCourseFields {
+  // Required fields
   id: number;
   name: string;
   course_code: string;
@@ -62,77 +97,37 @@ export class CanvasCourseStaging {
   // ADD NEW FIELD HERE
   created_at?: string;  // Canvas timestamp field
   
-  constructor(data: any) {
-    // Existing assignments...
-    this.id = data.id;
-    this.name = data.name;
-    this.course_code = data.course_code;
-    
-    // ADD FIELD ASSIGNMENT HERE
-    this.created_at = data.created_at;
-  }
+  // ... other optional fields
 }
 ```
 
-#### Step 2: Verify Canvas API Provides the Field
+#### Step 3: Update Entity Transformer
 
-**File:** `src/infrastructure/http/canvas/CanvasTypes.ts`
+**File:** `database/operations/transformers/courses.py`
 
-Ensure the Canvas API type definition includes your field:
-
-```typescript
-export interface CanvasCourse {
-  id: number;
-  name: string;
-  course_code: string;
-  
-  // ADD YOUR FIELD HERE IF NOT PRESENT
-  created_at?: string;
-}
-```
-
-#### Step 3: Update Data Constructor (if needed)
-
-**File:** `canvas-interface/staging/canvas-data-constructor.ts`
-
-Most fields are passed through automatically, but check if any special handling is needed:
-
-```typescript
-// In getCourseData method
-const courseData = {
-  id: courseInfo.id,
-  name: courseInfo.name,
-  course_code: courseInfo.course_code,
-  // ADD IF SPECIAL PROCESSING NEEDED
-  created_at: courseInfo.created_at,  // Usually automatic
-  // ... other fields
-};
-```
-
-#### Step 4: Update Python Data Transformer
-
-**File:** `database/operations/data_transformers.py`
-
-Add field handling in the appropriate transform method:
+Add field handling to the transformer's optional fields and transform logic:
 
 ```python
-def transform_course_data(self, course_data: Dict[str, Any]) -> List[Dict[str, Any]]:
-    # ... existing code ...
+class CourseTransformer(EntityTransformer):
+    @property
+    def optional_fields(self) -> Set[str]:
+        return {
+            'workflow_state',
+            'start_at',
+            'end_at',
+            # ADD NEW FIELD HERE
+            'created_at',
+            # ... other fields
+        }
     
-    transformed_course = {
-        'id': course_data['id'],
-        'name': course_data.get('name', ''),
-        'course_code': course_data.get('course_code', ''),
+    def transform_entity(self, entity_data: Dict[str, Any], context: TransformationContext) -> Optional[Dict[str, Any]]:
+        # ... existing transform logic ...
         
-        # ADD NEW FIELD TRANSFORMATION HERE
-        'created_at': self._parse_canvas_datetime(course_data.get('created_at')),
-        
-        # ... other fields ...
-        'last_synced': datetime.now(timezone.utc)
-    }
+        # ADD FIELD TRANSFORMATION
+        self._add_optional_field(entity_data, transformed_course, 'created_at', self._parse_canvas_datetime)
 ```
 
-#### Step 5: Update Database Model
+#### Step 4: Update Database Model (if needed)
 
 **File:** `database/models/layer1_canvas.py`
 
@@ -151,7 +146,7 @@ class CanvasCourse(CanvasEntityModel):
     created_at = Column(DateTime, nullable=True)
 ```
 
-#### Step 6: Create Database Migration
+#### Step 5: Create Database Migration
 
 ```bash
 # From database/ directory
@@ -159,87 +154,99 @@ alembic revision --autogenerate -m "Add created_at field to canvas_courses"
 alembic upgrade head
 ```
 
+### Benefits of the New Architecture
+
+- **Configuration-driven**: API parameters are built automatically based on sync configuration
+- **Type-safe**: Field interfaces ensure compile-time validation
+- **Automatic mapping**: `FieldMapper` handles field extraction automatically  
+- **Modular transformers**: Easy to extend with new entity types
+- **No manual staging classes**: Eliminates 200+ lines of manual field assignments
+
 ## Concrete Example: Adding Course `created_at`
 
-Let's walk through adding the `created_at` timestamp to course tracking:
+Let's walk through adding the `created_at` timestamp to course tracking using the new configuration-driven approach:
 
-### 1. TypeScript Staging Class
+### 1. Add API Field Mapping
 
 ```typescript
-// canvas-interface/staging/canvas-staging-data.ts
-export class CanvasCourseStaging {
+// canvas-interface/config/api-field-mappings.ts
+export const COURSE_API_MAPPINGS: ApiFieldMapping[] = [
+  // ... existing mappings ...
+  {
+    apiParam: 'syllabus_body',
+    configPath: 'courseFields.extended',
+    description: 'Include course syllabus content'
+  },
+  // ADD THIS NEW MAPPING
+  {
+    apiParam: 'created_at',
+    configPath: 'courseFields.timestamps', 
+    description: 'Include course creation timestamp'
+  }
+];
+```
+
+### 2. Add Field to TypeScript Interface
+
+```typescript
+// canvas-interface/types/field-mappings.ts
+export interface CanvasCourseFields {
+  // Required fields
   id: number;
   name: string;
   course_code: string;
+  
+  // Optional timestamp fields - ADD NEW FIELD HERE
   created_at?: string;  // NEW FIELD
-  workflow_state?: string;
   start_at?: string;
   end_at?: string;
   
-  constructor(data: any) {
-    this.id = data.id;
-    this.name = data.name;
-    this.course_code = data.course_code;
-    this.created_at = data.created_at;  // NEW ASSIGNMENT
-    this.workflow_state = data.workflow_state;
-    this.start_at = data.start_at;
-    this.end_at = data.end_at;
-    // ... calendar and other fields
-  }
+  // ... other optional fields
 }
 ```
 
-### 2. Canvas API Types (Already Present)
+### 3. Field Mapping (Automatic)
+
+The `FieldMapper` utility automatically maps fields from Canvas API responses to the interface:
 
 ```typescript
-// src/infrastructure/http/canvas/CanvasTypes.ts
-export interface CanvasCourse {
-  id: number;
-  name: string;
-  course_code: string;
-  workflow_state: 'unpublished' | 'available' | 'completed' | 'deleted';
-  created_at?: string;  // ALREADY PRESENT ✓
-  start_at: string | null;
-  end_at: string | null;
-}
+// canvas-interface/utils/field-mapper.ts
+// This happens automatically - no manual code needed!
+const courseData = FieldMapper.mapCanvasCourseAdvanced(canvasResponse, fieldConfig);
+// Result: { id: 123, name: 'Course', created_at: '2024-01-01T00:00:00Z', ... }
 ```
 
-### 3. Data Constructor (Automatic)
-
-```typescript
-// canvas-interface/staging/canvas-data-constructor.ts
-// In getCourseData method - field passed through automatically
-const courseData = {
-  id: courseInfo.id,
-  name: courseInfo.name,
-  course_code: courseInfo.course_code,
-  workflow_state: courseInfo.workflow_state,
-  start_at: courseInfo.start_at,
-  end_at: courseInfo.end_at,
-  created_at: courseInfo.created_at,  // AUTOMATICALLY INCLUDED ✓
-  calendar: { ics: null }
-};
-```
-
-### 4. Python Transformer Update
+### 4. Update Entity Transformer
 
 ```python
-# database/operations/data_transformers.py
-def transform_course_data(self, course_data: Dict[str, Any]) -> List[Dict[str, Any]]:
-    # ... validation code ...
+# database/operations/transformers/courses.py
+class CourseTransformer(EntityTransformer):
+    @property
+    def optional_fields(self) -> Set[str]:
+        return {
+            'workflow_state',
+            'start_at',
+            'end_at',
+            'created_at',  # ADD NEW FIELD HERE
+            # ... other fields
+        }
     
-    transformed_course = {
-        'id': course_data['id'],
-        'name': course_data.get('name', ''),
-        'course_code': course_data.get('course_code', ''),
-        'calendar_ics': self._extract_calendar_ics(course_data),
-        'workflow_state': course_data.get('workflow_state', 'available'),
-        'created_at': self._parse_canvas_datetime(course_data.get('created_at')),  # NEW LINE
-        'start_at': self._parse_canvas_datetime(course_data.get('start_at')),
-        'end_at': self._parse_canvas_datetime(course_data.get('end_at')),
-        'last_synced': datetime.now(timezone.utc)
-    }
-    # ... metadata handling ...
+    def transform_entity(self, entity_data: Dict[str, Any], context: TransformationContext):
+        # Build base transformed course
+        transformed_course = {
+            'id': int(entity_data['id']),
+            'name': entity_data.get('name', ''),
+            'course_code': entity_data.get('course_code', ''),
+            'workflow_state': entity_data.get('workflow_state', 'available'),
+            'last_synced': datetime.now(timezone.utc)
+        }
+        
+        # ADD FIELD TRANSFORMATION - uses helper method
+        self._add_optional_field(entity_data, transformed_course, 'created_at', self._parse_canvas_datetime)
+        self._add_optional_field(entity_data, transformed_course, 'start_at', self._parse_canvas_datetime)
+        self._add_optional_field(entity_data, transformed_course, 'end_at', self._parse_canvas_datetime)
+        
+        return transformed_course
 ```
 
 ### 5. Database Model Update
@@ -278,13 +285,74 @@ alembic upgrade head
 
 ## Removing Fields
 
-### Step-by-Step Process
+### Modern Step-by-Step Process
 
-#### Step 1: Remove from Database Model
+#### Step 1: Remove from API Field Mappings
+
+**File:** `canvas-interface/config/api-field-mappings.ts`
+
+Remove or comment out the mapping entry:
+
+```typescript
+export const COURSE_API_MAPPINGS: ApiFieldMapping[] = [
+  // ... other mappings ...
+  
+  // REMOVE OR COMMENT OUT THIS MAPPING
+  // {
+  //   apiParam: 'deprecated_field',
+  //   configPath: 'courseFields.deprecated',
+  //   description: 'Include deprecated field'
+  // }
+];
+```
+
+#### Step 2: Remove from TypeScript Interface
+
+**File:** `canvas-interface/types/field-mappings.ts`
+
+Remove the field from the interface:
+
+```typescript
+export interface CanvasCourseFields {
+  id: number;
+  name: string;
+  course_code: string;
+  
+  // REMOVE THIS FIELD
+  // deprecated_field?: string;
+}
+```
+
+#### Step 3: Remove from Entity Transformer
+
+**File:** `database/operations/transformers/courses.py`
+
+Remove field from optional_fields and any transformation logic:
+
+```python
+class CourseTransformer(EntityTransformer):
+    @property
+    def optional_fields(self) -> Set[str]:
+        return {
+            'workflow_state',
+            'start_at',
+            'end_at',
+            # REMOVE THIS FIELD
+            # 'deprecated_field',
+        }
+    
+    def transform_entity(self, entity_data, context):
+        # ... existing logic ...
+        
+        # REMOVE ANY TRANSFORMATION CALLS
+        # self._add_optional_field(entity_data, transformed_course, 'deprecated_field')
+```
+
+#### Step 4: Remove from Database Model
 
 **File:** `database/models/layer1_canvas.py`
 
-Comment out or remove the field:
+Remove the field definition:
 
 ```python
 class CanvasCourse(CanvasEntityModel):
@@ -294,45 +362,7 @@ class CanvasCourse(CanvasEntityModel):
     # deprecated_field = Column(String(255), nullable=True)
 ```
 
-#### Step 2: Remove from Python Transformer
-
-**File:** `database/operations/data_transformers.py`
-
-Remove field from transformation logic:
-
-```python
-def transform_course_data(self, course_data: Dict[str, Any]) -> List[Dict[str, Any]]:
-    transformed_course = {
-        'id': course_data['id'],
-        'name': course_data.get('name', ''),
-        # REMOVE THIS LINE
-        # 'deprecated_field': course_data.get('deprecated_field'),
-    }
-```
-
-#### Step 3: Remove from TypeScript Staging
-
-**File:** `canvas-interface/staging/canvas-staging-data.ts`
-
-Remove field from class:
-
-```typescript
-export class CanvasCourseStaging {
-  id: number;
-  name: string;
-  // REMOVE THIS FIELD
-  // deprecated_field?: string;
-  
-  constructor(data: any) {
-    this.id = data.id;
-    this.name = data.name;
-    // REMOVE THIS ASSIGNMENT
-    // this.deprecated_field = data.deprecated_field;
-  }
-}
-```
-
-#### Step 4: Create Database Migration
+#### Step 5: Create Database Migration
 
 ```bash
 alembic revision --autogenerate -m "Remove deprecated_field from canvas_courses"

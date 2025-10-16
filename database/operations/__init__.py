@@ -17,8 +17,13 @@ Package Structure:
 
 Usage:
     # Import Canvas bridge components (Phase 1 - Critical Integration)
-    from database.operations import CanvasDataBridge, TypeScriptExecutor, CanvasDataTransformer
+    from database.operations import CanvasDataBridge, TypeScriptExecutor
+    from database.operations import get_global_registry  # New modular transformer system
     from database.operations import initialize_canvas_course  # Convenience function
+    
+    # Use new transformer system (recommended)
+    registry = get_global_registry()
+    result = registry.transform_entities(canvas_data, configuration)
     
     # Import specific operations
     from database.operations.layer1 import CanvasDataManager
@@ -35,7 +40,10 @@ Usage:
 try:
     from .canvas_bridge import CanvasDataBridge, CanvasBridgeResult, initialize_canvas_course
     from .typescript_interface import TypeScriptExecutor, TypeScriptExecutionError
-    from .data_transformers import CanvasDataTransformer
+    
+    # Import new transformer system (replaces legacy CanvasDataTransformer)
+    from .transformers import get_global_registry, TransformerRegistry
+    from .transformers import LegacyCanvasDataTransformer  # Legacy compatibility
     
     # Mark Canvas bridge components as available
     CANVAS_BRIDGE_AVAILABLE = True
@@ -84,7 +92,9 @@ if CANVAS_BRIDGE_AVAILABLE:
         'CanvasBridgeResult', 
         'TypeScriptExecutor',
         'TypeScriptExecutionError',
-        'CanvasDataTransformer',
+        'get_global_registry',  # New transformer system
+        'TransformerRegistry',  # New transformer system
+        'LegacyCanvasDataTransformer',  # Legacy compatibility
         'initialize_canvas_course',  # Convenience function
     ])
 
@@ -141,5 +151,5 @@ def check_canvas_bridge_ready():
         'ready': CANVAS_BRIDGE_AVAILABLE,
         'missing_components': []
         if CANVAS_BRIDGE_AVAILABLE 
-        else ['CanvasDataBridge', 'TypeScriptExecutor', 'CanvasDataTransformer']
+        else ['CanvasDataBridge', 'TypeScriptExecutor', 'TransformerRegistry']
     }

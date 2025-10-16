@@ -27,7 +27,8 @@ from database.models.layer2_historical import AssignmentScore, GradeHistory, Cou
 from database.operations.layer1.canvas_ops import CanvasDataManager
 from database.operations.layer1.relationship_manager import RelationshipManager
 from database.operations.layer1.sync_coordinator import SyncCoordinator, SyncStrategy
-from database.operations.data_transformers import CanvasDataTransformer
+# Use new modular transformer system instead of legacy data_transformers.py:
+from database.operations.transformers import get_global_registry
 
 
 class TestProductionScaleData:
@@ -40,7 +41,8 @@ class TestProductionScaleData:
         self.canvas_manager = CanvasDataManager(db_session)
         self.relationship_manager = RelationshipManager(db_session)
         self.sync_coordinator = SyncCoordinator(db_session)
-        self.transformer = CanvasDataTransformer()
+        # Use new modular transformer system
+        self.transformer_registry = get_global_registry()
         
         # Track memory usage
         self.process = psutil.Process(os.getpid())
@@ -148,8 +150,8 @@ class TestProductionScaleData:
         start_time = time.time()
         start_memory = self.process.memory_info().rss / 1024 / 1024
         
-        # Transform and sync the data
-        transformed_data = self.transformer.transform_canvas_staging_data(large_course_data)
+        # Transform and sync the data using new modular system
+        transformed_data = self.transformer_registry.transform_entities(large_course_data, {})
         
         # Sync course
         course = self.canvas_manager.sync_course(transformed_data['course'])
@@ -224,8 +226,8 @@ class TestProductionScaleData:
                 num_assignments=num_assignments
             )
             
-            # Transform and sync
-            transformed_data = self.transformer.transform_canvas_staging_data(course_data)
+            # Transform and sync using new modular system
+            transformed_data = self.transformer_registry.transform_entities(course_data, {})
             
             # Use SyncCoordinator for batch processing
             sync_result = self.sync_coordinator.execute_full_sync(transformed_data)
@@ -270,7 +272,7 @@ class TestProductionScaleData:
             num_assignments=100
         )
         
-        transformed_data = self.transformer.transform_canvas_staging_data(course_data)
+        transformed_data = self.transformer_registry.transform_entities(course_data, {})
         sync_result = self.sync_coordinator.execute_full_sync(transformed_data)
         self.db_session.commit()
         
@@ -334,7 +336,7 @@ class TestProductionScaleData:
                 num_assignments=50
             )
             
-            transformed_data = self.transformer.transform_canvas_staging_data(course_data)
+            transformed_data = self.transformer_registry.transform_entities(course_data, {})
             sync_result = self.sync_coordinator.execute_full_sync(transformed_data)
             self.db_session.commit()
             
@@ -367,7 +369,8 @@ class TestProductionScaleData:
             try:
                 # Create separate session for this thread
                 with get_session() as session:
-                    thread_transformer = CanvasDataTransformer()
+                    # Use new modular transformer system
+                    thread_transformer_registry = get_global_registry()
                     thread_coordinator = SyncCoordinator(session)
                     
                     course_data = self._generate_large_course_data(
@@ -376,7 +379,7 @@ class TestProductionScaleData:
                         num_assignments=25
                     )
                     
-                    transformed_data = thread_transformer.transform_canvas_staging_data(course_data)
+                    transformed_data = thread_transformer_registry.transform_entities(course_data, {})
                     sync_result = thread_coordinator.execute_full_sync(transformed_data)
                     session.commit()
                     
